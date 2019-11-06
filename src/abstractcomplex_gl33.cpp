@@ -1,4 +1,4 @@
-#include "abstractcomplex_gl33.h"
+#include "../include/abstractcomplex_gl33.h"
 
 AbstractComplex_GL33::AbstractComplex_GL33() : 
     m_error(false) {

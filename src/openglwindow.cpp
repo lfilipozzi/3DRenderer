@@ -1,11 +1,11 @@
-#include "openglwindow.h"
+#include "../include/openglwindow.h"
 
 #include <QKeyEvent>
 #include <QOpenGLContext>
 #include <QTimer>
 #include <QDebug>
-#include "inputmanager.h"
-#include "animationplayer.h"
+#include "../include/inputmanager.h"
+#include "../include/animationplayer.h"
 
 #include <iostream>
 

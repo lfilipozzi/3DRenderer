@@ -1,4 +1,4 @@
-#include "abstractobject3d_gl33.h"
+#include "../include/abstractobject3d_gl33.h"
 
 AbstractObject3D_GL33::AbstractObject3D_GL33() :
     m_indexBuffer(QOpenGLBuffer::IndexBuffer) {

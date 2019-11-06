@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "animationwindow.h"
+#include "../include/animationwindow.h"
 
 /**
  * @author Louis Filipozzi

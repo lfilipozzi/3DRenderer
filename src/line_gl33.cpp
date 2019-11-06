@@ -1,4 +1,4 @@
-#include "line_gl33.h"
+#include "../include/line_gl33.h"
 
 Line_GL33::Line_GL33(QVector<QVector3D> vertices, 
                      QVector<unsigned int> indices, QVector3D color) : 

@@ -1,4 +1,4 @@
-#include "inputmanager.h"
+#include "../include/inputmanager.h"
 #include <QCursor>
 #include <vector>
 

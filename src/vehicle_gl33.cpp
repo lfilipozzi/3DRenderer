@@ -1,4 +1,4 @@
-#include "vehicle_gl33.h"
+#include "../include/vehicle_gl33.h"
 
 Vehicle_GL33::Vehicle_GL33(QString simDataPath) : AbstractVehicle(simDataPath), 
     m_forceLine(QVector<QVector3D>({

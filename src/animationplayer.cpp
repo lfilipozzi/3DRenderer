@@ -1,4 +1,4 @@
-#include "animationplayer.h"
+#include "../include/animationplayer.h"
 #include <QObject>
 #include <QHBoxLayout>
 #include <QVBoxLayout>

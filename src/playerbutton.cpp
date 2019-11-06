@@ -1,4 +1,4 @@
-#include "playerbutton.h"
+#include "../include/playerbutton.h"
 
 PlayerButton::PlayerButton(QString iconName, QIcon fallbackIcon, 
                            QWidget *parent) : QPushButton(parent) {

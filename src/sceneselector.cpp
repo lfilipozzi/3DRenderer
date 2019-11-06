@@ -1,5 +1,5 @@
-#include "sceneselector.h"
-#include "scene_gl33.h"
+#include "../include/sceneselector.h"
+#include "../include/scene_gl33.h"
 
 
 AbstractScene* SceneSelector::getScene(QPair<int, int> glVersion, 

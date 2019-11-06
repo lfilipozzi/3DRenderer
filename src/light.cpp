@@ -1,4 +1,4 @@
-#include "light.h"
+#include "../include/light.h"
 
 AbstractLight::AbstractLight(QVector3D intensity) : 
     m_intensity(intensity) {

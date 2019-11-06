@@ -1,4 +1,4 @@
-#include "model3d_gl33.h"
+#include "../include/model3d_gl33.h"
 
 Model3D_GL33::Model3D_GL33(QString filepath, QString texturePath) :
     m_filepath(filepath),

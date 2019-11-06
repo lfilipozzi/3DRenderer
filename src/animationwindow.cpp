@@ -1,6 +1,6 @@
-#include "animationwindow.h"
+#include "../include/animationwindow.h"
 #include <QApplication>
-#include "scene_gl33.h"
+#include "../include/scene_gl33.h"
 #include <QPair>
 #include <QVBoxLayout>
 #include <QMenuBar>

@@ -1,4 +1,4 @@
-#include "modelloader.h"
+#include "../include/modelloader.h"
 #include <QDir>
 
 ModelLoader::ModelLoader() {

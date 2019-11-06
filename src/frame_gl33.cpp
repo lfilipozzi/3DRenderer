@@ -1,4 +1,4 @@
-#include "frame_gl33.h"
+#include "../include/frame_gl33.h"
 
 Frame_GL33::Frame_GL33(QVector3D origin) : 
     X_AXIS(QVector<QVector3D>({origin, origin+QVector3D(1.0f, 0.0f, 0.0f)}),

@@ -1,4 +1,4 @@
-#include "skybox_gl33.h"
+#include "../include/skybox_gl33.h"
 
 Skybox_GL33::Skybox_GL33() {
     

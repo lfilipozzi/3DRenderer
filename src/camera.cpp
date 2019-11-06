@@ -1,5 +1,5 @@
-#include "camera.h"
-#include "inputmanager.h"
+#include "../include/camera.h"
+#include "../include/inputmanager.h"
 #include <math.h>
 
 # define PI           3.14159265358979323846f

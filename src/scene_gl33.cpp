@@ -1,4 +1,4 @@
-#include "scene_gl33.h"
+#include "../include/scene_gl33.h"
 #include <iostream>
 
 Scene_GL33::Scene_GL33(int refreshRate) : AbstractScene (refreshRate),

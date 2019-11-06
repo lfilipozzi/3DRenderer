@@ -1,4 +1,4 @@
-#include "flatsurface_gl33.h"
+#include "../include/flatsurface_gl33.h"
 
 #include <QImage>
 

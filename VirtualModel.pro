@@ -15,27 +15,27 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    modelloader.cpp \
-    sceneselector.cpp \
-    scene_gl33.cpp \
-    openglwindow.cpp \
-    model3d_gl33.cpp \
-    light.cpp \
-    abstractobject3d_gl33.cpp \
-    camera.cpp \
-    inputmanager.cpp \
-    abstractscene.cpp \
-    abstractvehicle.cpp \
-    vehicle_gl33.cpp \
-    flatsurface_gl33.cpp \
-    animationplayer.cpp \
-    playerbutton.cpp \
-    line_gl33.cpp \
-    frame_gl33.cpp \
-    skybox_gl33.cpp \
-    abstractcomplex_gl33.cpp \
-    animationwindow.cpp
+    src/main.cpp \
+    src/modelloader.cpp \
+    src/sceneselector.cpp \
+    src/scene_gl33.cpp \
+    src/openglwindow.cpp \
+    src/model3d_gl33.cpp \
+    src/light.cpp \
+    src/abstractobject3d_gl33.cpp \
+    src/camera.cpp \
+    src/inputmanager.cpp \
+    src/abstractscene.cpp \
+    src/abstractvehicle.cpp \
+    src/vehicle_gl33.cpp \
+    src/flatsurface_gl33.cpp \
+    src/animationplayer.cpp \
+    src/playerbutton.cpp \
+    src/line_gl33.cpp \
+    src/frame_gl33.cpp \
+    src/skybox_gl33.cpp \
+    src/abstractcomplex_gl33.cpp \
+    src/animationwindow.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -46,29 +46,29 @@ RESOURCES += \
     resources.qrc
 
 HEADERS += \
-    modelloader.h \
-    sceneselector.h \
-    scene_gl33.h \
-    abstractscene.h \
-    openglwindow.h \
-    abstractobject3d_gl33.h \
-    model3d_gl33.h \
-    light.h \
-    camera.h \
-    inputmanager.h \
-    position.h \
-    abstractvehicle.h \
-    vehicle_gl33.h \
-    flatsurface_gl33.h \
-    materialinfo.h \
-    animationplayer.h \
-    playerbutton.h \
-    texture.h \
-    line_gl33.h \
-    frame_gl33.h \
-    skybox_gl33.h \
-    abstractcomplex_gl33.h \
-    animationwindow.h
+    include/modelloader.h \
+    include/sceneselector.h \
+    include/scene_gl33.h \
+    include/abstractscene.h \
+    include/openglwindow.h \
+    include/abstractobject3d_gl33.h \
+    include/model3d_gl33.h \
+    include/light.h \
+    include/camera.h \
+    include/inputmanager.h \
+    include/position.h \
+    include/abstractvehicle.h \
+    include/vehicle_gl33.h \
+    include/flatsurface_gl33.h \
+    include/materialinfo.h \
+    include/animationplayer.h \
+    include/playerbutton.h \
+    include/texture.h \
+    include/line_gl33.h \
+    include/frame_gl33.h \
+    include/skybox_gl33.h \
+    include/abstractcomplex_gl33.h \
+    include/animationwindow.h
 
 unix: !macx {
     INCLUDEPATH += assimp/include

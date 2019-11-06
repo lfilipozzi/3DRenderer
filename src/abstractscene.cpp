@@ -1,4 +1,4 @@
-#include "abstractscene.h"
+#include "../include/abstractscene.h"
 
 AbstractScene::AbstractScene(int refreshRate) :
     m_timestepBegin(0.0f),
