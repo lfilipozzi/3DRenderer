@@ -71,7 +71,7 @@ HEADERS += \
     include/animationwindow.h
 
 unix: !macx {
-    INCLUDEPATH += assimp/include
+    INCLUDEPATH += lib/assimp/include
     LIBS += /usr/lib/libassimp.so
 }
 
