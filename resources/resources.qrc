@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file alias="complex.frag">shaders/complex.frag</file>
+        <file alias="complex.vert">shaders/complex.vert</file>
+        <file alias="arrow.frag">shaders/arrow.frag</file>
+        <file alias="arrow.vert">shaders/arrow.vert</file>
+        <file alias="complexShadow.frag">shaders/complexShadow.frag</file>
+        <file alias="complexShadow.vert">shaders/complexShadow.vert</file>
+        <file alias="debugQuad.frag">shaders/debugQuad.frag</file>
+        <file alias="debugQuad.vert">shaders/debugQuad.vert</file>
+        <file alias="skybox.frag">shaders/skybox.frag</file>
+        <file alias="skybox.vert">shaders/skybox.vert</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="lock">icons/lock.svg</file>
+        <file alias="unlock">icons/unlock.svg</file>
+        <file alias="pause">icons/media-playback-pause.svg</file>
+        <file alias="play">icons/media-playback-start.svg</file>
+        <file alias="repeat">icons/media-playlist-repeat.svg</file>
+        <file alias="playBackward">icons/media-seek-backward.svg</file>
+        <file alias="playForward">icons/media-seek-forward.svg</file>
+    </qresource>
+</RCC>
