@@ -1,4 +1,5 @@
 #include "../include/skybox_gl33.h"
+#include <QDebug>
 
 Skybox_GL33::Skybox_GL33() {
     
@@ -27,23 +28,36 @@ void Skybox_GL33::loadCubeMapTextures() {
     
     // Load the texture of the skybox
     const QImage posX = QImage(
-        "../Texture/Skybox/front.jpg"
+        "asset/Texture/Skybox/front.jpg"
     ).mirrored().transformed(posRotation);
     const QImage posY = QImage(
-        "../Texture/Skybox/left.jpg"
+        "asset/Texture/Skybox/left.jpg"
     ).mirrored();
     const QImage posZ = QImage(
-        "../Texture/Skybox/top.jpg"
+        "asset/Texture/Skybox/top.jpg"
     ).mirrored(true, false).transformed(negRotation);
     const QImage negX = QImage(
-        "../Texture/Skybox/back.jpg"
+        "asset/Texture/Skybox/back.jpg"
     ).mirrored(true,false).transformed(posRotation);
     const QImage negY = QImage(
-        "../Texture/Skybox/right.jpg"
+        "asset/Texture/Skybox/right.jpg"
     ).mirrored(true, false);
     const QImage negZ = QImage(
-        "../Texture/Skybox/bottom.jpg"
+        "asset/Texture/Skybox/bottom.jpg"
     ).mirrored(true, false).transformed(negRotation);
+    
+    if (posX.isNull())
+        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
+    if (posY.isNull())
+        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
+    if (posZ.isNull())
+        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
+    if (negX.isNull())
+        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
+    if (negY.isNull())
+        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
+    if (negZ.isNull())
+        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
     
     m_textures = new QOpenGLTexture(QOpenGLTexture::TargetCubeMap);
     

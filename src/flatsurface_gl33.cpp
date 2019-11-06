@@ -31,7 +31,7 @@ void FlatSurface_GL33::initialize() {
     createAttributes();
     setupMaterialInfo(QVector3D(0.5f, 0.5f, 0.5f), QVector3D(.6f, .6f, .6f), 
                       QVector3D(.2f, .2f, .2f), 50.0f, 1.0f,
-                      QString("../Texture/RoadMaterials/MyRoad/Road_texture.png")
+                      QString("asset/Texture/RoadMaterials/MyRoad/Road_texture.png")
     );
 }
 

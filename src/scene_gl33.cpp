@@ -13,7 +13,8 @@ Scene_GL33::Scene_GL33(int refreshRate) : AbstractScene (refreshRate),
     SHADOW_WIDTH(1024),
     SHADOW_HEIGHT(1024) {
     // Initialize the surface and the vehicle
-    m_vehicle = new Vehicle_GL33(QString("../SimulationData/14DoF.txt"));
+    m_vehicle = new Vehicle_GL33(QString("asset/SimulationData/14DoF.txt"));
+    // TODO check path to simulation data file is valid
     
     // Get the simulation duration from the vehicle trajectory
     m_timestepBegin = m_vehicle->getInitialTime();
