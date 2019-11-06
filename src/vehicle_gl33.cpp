@@ -7,9 +7,9 @@ Vehicle_GL33::Vehicle_GL33(QString simDataPath) : AbstractVehicle(simDataPath),
         QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
         QVector3D(0.0f, 0.0f, 1.0f)) {
     // Set the 3D model for the rendering
-    QString OpenGLChassisModel("../3DModels/Cars/MustangGT/mustangChassis.obj");
-    QString OpenGLWheelModel("../3DModels/Cars/MustangGT/mustangWheel.obj");
-    QString textureDir("../3DModels/Cars/MustangGT/");
+    QString OpenGLChassisModel("asset/3DModels/Cars/MustangGT/mustangChassis.obj");
+    QString OpenGLWheelModel("asset/3DModels/Cars/MustangGT/mustangWheel.obj");
+    QString textureDir("asset/3DModels/Cars/MustangGT/");
     
     m_chassis = new Model3D_GL33(OpenGLChassisModel, textureDir);
     m_wheel = new Model3D_GL33(OpenGLWheelModel, textureDir);

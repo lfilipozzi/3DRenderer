@@ -137,7 +137,7 @@ QVector<OpenGLTexture*> ModelLoader::loadMaterialTextures(const aiMaterial *mate
 }
 
 OpenGLTexture* ModelLoader::loadDefaultTexture() {
-    QString path = QString("../Texture/Default/noTexture.png");
+    QString path = QString("asset/Texture/Default/noTexture.png");
     
      if (!QFile::exists(path))
         qCritical() << "The path to the texture file '" << path 

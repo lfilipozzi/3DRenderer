@@ -55,7 +55,7 @@ void Scene_GL33::initialize() {
 
     m_skybox.initialize();
     m_surface.initialize();
-//     m_vehicle->initialize();
+    m_vehicle->initialize();
     m_frame.initialize();
     
     #ifdef SHADOW_FBO_DEBUG
@@ -168,7 +168,7 @@ void Scene_GL33::update() {
         
     // Render scene to compute the shadow map
     m_surface.renderShadow(lightSpaceMatrix);
-//     m_vehicle->renderShadow(lightSpaceMatrix);
+    m_vehicle->renderShadow(lightSpaceMatrix);
         
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
     
@@ -190,7 +190,7 @@ void Scene_GL33::update() {
     if (m_showGlobalFrame) 
         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
-//     m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
+    m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
         
     #else   // Draw shadow map on a quad for debug
     m_shaderProgram.bind();
@@ -242,7 +242,7 @@ void Scene_GL33::update() {
 void Scene_GL33::cleanup() {
     m_skybox.cleanup();
     m_surface.cleanup();
-//     m_vehicle->cleanup();
+    m_vehicle->cleanup();
     m_frame.cleanup();
 }
 

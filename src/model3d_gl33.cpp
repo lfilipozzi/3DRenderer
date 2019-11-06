@@ -28,7 +28,7 @@ void Model3D_GL33::initialize() {
     // the material loaded by Assimp is not supported.
     setupMaterialInfo(QVector3D(0.5f, 0.5f, 0.5f), QVector3D(.6f, .6f, .6f), 
                       QVector3D(.2f, .2f, .2f), 50.0f, 1.0f,
-                      QString("../Texture/Default/noTexture.png")
+                      QString("asset/Texture/Default/noTexture.png")
     );
     
     m_rootNode = m_modelLoader->getNodeData();
