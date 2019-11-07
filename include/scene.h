@@ -123,10 +123,11 @@ private:
     void printOpenGLError();
     
     /**
-     * Set projection and view matrices. Set lightning.
+     * @brief Set projection and view matrices. Set lightning.
      */
     void setupLightingAndMatrices();
     
+private:
     /**
      * Store the OpenGL context.
      */

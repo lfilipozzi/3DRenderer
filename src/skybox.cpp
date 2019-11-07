@@ -13,6 +13,7 @@ Skybox::~Skybox() {
 
 
 void Skybox::initialize() {
+    // Set pointer to functions of the OpenGL ES 2.0 API
     QOpenGLContext * context = QOpenGLContext::currentContext();
     if (!context) {
         qWarning() << "Requires a valid current OpenGL context. \n" <<
@@ -21,15 +22,17 @@ void Skybox::initialize() {
     }
     p_glFunctions = context->functions();
     
-    createShaderProgram(":/shaders/skybox.vert", ":/shaders/skybox.frag");
+    // Initialize the object
+    createShaderProgram();
     loadCubeMapTextures();
     createBuffers();
     createAttributes();
 }
 
 
-void Skybox::createShaderProgram(QString vShader, QString fShader) {
-    m_shader = std::make_unique<Shader>(vShader, fShader);
+void Skybox::createShaderProgram() {
+    m_shader = std::make_unique<Shader>(":/shaders/skybox.vert", 
+                                        ":/shaders/skybox.frag");
 }
 
 

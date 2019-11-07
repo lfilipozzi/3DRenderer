@@ -39,6 +39,7 @@ private:
      */
     void setDefaultTexture();
     
+private:
     QString m_name;
     QVector3D m_ambient;
     QVector3D m_diffuse;
