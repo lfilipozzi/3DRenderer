@@ -6,9 +6,7 @@
 #include "../include/inputmanager.h"
 #include "../include/animationplayer.h"
 
-#include <iostream>
-
-OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen* screen)
+OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
     : QWindow(screen), 
     m_wasCameraOffset(false) {
     // Request OpenGL context
@@ -19,62 +17,56 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen* screen)
     requestedFormat.setSamples(4);
     requestedFormat.setProfile(QSurfaceFormat::CoreProfile);
 
-    m_context = new QOpenGLContext(this);
-    m_context->setFormat(requestedFormat);
-    m_context->create();
+    p_context = new QOpenGLContext(this);
+    p_context->setFormat(requestedFormat);
+    p_context->create();
     
     // Try to open an OpenGL context with the requested version
-    if(m_context->format().version() != requestedFormat.version()) {
+    if(p_context->format().version() != requestedFormat.version()) {
         qDebug() << "Unable to open a supported OpenGL context." <<
             "The most recent OpenGL context that can be open is" <<
-            m_context->format().version().first << "." << 
-            m_context->format().version().second << 
+            p_context->format().version().first << "." << 
+            p_context->format().version().second << 
             ". Exiting the program.";
             exit(1);
     }
     else {
-        m_scene = std::make_unique<Scene_GL33>(refreshRate);
+        p_scene = std::make_unique<Scene_GL33>(refreshRate);
     }
 
     setSurfaceType(OpenGLSurface);
-    setFormat(m_context->format());
+    setFormat(p_context->format());
     resize(1200, 900);
     create();
 
     connect(this, SIGNAL(widthChanged(int)), this, SLOT(resizeGL()));
     connect(this, SIGNAL(heightChanged(int)), this, SLOT(resizeGL()));
-    connect(m_context, SIGNAL(aboutToBeDestroyed()), this, SLOT(cleanup()), Qt::DirectConnection);
+    connect(p_context, SIGNAL(aboutToBeDestroyed()), this, SLOT(cleanUpGL()), Qt::DirectConnection);
 
     initializeGL();
     resizeGL();
 
-    m_timer = new QTimer(this);
-    m_timer->setInterval(refreshRate);
-    connect(m_timer, &QTimer::timeout, this, &OpenGLWindow::updateGL);
-    m_timer->start();
+    p_timer = new QTimer(this);
+    p_timer->setInterval(refreshRate);
+    connect(p_timer, &QTimer::timeout, this, &OpenGLWindow::renderGL);
+    p_timer->start();
 }
+
 
 OpenGLWindow::~OpenGLWindow() {
-    m_context->deleteLater();
-    delete(m_context);
-    delete(m_timer);
+    p_context->deleteLater();
+    delete(p_context);
+    delete(p_timer);
 }
 
-void OpenGLWindow::setPlayer(AnimationPlayer *player) {
-    m_player = player;
-    QObject::connect(this, SIGNAL(unlockOffsetCamera()), 
-                     m_player, SLOT(unlockCameraButton()));
-    QObject::connect(this, SIGNAL(lockOffsetCamera()), 
-                     m_player, SLOT(lockCameraButton()));
-}
 
 void OpenGLWindow::initializeGL() {
-    m_context->makeCurrent(this);
-
-    m_scene->initialize();
+    p_context->makeCurrent(this);
+    p_scene->initialize();
 }
 
-void OpenGLWindow::updateGL() {
+
+void OpenGLWindow::renderGL() {
     if(!isExposed())
         return;
 
@@ -82,21 +74,21 @@ void OpenGLWindow::updateGL() {
     InputManager::update();
 
     // Update the camera
-    m_scene->updateCamera();
+    p_scene->updateCamera();
 
     // Draw the scene
-    m_context->makeCurrent(this);
-    m_scene->update();
-    m_context->swapBuffers(this);
+    p_context->makeCurrent(this);
+    p_scene->update();
+    p_context->swapBuffers(this);
 
     // Update the slider of the player
-    float timeBegin = m_scene->getTimestepBegin();
-    float time = m_scene->getTimestep();
-    float timeEnd = m_scene->getTimestepEnd();
-    m_player->updateTimestepValue(time, timeBegin, timeEnd);
+    float timeBegin = p_scene->getTimestepBegin();
+    float time = p_scene->getTimestep();
+    float timeEnd = p_scene->getTimestepEnd();
+    p_player->updateTimestepValue(time, timeBegin, timeEnd);
     
     // Emit a signal if the camera has been offset 
-    bool isCameraOffset = m_scene->isCameraOffset();
+    bool isCameraOffset = p_scene->isCameraOffset();
     if ((m_wasCameraOffset == false) && (isCameraOffset == true)) {
         emit unlockOffsetCamera();
     }
@@ -106,18 +98,28 @@ void OpenGLWindow::updateGL() {
     m_wasCameraOffset = isCameraOffset;
 }
 
+
 void OpenGLWindow::resizeGL() {
-    m_context->makeCurrent(this);
-
-    m_scene->resize(width(), height());
-    updateGL();
+    p_context->makeCurrent(this);
+    p_scene->resize(width(), height());
+    renderGL();
 }
 
-void OpenGLWindow::cleanup() {
-    m_context->makeCurrent(this);
 
-    m_scene->cleanup();
+void OpenGLWindow::cleanUpGL() {
+    p_context->makeCurrent(this);
+    p_scene->cleanup();
 }
+
+
+void OpenGLWindow::setPlayer(AnimationPlayer *player) {
+    p_player = player;
+    QObject::connect(this, SIGNAL(unlockOffsetCamera()), 
+                     p_player, SLOT(unlockCameraButton()));
+    QObject::connect(this, SIGNAL(lockOffsetCamera()), 
+                     p_player, SLOT(lockCameraButton()));
+}
+
 
 void OpenGLWindow::keyPressEvent(QKeyEvent *event) {
   if (event->isAutoRepeat()) {
@@ -128,6 +130,7 @@ void OpenGLWindow::keyPressEvent(QKeyEvent *event) {
   }
 }
 
+
 void OpenGLWindow::keyReleaseEvent(QKeyEvent *event) {
   if (event->isAutoRepeat()) {
     event->ignore();
@@ -137,6 +140,7 @@ void OpenGLWindow::keyReleaseEvent(QKeyEvent *event) {
   }
 }
 
+
 void OpenGLWindow::mousePressEvent(QMouseEvent *event) {
   InputManager::registerMousePress(event->button());
 }
@@ -145,6 +149,7 @@ void OpenGLWindow::mouseReleaseEvent(QMouseEvent *event) {
   InputManager::registerMouseRelease(event->button());
 }
 
+
 void OpenGLWindow::wheelEvent(QWheelEvent *event)
 {
     InputManager::registerWheelScroll(event->delta());
@@ -152,35 +157,40 @@ void OpenGLWindow::wheelEvent(QWheelEvent *event)
 
 // Slots
 void OpenGLWindow::playPauseAnimation() {
-    m_scene->playPauseAnimation();
-    m_player->updatePlayPauseButton(m_scene->isPaused());
+    p_scene->playPauseAnimation();
+    p_player->updatePlayPauseButton(p_scene->isPaused());
 }
+
 
 void OpenGLWindow::restartAnimation() {
-    m_scene->restartAnimation();
+    p_scene->restartAnimation();
 }
+
 
 void OpenGLWindow::goEndAnimation() {
-    m_scene->goEndAnimation();
-    m_player->updatePlayPauseButton(m_scene->isPaused());
+    p_scene->goEndAnimation();
+    p_player->updatePlayPauseButton(p_scene->isPaused());
 }
 
+
 void OpenGLWindow::toggleLoopAnimation() {
-    m_scene->toggleLoopAnimation();
+    p_scene->toggleLoopAnimation();
 }
+
 
 void OpenGLWindow::setTimestep(int sliderPosition) {
     float slider = sliderPosition / 1000.0f;
-    m_scene->setTimestepFromSlider(slider);
+    p_scene->setTimestepFromSlider(slider);
 }
+
 
 void OpenGLWindow::setTimeRate(int sliderPosition) {
     float minRate = 0.01f;
     float maxRate = 1.99f;
     float rate = minRate + sliderPosition * (maxRate - minRate) / 200;
-    m_scene->setTimeRate(rate);
+    p_scene->setTimeRate(rate);
 }
 
 void OpenGLWindow::resetCameraOffset() {
-    m_scene->resetCameraOffset();
+    p_scene->resetCameraOffset();
 }

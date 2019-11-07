@@ -17,7 +17,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     src/main.cpp \
     src/modelloader.cpp \
-    src/sceneselector.cpp \
     src/scene_gl33.cpp \
     src/openglwindow.cpp \
     src/model3d_gl33.cpp \
@@ -47,7 +46,6 @@ RESOURCES += \
 
 HEADERS += \
     include/modelloader.h \
-    include/sceneselector.h \
     include/scene_gl33.h \
     include/abstractscene.h \
     include/openglwindow.h \
