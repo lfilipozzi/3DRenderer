@@ -4,6 +4,9 @@ File changed
 =============
  * main.cpp. Note: Keep the name AnimationWindow instead of MainWindow
  * animationwindow.h and animationwindow.cpp. Note: Use unique_ptr instead of ptr for m_openglwindow.
+ * shaderprogram.h and shaderprogram.cpp. New files added to define the ShaderProgram class.
+ * texture.h and texture.cpp. New files added to define the Class Texture and TextureManager
+ * material.h and material.cpp. New files added to define the material class.
 
 
 Changing files (still work to do)
