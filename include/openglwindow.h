@@ -3,7 +3,7 @@
 
 #include <QWindow>
 #include <memory>
-#include "scene_gl33.h"
+#include "scene.h"
 
 class AnimationPlayer;
 
@@ -157,7 +157,7 @@ private:
     /**
      * Scene.
      */
-    std::unique_ptr<Scene_GL33> p_scene;
+    std::unique_ptr<Scene> p_scene;
 
     /**
      * OpenGL context.

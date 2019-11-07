@@ -1,7 +1,8 @@
-#include "../include/scene_gl33.h"
+#include "../include/scene.h"
 #include <iostream>
 
-Scene_GL33::Scene_GL33(int refreshRate) : AbstractScene (refreshRate),
+
+Scene::Scene(int refreshRate) : 
     m_surface(6000.0f, 6000.0f,
               QVector3D(0.0f, 0.0f, 0.0f),
               QVector3D(1.0f, 0.0f, 0.0f), 
@@ -11,7 +12,17 @@ Scene_GL33::Scene_GL33(int refreshRate) : AbstractScene (refreshRate),
     m_screenWidth(1200),
     m_screenHeight(900),
     SHADOW_WIDTH(1024),
-    SHADOW_HEIGHT(1024) {
+    SHADOW_HEIGHT(1024), 
+    m_timestepBegin(0.0f),
+    m_timestepEnd(std::numeric_limits<float>::max()),
+    m_refreshRate(refreshRate),
+    m_timeRate(1.0f),
+    m_frameRate(1 / static_cast<float>(m_refreshRate)),
+    m_enableLoop(true),
+    m_showGlobalFrame(false) {
+    m_camera = Camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f));
+    m_timestep = 0.0f;
+    
     // Initialize the surface and the vehicle
     m_vehicle = new Vehicle_GL33(QString("asset/SimulationData/14DoF.txt"));
     // TODO check path to simulation data file is valid
@@ -21,11 +32,13 @@ Scene_GL33::Scene_GL33(int refreshRate) : AbstractScene (refreshRate),
     m_timestepEnd = m_vehicle->getFinalTime();
 }
 
-Scene_GL33::~Scene_GL33() {
+
+Scene::~Scene() {
     delete(m_vehicle);
 }
 
-void Scene_GL33::initialize() {
+
+void Scene::initialize() {
     initializeOpenGLFunctions();
     
     // Create the frame buffer and texture for shadow mapping
@@ -57,75 +70,10 @@ void Scene_GL33::initialize() {
     m_surface.initialize();
     m_vehicle->initialize();
     m_frame.initialize();
-    
-    #ifdef SHADOW_FBO_DEBUG
-    // Compile vertex shader
-    QString vShader(":/shaders/debugQuad.vert");
-    QString fShader(":/shaders/debugQuad.frag");
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, vShader.toUtf8()))
-        qCritical() << "Unable to compile vertex shader. Log:" << m_shaderProgram.log();
-
-    // Compile fragment shader
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, fShader.toUtf8()))
-        qCritical() << "Unable to compile fragment shader. Log:" << m_shaderProgram.log();
-
-    // Link the shaders together into a program
-    if (!m_shaderProgram.link())
-        qCritical() << "Unable to link shader program. Log:" << m_shaderProgram.log();
-    
-    QVector<float> vertices({
-        -1.0f,  1.0f, 0.0f, 
-        -1.0f, -1.0f, 0.0f,
-         1.0f,  1.0f, 0.0f,
-         1.0f, -1.0f, 0.0f
-    });
-    QVector<float> normals;
-    QVector<float> textureUV({
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f
-    });
-
-    // Create a vertex array object
-    m_vao.create();
-    m_vao.bind();
-
-    // Create a buffer and copy the vertex data to it
-    m_vertexBuffer.create();
-    m_vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_vertexBuffer.bind();
-    m_vertexBuffer.allocate(&(vertices)[0], vertices.size() * static_cast<int>(sizeof(float)));
-
-    // Create a buffer and copy the vertex data to it
-    m_textureUVBuffer.create();
-    m_textureUVBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_textureUVBuffer.bind();
-    m_textureUVBuffer.allocate(&(textureUV)[0], textureUV.size() * static_cast<int>(sizeof(float)));
-    
-    m_vao.bind();
-    m_shaderProgram.bind();
-
-    // Map vertex data to the vertex shader's layout location '0'
-    m_vertexBuffer.bind();
-    m_shaderProgram.enableAttributeArray(0);       // layout location
-    m_shaderProgram.setAttributeBuffer(0,          // layout location
-                                       GL_FLOAT,   // data's type
-                                       0,          // Offset to data in buffer
-                                       3);         // number of components
-
-    if(!m_textureUVBuffer.isCreated())
-        return;
-    m_textureUVBuffer.bind();
-    m_shaderProgram.enableAttributeArray(1);       // layout location
-    m_shaderProgram.setAttributeBuffer(1,          // layout location
-                                       GL_FLOAT,   // data's type
-                                       0,          // Offset to data in buffer
-                                       2);         // number of components
-    #endif // SHADOW_FBO_DEBUG
 }
 
-void Scene_GL33::setupLightingAndMatrices() {
+
+void Scene::setupLightingAndMatrices() {
     m_view = m_camera.getViewMatrix();
 
     float aspect = 4.0f/3.0f;
@@ -141,7 +89,8 @@ void Scene_GL33::setupLightingAndMatrices() {
     m_light = CasterLight(lightIntensity, lightDirection);
 }
 
-void Scene_GL33::resize(int w, int h) {
+
+void Scene::resize(int w, int h) {
     m_screenWidth = w;
     m_screenHeight = h;
     glViewport(0, 0, w, h);
@@ -150,7 +99,8 @@ void Scene_GL33::resize(int w, int h) {
     m_projection.perspective(60.0f, static_cast<float>(w)/h, .3f, 1000);
 }
 
-void Scene_GL33::update() {
+
+void Scene::update() {
     // Get the vehicle position and update the model matrices of the vehicle
     Position chassisPosition = m_vehicle->getChassisPosition(m_timestep);
     m_vehicle->updateModelMatrices(m_timestep);
@@ -182,8 +132,6 @@ void Scene_GL33::update() {
     // Bind the shadow map to texture unit 1
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_shadowFBO);
-
-    #ifndef SHADOW_FBO_DEBUG    // Render scene
     
     // Call update method of object in the scene
     m_skybox.update(m_light, m_view, m_projection, lightSpaceMatrix);
@@ -191,18 +139,6 @@ void Scene_GL33::update() {
         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
-        
-    #else   // Draw shadow map on a quad for debug
-    m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("depthMap", 1);
-    m_shaderProgram.setUniformValue("near_plane", 1);
-    m_shaderProgram.setUniformValue("far_plane", 1);
-        
-    m_vao.bind();
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    m_vao.release();
-        
-    #endif // SHADOW_FBO_DEBUG
         
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR)
@@ -239,7 +175,8 @@ void Scene_GL33::update() {
     updateTimestep();
 }
 
-void Scene_GL33::cleanup() {
+
+void Scene::cleanup() {
     m_skybox.cleanup();
     m_surface.cleanup();
     m_vehicle->cleanup();
@@ -247,6 +184,48 @@ void Scene_GL33::cleanup() {
 }
 
 
+void Scene::updateTimestep() {
+    // Update the timestep
+    m_timestep += m_frameRate * m_timeRate;
+
+    // Restart the animation if necessary
+    if (m_enableLoop && m_timestep > m_timestepEnd)
+        m_timestep = m_timestepBegin;
+
+    // Make sure the timestep is between the min and max value
+    m_timestep = std::max(m_timestepBegin, std::min(m_timestep, m_timestepEnd));
+}
+
+
+void Scene::updateCamera() {
+    // Update camera based of user inputs (this is done here rather than
+    // in the scene class to prevent writing this code for every scene).
+
+    // Handle translations
+    m_camera.processKeyboard();
+
+    // Handle rotations
+    m_camera.processMouseMovement();
+}
+
+
+void Scene::playPauseAnimation() {
+    if (m_frameRate == 0.0f)
+        m_frameRate = 1 / static_cast<float>(m_refreshRate);
+    else
+        m_frameRate = 0.0f;
+}
+
+
+void Scene::restartAnimation() {
+    m_timestep = m_timestepBegin;
+}
+
+
+void Scene::goEndAnimation() {
+    m_frameRate = 0.0f;
+    m_timestep = m_timestepEnd;
+}
 
 
 

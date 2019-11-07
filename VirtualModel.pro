@@ -17,14 +17,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     src/main.cpp \
     src/modelloader.cpp \
-    src/scene_gl33.cpp \
+    src/scene.cpp \
     src/openglwindow.cpp \
     src/model3d_gl33.cpp \
     src/light.cpp \
     src/abstractobject3d_gl33.cpp \
     src/camera.cpp \
     src/inputmanager.cpp \
-    src/abstractscene.cpp \
     src/abstractvehicle.cpp \
     src/vehicle_gl33.cpp \
     src/flatsurface_gl33.cpp \
@@ -46,8 +45,7 @@ RESOURCES += \
 
 HEADERS += \
     include/modelloader.h \
-    include/scene_gl33.h \
-    include/abstractscene.h \
+    include/scene.h \
     include/openglwindow.h \
     include/abstractobject3d_gl33.h \
     include/model3d_gl33.h \

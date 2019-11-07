@@ -31,7 +31,7 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
             exit(1);
     }
     else {
-        p_scene = std::make_unique<Scene_GL33>(refreshRate);
+        p_scene = std::make_unique<Scene>(refreshRate);
     }
 
     setSurfaceType(OpenGLSurface);
