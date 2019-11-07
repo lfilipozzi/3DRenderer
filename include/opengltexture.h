@@ -1,12 +1,12 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef OPENGLTEXTURE_H
+#define OPENGLTEXTURE_H
 
 #include <QString>
 #include <QOpenGLTexture>
 
 /// Personalized texture class
 /**
- * Personalized class inherited forom QOpenGLTexture.
+ * Personalized class inherited from QOpenGLTexture.
  */
 class OpenGLTexture : public QOpenGLTexture {
 public:
@@ -34,4 +34,4 @@ private:
     QString m_path;
 };
 
-#endif // TEXTURE_H
+#endif // OPENGLTEXTURE_H

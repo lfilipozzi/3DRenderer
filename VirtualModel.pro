@@ -31,7 +31,7 @@ SOURCES += \
     src/playerbutton.cpp \
     src/line_gl33.cpp \
     src/frame_gl33.cpp \
-    src/skybox_gl33.cpp \
+    src/skybox.cpp \
     src/abstractcomplex_gl33.cpp \
     src/animationwindow.cpp \
     src/shaderprogram.cpp \ # New
@@ -65,7 +65,7 @@ HEADERS += \
     include/opengltexture.h \
     include/line_gl33.h \
     include/frame_gl33.h \
-    include/skybox_gl33.h \
+    include/skybox.h \
     include/abstractcomplex_gl33.h \
     include/animationwindow.h \
     include/shaderprogram.h \ # new

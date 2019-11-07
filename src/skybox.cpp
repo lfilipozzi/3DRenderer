@@ -1,26 +1,31 @@
-#include "../include/skybox_gl33.h"
-#include <QDebug>
+#include "../include/skybox.h"
+#include <memory>
 
-Skybox_GL33::Skybox_GL33() {
+
+Skybox::Skybox() {
     
 }
 
-Skybox_GL33::~Skybox_GL33() {
+
+Skybox::~Skybox() {
     
 }
 
-void Skybox_GL33::initialize() {
-    initializeOpenGLFunctions();
-    
+
+void Skybox::initialize() {
     createShaderProgram(":/shaders/skybox.vert", ":/shaders/skybox.frag");
-    
     loadCubeMapTextures();
-    
     createBuffers();
     createAttributes();
 }
 
-void Skybox_GL33::loadCubeMapTextures() {
+
+void Skybox::createShaderProgram(QString vShader, QString fShader) {
+    m_shader = std::make_unique<Shader>(vShader, fShader);
+}
+
+
+void Skybox::loadCubeMapTextures() {
     QTransform posRotation;
     posRotation.rotate(90);
     QTransform negRotation;
@@ -46,20 +51,13 @@ void Skybox_GL33::loadCubeMapTextures() {
         "asset/Texture/Skybox/bottom.jpg"
     ).mirrored(true, false).transformed(negRotation);
     
-    if (posX.isNull())
-        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
-    if (posY.isNull())
-        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
-    if (posZ.isNull())
-        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
-    if (negX.isNull())
-        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
-    if (negY.isNull())
-        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
-    if (negZ.isNull())
-        qCritical() << __FILE__ << __LINE__ << "Image file does not exist.";
+    if (posX.isNull() || posY.isNull() || posZ.isNull() ||
+        negX.isNull() || negY.isNull() || negZ.isNull())
+        qCritical() << __FILE__ << __LINE__ << "The image file does not exist.";
+
     
-    m_textures = new QOpenGLTexture(QOpenGLTexture::TargetCubeMap);
+    m_textures = std::make_unique<Texture>(QString("skybox"),
+                                           QOpenGLTexture::TargetCubeMap);
     
     m_textures->create();
     m_textures->setSize(posX.width(), posX.height(), posX.depth());
@@ -89,7 +87,7 @@ void Skybox_GL33::loadCubeMapTextures() {
     m_textures->generateMipMaps();
 }
 
-void Skybox_GL33::createBuffers() {
+void Skybox::createBuffers() {
     QVector<float> vertices({
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -146,34 +144,34 @@ void Skybox_GL33::createBuffers() {
         * static_cast<int>(sizeof(float)));
 }
 
-void Skybox_GL33::createAttributes() {
+void Skybox::createAttributes() {
     m_vao.bind();
     
-    // Set up the vertex array state
-    m_shaderProgram.bind();
+    // Bind the shader program to the active OpenGL context and make it the
+    // current shader program
+    m_shader->bind();
 
-    // Map vertex data to the vertex shader's layout location '0'
+    // Map vertex data to the shader layout location '0'
     m_vertexBuffer.bind();
-    m_shaderProgram.enableAttributeArray(0);       // layout location
-    m_shaderProgram.setAttributeBuffer(0,          // layout location
-                                       GL_FLOAT,   // data's type
-                                       0,          // Offset to data in buffer
-                                       3);         // number of components
+    m_shader->enableAttributeArray(0);       // layout location
+    m_shader->setAttributeBuffer(0,          // layout location
+                                 GL_FLOAT,   // data's type
+                                 0,          // Offset to data in buffer
+                                 3);         // number of components
 }
 
-void Skybox_GL33::update(const CasterLight &/*light*/, const QMatrix4x4 view, 
-                         const QMatrix4x4 projection, 
-                         const QMatrix4x4 /*lightSpaceMatrix*/) {
+void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection, 
+                    QOpenGLFunctions_3_3_Core * glFunctions) {
     // Bind shader program
-    m_shaderProgram.bind();
+    m_shader->bind();
     
     // Bind the texture and draw the skybox
     m_textures->bind(2);
     
-    // Remove the translation of the view lightSpaceMatrix
+    // Remove the translation of the view matrix
     QMatrix4x4 skyboxView = view;
     QMatrix3x3 skyboxViewNormal = skyboxView.normalMatrix();
-    skyboxView = QMatrix4x4(*skyboxViewNormal.data(),
+    skyboxView = QMatrix4x4(*(skyboxViewNormal.data()),
                             *(skyboxViewNormal.data()+3), 
                             *(skyboxViewNormal.data()+6), 
                             0.0f, 
@@ -192,19 +190,19 @@ void Skybox_GL33::update(const CasterLight &/*light*/, const QMatrix4x4 view,
     );
     
     // Set shader uniforms for transformation matrices
-    m_shaderProgram.setUniformValue("VP", projection * skyboxView);
-    m_shaderProgram.setUniformValue("skybox", 2);
+    m_shader->setUniformValue("VP", projection * skyboxView);
+    m_shader->setUniformValue("skybox", 2);
     
     // Bind VAO and the surface
     m_vao.bind();
-    glDepthMask(GL_FALSE); /* Disable depth writing to make sure the skybox is
-    at th background of all other objects*/
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glDepthMask(GL_TRUE); // Reenable depth writing
+    glFunctions->glDepthMask(GL_FALSE); // Disable depth writing to make sure 
+                                        // the skybox is at the back
+    glFunctions->glDrawArrays(GL_TRIANGLES, 0, 36);
+    glFunctions->glDepthMask(GL_TRUE);   // Re-enable depth writing
     m_vao.release();
 }
 
 
-void Skybox_GL33::cleanup() {
+void Skybox::cleanUp() {
     
 }

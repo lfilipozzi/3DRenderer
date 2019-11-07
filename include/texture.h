@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include <QString>
+#include <QImage>
 #include <QOpenGLTexture>
 #include <memory>
 
@@ -12,15 +13,12 @@
  */
 class Texture : public QOpenGLTexture {
 public:
-    Texture(
-        QString name, QString path, 
-        QOpenGLTexture::MipMapGeneration genMipMaps = GenerateMipMaps
-    ) : QOpenGLTexture(QImage(path).mirrored(), genMipMaps), m_name(name) {}
-    // TODO Need to change the constructor to use QImage instead of QString so that we can check if the image is valid first
+    Texture(QString name, QImage & image, 
+            QOpenGLTexture::MipMapGeneration genMipMaps = GenerateMipMaps) 
+    : QOpenGLTexture(image, genMipMaps), m_name(name) {}
     
-    Texture(
-        QString name, QOpenGLTexture::Target target
-    ) : QOpenGLTexture(target), m_name(name) {}
+    Texture(QString name, QOpenGLTexture::Target target) 
+    : QOpenGLTexture(target), m_name(name) {}
 
     QString getName() const {return m_name;}
     
@@ -50,7 +48,7 @@ public:
      * @param name The name of the texture.
      * @param path The path to the texture file.
      */
-    static Texture * loadTexture(QString name, QString path);
+    static Texture * loadTexture(QString name, QImage & image);
     
     /**
      * @brief Get the texture.

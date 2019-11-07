@@ -6,7 +6,7 @@
 #include "vehicle_gl33.h"
 #include "flatsurface_gl33.h"
 #include "frame_gl33.h"
-#include "skybox_gl33.h"
+#include "skybox.h"
 #include <memory>
 #include "camera.h"
 #include "abstractvehicle.h"
@@ -157,7 +157,7 @@ private:
     /**
      * The skybox of the scene.
      */
-    Skybox_GL33 m_skybox;
+    Skybox m_skybox;
 
     /**
      * The surface of the scene.

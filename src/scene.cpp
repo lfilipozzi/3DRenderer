@@ -13,15 +13,15 @@ Scene::Scene(unsigned int refreshRate) :
     m_screenHeight(900),
     c_shadowWidth(1024),
     c_shadowHeight(1024), 
+    m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)),
+    m_timestep(0.0f),
     m_timestepBegin(0.0f),
     m_timestepEnd(std::numeric_limits<float>::max()),
     m_refreshRate(refreshRate),
     m_timeRate(1.0f),
     m_frameRate(1 / static_cast<float>(m_refreshRate)),
     m_enableLoop(true),
-    m_showGlobalFrame(false),
-    m_timestep(0.0f),
-    m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)) {
+    m_showGlobalFrame(false) {
     // Initialize the surface and the vehicle
     m_vehicle = new Vehicle_GL33(QString("asset/SimulationData/14DoF.txt"));
     // TODO check path to simulation data file is valid
@@ -155,7 +155,7 @@ void Scene::render() {
     p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_shadowFBO);
     
     // Call update method of object in the scene
-    m_skybox.update(m_light, m_view, m_projection, lightSpaceMatrix);
+    m_skybox.render(m_view, m_projection, p_glFunctions);
     if (m_showGlobalFrame) 
         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
@@ -204,7 +204,7 @@ void Scene::printOpenGLError() {
 
 
 void Scene::cleanUp() {
-    m_skybox.cleanup();
+    m_skybox.cleanUp();
     m_surface.cleanup();
     m_vehicle->cleanup();
     m_frame.cleanup();
