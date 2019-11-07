@@ -155,7 +155,7 @@ void Scene::render() {
     p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_shadowFBO);
     
     // Call update method of object in the scene
-    m_skybox.render(m_view, m_projection, p_glFunctions);
+    m_skybox.render(m_view, m_projection);
     if (m_showGlobalFrame) 
         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);

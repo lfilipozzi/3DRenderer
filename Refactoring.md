@@ -7,6 +7,10 @@ File changed
  * shaderprogram.h and shaderprogram.cpp. New files added to define the ShaderProgram class.
  * texture.h and texture.cpp. New files added to define the Class Texture and TextureManager
  * material.h and material.cpp. New files added to define the material class.
+ 
+Other changes done
+===============
+ * Use pointer to OpenGL ES 2,0 in skybox instead of pointer to OpenGL 3.0 core
 
 
 Changing files (still work to do)

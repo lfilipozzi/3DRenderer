@@ -3,11 +3,11 @@
 
 #include "texture.h"
 #include "shaderprogram.h"
-#include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include <memory>
+#include <QOpenGLFunctions>
 
 /// Class for the skybox
 /**
@@ -31,8 +31,7 @@ public:
      * @param shader The shader program used to render the skybox.
      * @param glFunctions Pointer to class containing OpenGL functions.
      */
-    void render(const QMatrix4x4 & view, const QMatrix4x4 & projection, 
-                QOpenGLFunctions_3_3_Core * glFunctions);
+    void render(const QMatrix4x4 & view, const QMatrix4x4 & projection);
     
     /**
      * @brief Clean up the skybox.
@@ -81,6 +80,11 @@ private:
      * Shader program used to render the skybox.
      */
     std::unique_ptr<Shader> m_shader;
+    
+    /**
+     * Pointer to OpenGL ES 2.0 API functions.
+     */
+    QOpenGLFunctions * p_glFunctions;
     
 };
 

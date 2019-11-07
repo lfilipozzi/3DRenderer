@@ -13,6 +13,14 @@ Skybox::~Skybox() {
 
 
 void Skybox::initialize() {
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning() << "Requires a valid current OpenGL context. \n" <<
+                      "The skybox has not been created.";
+        return;
+    }
+    p_glFunctions = context->functions();
+    
     createShaderProgram(":/shaders/skybox.vert", ":/shaders/skybox.frag");
     loadCubeMapTextures();
     createBuffers();
@@ -160,8 +168,7 @@ void Skybox::createAttributes() {
                                  3);         // number of components
 }
 
-void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection, 
-                    QOpenGLFunctions_3_3_Core * glFunctions) {
+void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection) {
     // Bind shader program
     m_shader->bind();
     
@@ -195,10 +202,10 @@ void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection,
     
     // Bind VAO and the surface
     m_vao.bind();
-    glFunctions->glDepthMask(GL_FALSE); // Disable depth writing to make sure 
-                                        // the skybox is at the back
-    glFunctions->glDrawArrays(GL_TRIANGLES, 0, 36);
-    glFunctions->glDepthMask(GL_TRUE);   // Re-enable depth writing
+    p_glFunctions->glDepthMask(GL_FALSE); // Disable depth writing to make sure 
+                                          // the skybox is at the back
+    p_glFunctions->glDrawArrays(GL_TRIANGLES, 0, 36);
+    p_glFunctions->glDepthMask(GL_TRUE);   // Re-enable depth writing
     m_vao.release();
 }
 
