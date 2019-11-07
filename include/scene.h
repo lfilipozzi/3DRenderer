@@ -3,7 +3,6 @@
 
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
-#include "abstractscene.h"
 #include "vehicle_gl33.h"
 #include "flatsurface_gl33.h"
 #include "frame_gl33.h"
@@ -25,25 +24,26 @@ public:
     ~Scene();
 
     /**
-     * Initialize the scene: Load the model, create the buffers, attributes, 
-     * lighting. It also enables GL_DEPTH_TEST and the background color.
+     * @brief Initialize the scene: Load the model, create the buffers, 
+     * attributes,  lighting. It also enables GL_DEPTH_TEST and the background 
+     * color.
      */
     void initialize();
 
     /**
-     * Resize the animation and reset the projection matrix.
+     * @brief Resize the animation and reset the projection matrix.
      * @param w The new width of the animation.
      * @param h The new height of the animation.
      */
     void resize(int w, int h);
 
     /**
-     * Update the animation.
+     * @brief Update the animation.
      */
     void update();
 
     /**
-     * Cleanup the animation.
+     * @brief Cleanup the animation.
      */
     void cleanup();
     
@@ -118,6 +118,11 @@ public:
 
 private:
     /**
+     * @brief Print OpenGL errors if any.
+     */
+    void printOpenGLError();
+    
+    /**
      * Set projection and view matrices. Set lightning.
      */
     void setupLightingAndMatrices();
@@ -168,13 +173,13 @@ private:
      * Width of the texture produced by the frame buffer object for shadow
      * mapping.
      */
-    const unsigned int SHADOW_WIDTH;
+    const unsigned int c_shadowWidth;
     
     /**
      * Height of the texture produced by the frame buffer object for shadow
      * mapping.
      */
-    const unsigned int SHADOW_HEIGHT;
+    const unsigned int c_shadowHeight;
 
     /**
      * ID of the frame buffer used to obtain the shadow by shadow mapping. Qt 
@@ -188,28 +193,6 @@ private:
      * Texture storing the framebuffer's depth buffer.
      */
     unsigned int m_shadowDepthMap;
-    
-    #ifdef SHADOW_FBO_DEBUG
-    /**
-     * Shader used to draw the texture from the shadow FBO
-     */
-    QOpenGLShaderProgram m_shaderProgram;
-    
-    /**
-     * VAO used to store vertices to render the FBO texture
-     */
-    QOpenGLVertexArrayObject m_vao;
-    
-    /**
-     * Buffer of vertices used to render the FBO texture
-     */
-    QOpenGLBuffer m_vertexBuffer;
-    
-    /**
-     * Buffer of texture coordinates used to render the FBO texture
-     */
-    QOpenGLBuffer m_textureUVBuffer;
-    #endif // SHADOW_FBO_DEBUG
     
     /**
      * @brief The camera of the scene.

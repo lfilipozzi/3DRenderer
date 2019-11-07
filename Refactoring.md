@@ -14,3 +14,4 @@ Changing files (still work to do)
 To-do list
 ============
  * Need to change the texture class and constructor to use a QImage instead of a QString and check thath the QImage is not null
+ * Create class to encapsulate the frame buffer object instead of ussing directly opengl function in the scene class.

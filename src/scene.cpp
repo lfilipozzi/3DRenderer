@@ -11,17 +11,17 @@ Scene::Scene(int refreshRate) :
     m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
     m_screenWidth(1200),
     m_screenHeight(900),
-    SHADOW_WIDTH(1024),
-    SHADOW_HEIGHT(1024), 
+    c_shadowWidth(1024),
+    c_shadowHeight(1024), 
     m_timestepBegin(0.0f),
     m_timestepEnd(std::numeric_limits<float>::max()),
     m_refreshRate(refreshRate),
     m_timeRate(1.0f),
     m_frameRate(1 / static_cast<float>(m_refreshRate)),
     m_enableLoop(true),
-    m_showGlobalFrame(false) {
+    m_showGlobalFrame(false),
+    m_timestep(0.0f) {
     m_camera = Camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f));
-    m_timestep = 0.0f;
     
     // Initialize the surface and the vehicle
     m_vehicle = new Vehicle_GL33(QString("asset/SimulationData/14DoF.txt"));
@@ -45,7 +45,7 @@ void Scene::initialize() {
     glGenTextures(1, &m_shadowDepthMap);
     glBindTexture(GL_TEXTURE_2D, m_shadowDepthMap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-                SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+                c_shadowWidth, c_shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -108,7 +108,7 @@ void Scene::update() {
     m_camera.trackObject(chassisPosition);
 
     // Render depth map for shadow mapping
-    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glViewport(0, 0, c_shadowWidth, c_shadowHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO); // Bind the shadow FBO
     glClear(GL_DEPTH_BUFFER_BIT);
         
@@ -140,39 +140,45 @@ void Scene::update() {
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
         
-    GLenum errorCode;
-    while ((errorCode = glGetError()) != GL_NO_ERROR)
-    {
-        std::string error;
-        switch (errorCode)
-        {
-            case GL_INVALID_ENUM:
-                error = "INVALID_ENUM"; 
-                break;
-            case GL_INVALID_VALUE:
-                error = "INVALID_VALUE"; 
-                break;
-            case GL_INVALID_OPERATION:
-                error = "INVALID_OPERATION"; 
-                break;
-            case GL_STACK_OVERFLOW:
-                error = "STACK_OVERFLOW"; 
-                break;
-            case GL_STACK_UNDERFLOW:
-                error = "STACK_UNDERFLOW"; 
-                break;
-            case GL_OUT_OF_MEMORY:
-                error = "OUT_OF_MEMORY"; 
-                break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                error = "INVALID_FRAMEBUFFER_OPERATION"; 
-                break;
-        }
-        std::cout << "OpenGL error:" << error << std::endl;
-    }
+    printOpenGLError();
         
     // Update time-step
     updateTimestep();
+}
+
+
+void Scene::printOpenGLError() {
+    GLenum errorCode;
+    QString error;
+    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    {
+        switch (errorCode)
+        {
+            case GL_INVALID_ENUM:
+                error.append("INVALID_ENUM");
+                break;
+            case GL_INVALID_VALUE:
+                error.append("INVALID_VALUE");
+                break;
+            case GL_INVALID_OPERATION:
+                error.append("INVALID_OPERATION");
+                break;
+            case GL_STACK_OVERFLOW:
+                error.append("STACK_OVERFLOW");
+                break;
+            case GL_STACK_UNDERFLOW:
+                error.append("STACK_UNDERFLOW");
+                break;
+            case GL_OUT_OF_MEMORY:
+                error.append("OUT_OF_MEMORY");
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                error.append("INVALID_FRAMEBUFFER_OPERATION"); 
+                break;
+        }
+    }
+    if (!error.isEmpty())
+        qWarning() << "OpenGL error:" << error;
 }
 
 
