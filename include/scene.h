@@ -1,7 +1,6 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include "vehicle_gl33.h"
@@ -77,9 +76,9 @@ public:
     /**
      * @brief Set the time rate of the animation to slow down or speed up the 
      * animation.
-     * @return
+     * @param timeRate The time rate of the animation.
      */
-    void setTimeRate(float timeRate) {m_timeRate = timeRate;}
+    void setTimeRate(const float timeRate) {m_timeRate = timeRate;}
 
     /**
      * @brief Enable/disable the animation loop.

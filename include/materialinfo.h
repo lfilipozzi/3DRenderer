@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QVector3D>
-#include "texture.h"
+#include "opengltexture.h"
 
 /// Material
 /**

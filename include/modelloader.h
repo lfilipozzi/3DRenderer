@@ -6,7 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <QMatrix4x4>
 #include "materialinfo.h"
-#include "texture.h"
+#include "opengltexture.h"
 
 // Forward declaration of Assimp structures
 struct aiScene;

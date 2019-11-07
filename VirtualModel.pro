@@ -33,7 +33,10 @@ SOURCES += \
     src/frame_gl33.cpp \
     src/skybox_gl33.cpp \
     src/abstractcomplex_gl33.cpp \
-    src/animationwindow.cpp
+    src/animationwindow.cpp \
+    src/shaderprogram.cpp \ # New
+    src/material.cpp \
+    src/texture.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -59,12 +62,15 @@ HEADERS += \
     include/materialinfo.h \
     include/animationplayer.h \
     include/playerbutton.h \
-    include/texture.h \
+    include/opengltexture.h \
     include/line_gl33.h \
     include/frame_gl33.h \
     include/skybox_gl33.h \
     include/abstractcomplex_gl33.h \
-    include/animationwindow.h
+    include/animationwindow.h \
+    include/shaderprogram.h \ # new
+    include/material.h \
+    include/texture.h
 
 unix: !macx {
     INCLUDEPATH += lib/assimp/include
