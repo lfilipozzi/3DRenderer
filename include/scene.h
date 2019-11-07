@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include "vehicle_gl33.h"
@@ -13,13 +14,13 @@
 
 /// Scene class
 /**
- * @brief The scene contains the object to be rendered. It manages all the elements 
- * that will be rendered and update their positions.
+ * @brief The scene contains the object to be rendered. It manages all the 
+ * elements that will be rendered and update their positions.
  * @author Louis Filipozzi
  */
-class Scene : public QOpenGLFunctions_3_3_Core {
+class Scene {
 public:
-    Scene(int refreshRate);
+    Scene(unsigned int refreshRate);
 
     ~Scene();
 
@@ -38,14 +39,14 @@ public:
     void resize(int w, int h);
 
     /**
-     * @brief Update the animation.
+     * @brief Render the animation.
      */
-    void update();
+    void render();
 
     /**
      * @brief Cleanup the animation.
      */
-    void cleanup();
+    void cleanUp();
     
     /**
      * @brief Update the timestep of the animation.
@@ -126,6 +127,16 @@ private:
      * Set projection and view matrices. Set lightning.
      */
     void setupLightingAndMatrices();
+    
+    /**
+     * Store the OpenGL context.
+     */
+    QOpenGLContext * p_context;
+    
+    /**
+     * Store the OpenGL functions.
+     */
+    QOpenGLFunctions_3_3_Core * p_glFunctions;
 
     /**
      * Projection matrix: transform from the camera coordinates to the 
@@ -217,7 +228,7 @@ private:
     /**
      * @brief The refresh rate of the animation.
      */
-    int m_refreshRate;
+    unsigned int m_refreshRate;
 
     /**
      * @brief Use to slow down the rate of the animation from the player.

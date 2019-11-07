@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-Scene::Scene(int refreshRate) : 
+Scene::Scene(unsigned int refreshRate) : 
     m_surface(6000.0f, 6000.0f,
               QVector3D(0.0f, 0.0f, 0.0f),
               QVector3D(1.0f, 0.0f, 0.0f), 
@@ -20,9 +20,8 @@ Scene::Scene(int refreshRate) :
     m_frameRate(1 / static_cast<float>(m_refreshRate)),
     m_enableLoop(true),
     m_showGlobalFrame(false),
-    m_timestep(0.0f) {
-    m_camera = Camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f));
-    
+    m_timestep(0.0f),
+    m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)) {
     // Initialize the surface and the vehicle
     m_vehicle = new Vehicle_GL33(QString("asset/SimulationData/14DoF.txt"));
     // TODO check path to simulation data file is valid
@@ -39,32 +38,54 @@ Scene::~Scene() {
 
 
 void Scene::initialize() {
-    initializeOpenGLFunctions();
+    // Get pointer to OpenGL functions
+    p_glFunctions = QOpenGLContext::currentContext()->
+        versionFunctions<QOpenGLFunctions_3_3_Core>();
+    if (!p_glFunctions) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "Could not obtain required OpenGL context version";
+        exit(1);
+    }
     
     // Create the frame buffer and texture for shadow mapping
-    glGenTextures(1, &m_shadowDepthMap);
-    glBindTexture(GL_TEXTURE_2D, m_shadowDepthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-                c_shadowWidth, c_shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    p_glFunctions->glGenTextures(1, &m_shadowDepthMap);
+    p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_shadowDepthMap);
+    p_glFunctions->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+                                c_shadowWidth, c_shadowHeight, 0, 
+                                GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
+                                   GL_TEXTURE_MIN_FILTER, 
+                                   GL_NEAREST);
+    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
+                                   GL_TEXTURE_MAG_FILTER, 
+                                   GL_NEAREST);
+    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
+                                   GL_TEXTURE_WRAP_S, 
+                                   GL_CLAMP_TO_BORDER);
+    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
+                                   GL_TEXTURE_WRAP_T, 
+                                   GL_CLAMP_TO_BORDER);
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor); 
+    p_glFunctions->glTexParameterfv(GL_TEXTURE_2D, 
+                                    GL_TEXTURE_BORDER_COLOR, 
+                                    borderColor); 
     // Attach the depth texture to the FBO
-    glGenFramebuffers(1, &m_shadowFBO); 
-    glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_shadowDepthMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    p_glFunctions->glGenFramebuffers(1, &m_shadowFBO); 
+    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO);
+    p_glFunctions->glFramebufferTexture2D(GL_FRAMEBUFFER, 
+                                          GL_DEPTH_ATTACHMENT, 
+                                          GL_TEXTURE_2D, 
+                                          m_shadowDepthMap, 
+                                          0);
+    p_glFunctions->glDrawBuffer(GL_NONE);
+    p_glFunctions->glReadBuffer(GL_NONE);
+    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0);  
     
     setupLightingAndMatrices();
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    p_glFunctions->glEnable(GL_DEPTH_TEST);
+    p_glFunctions->glEnable(GL_BLEND);
+    p_glFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_skybox.initialize();
     m_surface.initialize();
@@ -93,14 +114,14 @@ void Scene::setupLightingAndMatrices() {
 void Scene::resize(int w, int h) {
     m_screenWidth = w;
     m_screenHeight = h;
-    glViewport(0, 0, w, h);
+    p_glFunctions->glViewport(0, 0, w, h);
 
     m_projection.setToIdentity();
     m_projection.perspective(60.0f, static_cast<float>(w)/h, .3f, 1000);
 }
 
 
-void Scene::update() {
+void Scene::render() {
     // Get the vehicle position and update the model matrices of the vehicle
     Position chassisPosition = m_vehicle->getChassisPosition(m_timestep);
     m_vehicle->updateModelMatrices(m_timestep);
@@ -108,9 +129,9 @@ void Scene::update() {
     m_camera.trackObject(chassisPosition);
 
     // Render depth map for shadow mapping
-    glViewport(0, 0, c_shadowWidth, c_shadowHeight);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO); // Bind the shadow FBO
-    glClear(GL_DEPTH_BUFFER_BIT);
+    p_glFunctions->glViewport(0, 0, c_shadowWidth, c_shadowHeight);
+    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO); // Bind the shadow FBO
+    p_glFunctions->glClear(GL_DEPTH_BUFFER_BIT);
         
     // Compute view and projection matrices of the light source
     QMatrix4x4 lightSpaceMatrix = 
@@ -120,18 +141,18 @@ void Scene::update() {
     m_surface.renderShadow(lightSpaceMatrix);
     m_vehicle->renderShadow(lightSpaceMatrix);
         
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
+    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
     
     // Render the scene with shadow mapping
-    glViewport(0, 0, m_screenWidth, m_screenHeight);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    p_glFunctions->glViewport(0, 0, m_screenWidth, m_screenHeight);
+    p_glFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
     // Get view matrix of the camera
     m_view = m_camera.getViewMatrix();
         
     // Bind the shadow map to texture unit 1
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_shadowFBO);
+    p_glFunctions->glActiveTexture(GL_TEXTURE1);
+    p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_shadowFBO);
     
     // Call update method of object in the scene
     m_skybox.update(m_light, m_view, m_projection, lightSpaceMatrix);
@@ -150,7 +171,7 @@ void Scene::update() {
 void Scene::printOpenGLError() {
     GLenum errorCode;
     QString error;
-    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    while ((errorCode = p_glFunctions->glGetError()) != GL_NO_ERROR)
     {
         switch (errorCode)
         {
@@ -182,7 +203,7 @@ void Scene::printOpenGLError() {
 }
 
 
-void Scene::cleanup() {
+void Scene::cleanUp() {
     m_skybox.cleanup();
     m_surface.cleanup();
     m_vehicle->cleanup();

@@ -78,7 +78,7 @@ void OpenGLWindow::renderGL() {
 
     // Draw the scene
     p_context->makeCurrent(this);
-    p_scene->update();
+    p_scene->render();
     p_context->swapBuffers(this);
 
     // Update the slider of the player
@@ -108,7 +108,7 @@ void OpenGLWindow::resizeGL() {
 
 void OpenGLWindow::cleanUpGL() {
     p_context->makeCurrent(this);
-    p_scene->cleanup();
+    p_scene->cleanUp();
 }
 
 
