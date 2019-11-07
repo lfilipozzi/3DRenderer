@@ -2,7 +2,9 @@
 #define OPENGLWINDOW_H
 
 #include <QWindow>
-#include "sceneselector.h"
+#include "scene_gl33.h"
+
+#include <memory>
 
 class AnimationPlayer;
 
@@ -18,8 +20,7 @@ class OpenGLWindow : public QWindow {
     Q_OBJECT    // Prepare the compiler to create slots and signals
 
 public:
-    OpenGLWindow(SceneSelector *scene, int refreshRate, QPair<int,
-                 int> openGLVersion = qMakePair(3,3), QScreen* screen = nullptr);
+    OpenGLWindow(unsigned int refreshRate, QScreen* screen = nullptr);
     ~OpenGLWindow();
 
     /**
@@ -134,17 +135,17 @@ private:
     /**
      * Scene.
      */
-    AbstractScene *m_scene;
+    std::unique_ptr<Scene_GL33> m_scene;
 
     /**
      * OpenGL context.
      */
-    QOpenGLContext *m_context;
+    QOpenGLContext * m_context;
 
     /**
      * Pointer to the player used for the animation.
      */
-    AnimationPlayer *m_player;
+    AnimationPlayer * m_player;
     
     /**
      * Boolean to indicate if the camera was offset at the last update

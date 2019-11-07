@@ -1,5 +1,4 @@
 #include "../include/openglwindow.h"
-
 #include <QKeyEvent>
 #include <QOpenGLContext>
 #include <QTimer>
@@ -9,15 +8,13 @@
 
 #include <iostream>
 
-OpenGLWindow::OpenGLWindow(SceneSelector *sceneSelector, int refreshRate,
-                           QPair<int, int> openGLVersion, QScreen* screen)
+OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen* screen)
     : QWindow(screen), 
     m_wasCameraOffset(false) {
     // Request OpenGL context
     QSurfaceFormat requestedFormat;
     requestedFormat.setDepthBufferSize(24);
-    requestedFormat.setMajorVersion(openGLVersion.first);
-    requestedFormat.setMinorVersion(openGLVersion.second);
+    requestedFormat.setVersion(3,3);
 
     requestedFormat.setSamples(4);
     requestedFormat.setProfile(QSurfaceFormat::CoreProfile);
@@ -25,44 +22,18 @@ OpenGLWindow::OpenGLWindow(SceneSelector *sceneSelector, int refreshRate,
     m_context = new QOpenGLContext(this);
     m_context->setFormat(requestedFormat);
     m_context->create();
-
-    /*
-     * The next if statement checks the version of OpenGL used. If it 
-     * corresponds to the requested version, sceneScelector creates the scene 
-     * with the corresponding OpenGL version. If the context version does not 
-     * correspond, it tries to open OpenGL2.1. Finally, if OpenGL2.1 fails, the
-     * program is aborted.
-     */
-    // Try to open an OpenGL context with the requested vesrion
-    if(m_context->format().version() == requestedFormat.version()) {
-        m_scene = sceneSelector->getScene(requestedFormat.version(), 
-                                          false, refreshRate);
+    
+    // Try to open an OpenGL context with the requested version
+    if(m_context->format().version() != requestedFormat.version()) {
+        qDebug() << "Unable to open a supported OpenGL context." <<
+            "The most recent OpenGL context that can be open is" <<
+            m_context->format().version().first << "." << 
+            m_context->format().version().second << 
+            ". Exiting the program.";
+            exit(1);
     }
     else {
-        // If impossible to open the requested format, use OpenGL 2.1
-        m_context->deleteLater();
-        requestedFormat.setMajorVersion(2);
-        requestedFormat.setMinorVersion(1);
-        m_context = new QOpenGLContext(this);
-        m_context->setFormat(requestedFormat);
-        m_context->create();
-        
-        // If the current context is less than OpenGL 2.0, abort
-        if (m_context->format().version().first < 2) {
-            qDebug() << "Unable to get a valid version of OpenGL, aborting";
-            exit(1);
-        }
-        
-        // Try to open an OpenGL 2.1 context
-        qDebug() << "Unable to get an OpenGL " << openGLVersion.first << "." << 
-            openGLVersion.second << " context."; 
-        qDebug() << "Version of the current OpenGL context is " << 
-            m_context->format().version().first <<  "." << 
-            m_context->format().version().second << ".";
-        qDebug() << "Try using OpenGL 2.1/OpenGL ES context instead.";
-        m_scene = sceneSelector->getScene(m_context->format().version(),
-            m_context->format().renderableType() == QSurfaceFormat::OpenGLES,
-            refreshRate);
+        m_scene = std::make_unique<Scene_GL33>(refreshRate);
     }
 
     setSurfaceType(OpenGLSurface);
@@ -86,7 +57,6 @@ OpenGLWindow::OpenGLWindow(SceneSelector *sceneSelector, int refreshRate,
 OpenGLWindow::~OpenGLWindow() {
     m_context->deleteLater();
     delete(m_context);
-    delete(m_scene);
     delete(m_timer);
 }
 
