@@ -199,7 +199,7 @@ void Scene::printOpenGLError() {
         }
     }
     if (!error.isEmpty())
-        qWarning() << "OpenGL error:" << error;
+        qWarning() << __FILE__ << __LINE__ << "OpenGL error:" << error;
 }
 
 

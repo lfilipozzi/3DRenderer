@@ -8,8 +8,9 @@ TextureManager::TexturesMap TextureManager::m_textures;
 TextureManager::TextureManager() {}
 
 
-Texture * TextureManager::loadTexture(QString name, QImage & image) {
-    m_textures[name] = std::make_unique<Texture>(name, image);
+Texture * TextureManager::loadTexture(
+    QString name, Texture::Type type, QImage & image) {
+    m_textures[name] = std::make_unique<Texture>(type, image);
     return m_textures[name].get();
 }
 

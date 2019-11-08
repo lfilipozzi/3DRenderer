@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "abstractvehicle.h"
 
+
 /// Scene class
 /**
  * @brief The scene contains the object to be rendered. It manages all the 

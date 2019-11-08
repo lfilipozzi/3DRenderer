@@ -13,20 +13,24 @@
  */
 class Texture : public QOpenGLTexture {
 public:
-    Texture(QString name, QImage & image, 
-            QOpenGLTexture::MipMapGeneration genMipMaps = GenerateMipMaps) 
-    : QOpenGLTexture(image, genMipMaps), m_name(name) {}
+    enum Type {
+        Diffuse, Reflection, Normal, Displacement, Cubemap
+    };
     
-    Texture(QString name, QOpenGLTexture::Target target) 
-    : QOpenGLTexture(target), m_name(name) {}
+    Texture(Type type, QImage & image, 
+            QOpenGLTexture::MipMapGeneration genMipMaps = GenerateMipMaps) 
+    : QOpenGLTexture(image, genMipMaps), m_type(type) {}
+    
+    Texture(Type type, QOpenGLTexture::Target target) 
+    : QOpenGLTexture(target), m_type(type) {}
 
-    QString getName() const {return m_name;}
+    Type getType() const {return m_type;}
     
 private:
     /**
-     * Name of the texture
+     * Texture type.
      */
-    QString m_name;
+    Type m_type;
 };
 
 
@@ -46,9 +50,11 @@ public:
     /**
      * @brief Load and return the texture.
      * @param name The name of the texture.
+     * @param type The texture type.
      * @param path The path to the texture file.
      */
-    static Texture * loadTexture(QString name, QImage & image);
+    static Texture * loadTexture(QString name, Texture::Type type,
+                                 QImage & image);
     
     /**
      * @brief Get the texture.

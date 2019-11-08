@@ -25,3 +25,4 @@ To-do list
  * Create class to encapsulate the frame buffer object instead of ussing directly opengl function in the scene class.
  * Use shared pointer (or unique_ptr?) and weak pointer to point from player to opengl window and openglwindow to player.
  * Delete old texture and material classes defined in files opengltexture.* and materialinfo.*, they will be replaced by classes defined in texture.* and material.*)
+ * Remove name field from texture class, there is no need for that. Only required in the texture manager.

@@ -16,7 +16,8 @@ void Skybox::initialize() {
     // Set pointer to functions of the OpenGL ES 2.0 API
     QOpenGLContext * context = QOpenGLContext::currentContext();
     if (!context) {
-        qWarning() << "Requires a valid current OpenGL context. \n" <<
+        qWarning() << __FILE__ << __LINE__ <<
+                      "Requires a valid current OpenGL context. \n" <<
                       "The skybox has not been created.";
         return;
     }
@@ -67,8 +68,9 @@ void Skybox::loadCubeMapTextures() {
         qCritical() << __FILE__ << __LINE__ << "The image file does not exist.";
 
     
-    m_textures = std::make_unique<Texture>(QString("skybox"),
-                                           QOpenGLTexture::TargetCubeMap);
+    m_textures = std::make_unique<Texture>(
+        Texture::Type::Cubemap, QOpenGLTexture::TargetCubeMap
+    );
     
     m_textures->create();
     m_textures->setSize(posX.width(), posX.height(), posX.depth());
