@@ -4,6 +4,7 @@
 #include <QOpenGLShaderProgram>
 #include <QString>
 #include "material.h"
+#include "light.h"
 
 
 /// Shader program
@@ -59,6 +60,14 @@ public:
                                    const QMatrix4x4 & V, 
                                    const QMatrix4x4 & P, 
                                    const QMatrix4x4 & lVP);
+    
+    /**
+     * @brief Set the light uniforms in OpenGL.
+     * @param light The light.
+     * @param V The view matrix.
+     */
+    virtual void setLightUniforms(const CasterLight & light, 
+                                  const QMatrix4x4 & V);
 };
 
 
@@ -102,6 +111,14 @@ public:
                                    const QMatrix4x4 & V, 
                                    const QMatrix4x4 & P, 
                                    const QMatrix4x4 & lVP);
+    
+    /**
+     * @brief Set the light uniforms in OpenGL.
+     * @param light The light.
+     * @param V The view matrix.
+     */
+    virtual void setLightUniforms(const CasterLight & light, 
+                                  const QMatrix4x4 & V);
 };
 
 #endif // SHADERPROGRAM_H

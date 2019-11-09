@@ -5,133 +5,12 @@
 #include "shaderprogram.h"
 #include <QString>
 #include <memory>
-#include<QMatrix4x4>
-#include <QOpenGLFunctions_3_3_Core>
-
-
-/// Mesh
-/**
- * @brief Define a mesh of a 3D object. 
- * @author Louis Filipozzi
- * @remark The mesh does not contains any vertices, normals, and indices data. 
- * It only has information about the number of vertices in the mesh, and the 
- * offset of the first index in the index buffer. The data must be stored in the
- * Vertex Array Object (VAO) of the class containing the mesh. This is done to 
- * reduce number of VAO that have to be bind for rendering.
- */
-class Mesh {
-public:
-    /**
-     * @brief Constructor of the mesh.
-     * @param name The name of the mesh.
-     * @param count The number of indices in the mesh.
-     * @param offset The offset of the first mesh index in the index buffer.
-     * @param material The material used by the mesh.
-     */
-    Mesh(const QString name, const unsigned int count, 
-         const unsigned int offset, 
-         const std::shared_ptr<const Material> material
-    ) : m_name(name), m_indexCount(count), m_indexOffset(offset), 
-    m_material(material) {};
-    ~Mesh() {};
-    
-    /**
-     * @brief Set material uniform and draw the mesh.
-     * @param objectShader The shader used to render the object.
-     * @param glFunctions Pointer to class containing OpenGL functions.
-     * @remark This function does not set the uniform for the model, view, and
-     * projection matrices. It only set the uniforms related to the material.
-     */
-    void drawMesh(ObjectShader * objectShader, 
-                  QOpenGLFunctions_3_3_Core * glFunctions) const;
-private:
-    /**
-     * The name of the mesh.
-     */
-    const QString m_name;
-    
-    /**
-     * Number of indices used by the vertices of the mesh.
-     */
-    const unsigned int m_indexCount;
-    
-    /**
-     * Offset in the index buffer of the first mesh index.
-     */
-    const unsigned int m_indexOffset;
-    
-    /**
-     * Pointer to the material of the mesh.
-     */
-    const std::shared_ptr<const Material> m_material;
-};
-
-
-
 #include <QMatrix4x4>
-#include <memory>
 #include <QOpenGLFunctions_3_3_Core>
-
-/// Node of a 3D object
-/**
- * @brief Define a node of a 3D object. The node is made of several meshes.
- * @author Louis Filipozzi
- */
-class Node {
-public:
-    /**
-     * @brief Node constructor.
-     * @param name The name of the node.
-     */
-    Node(const QString name, const QMatrix4x4 transformation, 
-         const std::vector<std::shared_ptr<const Mesh>> meshes,
-         std::vector<std::unique_ptr<const Node>> children)
-    : m_name(name), m_transformation(transformation), m_meshes(meshes) ,
-    m_children(std::move(children)) {};
-    ~Node() {};
-    
-    /**
-     * @brief Draw the node and its children.
-     * @param model The model matrix use to position the node. Note that the 
-     * transformation stored in the node is applied for positioning the node.
-     * @param view The view matrix.
-     * @param projection The projection matrix.
-     * @param lightSpace The view and projection matrix of the light (used for 
-     * shadow mapping).
-     * @param objectShader The shader used to render the object.
-     * @param glFunctions Pointer to class containing OpenGL functions.
-     */
-    void drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
-                  const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                  ObjectShader * objectShader, 
-                  QOpenGLFunctions_3_3_Core * glFunctions) const;
-    
-private:
-    /**
-     * The name of the node.
-     */
-    const QString m_name;
-    
-    /**
-     * The transformation to move from the parent's node to the current node.
-     */
-    const QMatrix4x4 m_transformation;
-    
-    /**
-     * The meshes contained by the node.
-     */
-    const std::vector<std::shared_ptr<const Mesh>> m_meshes;
-    
-    /**
-     * The children of this node.
-     */
-    std::vector<std::unique_ptr<const Node>> m_children;
-};
-
-
-
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+
+#include "light.h"
 
 
 /// Object
@@ -147,13 +26,12 @@ private:
  */
 class Object {
 public:
-    class AbstractBuilder;
+    class InterfaceBuilder;
     class Loader;
     
-    /* TODO move this class inside object and give them the appropriate scope
     class Node;
     class Mesh;
-    */
+    
     
     Object(
         std::unique_ptr<const Node> rootNode,
@@ -162,6 +40,7 @@ public:
         std::unique_ptr<QVector<QVector<float>>> textureUV,
         std::unique_ptr<QVector<unsigned int>> indices
     ) : 
+    m_error(!rootNode),
     p_rootNode(std::move(rootNode)), 
     m_vertexBuffer(QOpenGLBuffer::VertexBuffer), 
     m_normalBuffer(QOpenGLBuffer::VertexBuffer), 
@@ -186,7 +65,7 @@ public:
      * shadow mapping).
      * @param glFunctions Pointer to class containing OpenGL functions.
      */
-    void render(const QMatrix4x4 & view, 
+    void render(const CasterLight & light, const QMatrix4x4 & view, 
                 const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
                 QOpenGLFunctions_3_3_Core * glFunctions);
     
@@ -198,7 +77,7 @@ public:
      * shadow mapping).
      * @param glFunctions Pointer to class containing OpenGL functions.
      */
-    void renderShadow(const QMatrix4x4 & view, 
+    void renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
                 const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
                 QOpenGLFunctions_3_3_Core * glFunctions);
     
@@ -220,7 +99,7 @@ private:
      * @param shader The shader program used to draw the scene.
      * @param glFunctions Pointer to class containing OpenGL functions.
      */
-    void render(const QMatrix4x4 & view, 
+    void render(const CasterLight & light, const QMatrix4x4 & view, 
                 const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
                 ObjectShader * shader, 
                 QOpenGLFunctions_3_3_Core * glFunctions);
@@ -240,7 +119,12 @@ private:
      */
     void createBuffers();
     
-private:
+//TODO reset private:
+    /**
+     * Set to true if the model is not valid.
+     */
+    bool m_error;
+    
     /**
      * The root node of the model.
      */
@@ -325,13 +209,136 @@ private:
 
 
 
-/// Object builder
+/// Mesh
 /**
- * @brief Build an object.
+ * @brief Define a mesh of a 3D object. 
+ * @author Louis Filipozzi
+ * @remark The mesh does not contains any vertices, normals, and indices data. 
+ * It only has information about the number of vertices in the mesh, and the 
+ * offset of the first index in the index buffer. The data must be stored in the
+ * Vertex Array Object (VAO) of the class containing the mesh. This is done to 
+ * reduce number of VAO that have to be bind for rendering.
+ */
+class Object::Mesh {
+public:
+    /**
+     * @brief Constructor of the mesh.
+     * @param name The name of the mesh.
+     * @param count The number of indices in the mesh.
+     * @param offset The offset of the first mesh index in the index buffer.
+     * @param material The material used by the mesh.
+     */
+    Mesh(const QString name, const unsigned int count, 
+         const unsigned int offset, 
+         const std::shared_ptr<const Material> material
+    ) : m_name(name), m_indexCount(count), m_indexOffset(offset), 
+    m_material(material) {};
+    ~Mesh() {};
+    
+    /**
+     * @brief Set material uniform and draw the mesh.
+     * @param objectShader The shader used to render the object.
+     * @param glFunctions Pointer to class containing OpenGL functions.
+     * @remark This function does not set the uniform for the model, view, and
+     * projection matrices. It only set the uniforms related to the material.
+     */
+    void drawMesh(ObjectShader * objectShader, 
+                  QOpenGLFunctions_3_3_Core * glFunctions) const;
+private:
+    /**
+     * The name of the mesh.
+     */
+    const QString m_name;
+    
+    /**
+     * Number of indices used by the vertices of the mesh.
+     */
+    const unsigned int m_indexCount;
+    
+    /**
+     * Offset in the index buffer of the first mesh index.
+     */
+    const unsigned int m_indexOffset;
+    
+    /**
+     * Pointer to the material of the mesh.
+     */
+    const std::shared_ptr<const Material> m_material;
+};
+
+
+
+#include <QMatrix4x4>
+#include <memory>
+#include <QOpenGLFunctions_3_3_Core>
+
+/// Node of a 3D object
+/**
+ * @brief Define a node of a 3D object. The node is made of several meshes.
+ * @author Louis Filipozzi
+ */
+class Object::Node {
+public:
+    /**
+     * @brief Node constructor.
+     * @param name The name of the node.
+     */
+    Node(const QString name, const QMatrix4x4 transformation, 
+         const std::vector<std::shared_ptr<const Mesh>> meshes,
+         std::vector<std::unique_ptr<const Node>> children)
+    : m_name(name), m_transformation(transformation), m_meshes(meshes) ,
+    m_children(std::move(children)) {};
+    ~Node() {};
+    
+    const QString getName() const {return m_name;};
+    
+    /**
+     * @brief Draw the node and its children.
+     * @param model The model matrix use to position the node. Note that the 
+     * transformation stored in the node is applied for positioning the node.
+     * @param view The view matrix.
+     * @param projection The projection matrix.
+     * @param lightSpace The view and projection matrix of the light (used for 
+     * shadow mapping).
+     * @param objectShader The shader used to render the object.
+     * @param glFunctions Pointer to class containing OpenGL functions.
+     */
+    void drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
+                  const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
+                  ObjectShader * objectShader, 
+                  QOpenGLFunctions_3_3_Core * glFunctions) const;
+    
+// TODO reset private:
+    /**
+     * The name of the node.
+     */
+    const QString m_name;
+    
+    /**
+     * The transformation to move from the parent's node to the current node.
+     */
+    const QMatrix4x4 m_transformation;
+    
+    /**
+     * The meshes contained by the node.
+     */
+    const std::vector<std::shared_ptr<const Mesh>> m_meshes;
+    
+    /**
+     * The children of this node.
+     */
+    std::vector<std::unique_ptr<const Node>> m_children;
+};
+
+
+
+/// Object builder interface
+/**
+ * @brief Interface of an object builder.
  * @author Louis Filipozzi
  * @details The construction of the object is dealt with the builder pattern.
  */
-class Object::AbstractBuilder {
+class Object::InterfaceBuilder {
 public:
     /**
      * @brief Build the object. Return true if the model has been loaded 
@@ -358,7 +365,7 @@ public:
  * @author Louis Filipozzi
  * @details The construction of the object is dealt with the builder pattern.
  */
-class Object::Loader : public Object::AbstractBuilder {
+class Object::Loader : public Object::InterfaceBuilder {
 public:
     /**
      * This function loads the 3D model from filePath and return a pointer to 
@@ -367,8 +374,7 @@ public:
      * @param textureDir The path to the directory containing the textures to load.
      */
     Loader(QString filePath, QString textureDir = QString(""))
-    : m_filePath(filePath), m_textureDir(textureDir),
-    p_object(std::unique_ptr<Object>(nullptr)) {};
+    : m_filePath(filePath), m_textureDir(textureDir), p_object(nullptr) {};
     
     virtual bool build();
     virtual std::unique_ptr<Object>  getObject();

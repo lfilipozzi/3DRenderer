@@ -1,87 +1,6 @@
 #include "../include/object.h"
 
-/***
- *      __  __             _     
- *     |  \/  |           | |    
- *     | \  / |  ___  ___ | |__  
- *     | |\/| | / _ \/ __|| '_ \ 
- *     | |  | ||  __/\__ \| | | |
- *     |_|  |_| \___||___/|_| |_|
- *                               
- *                               
- */
-
-void Mesh::drawMesh(ObjectShader * objectShader, 
-                    QOpenGLFunctions_3_3_Core * glFunctions) const {
-    if (!objectShader) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to the shader is null.";
-        return;
-    }
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to OpenGL functions API is null.";
-        return;
-    }
-    
-    // Set material uniforms in OpenGL
-    objectShader->setMaterialUniforms(m_material.get());
-    
-    // Draw the mesh
-    glFunctions->glDrawElements(
-        GL_TRIANGLES,
-        static_cast<GLsizei>(m_indexCount),
-        GL_UNSIGNED_INT,
-        reinterpret_cast<const void*>(m_indexOffset * sizeof(unsigned int))
-    );
-}
-
-
-/***
- *      _   _             _       
- *     | \ | |           | |      
- *     |  \| |  ___    __| |  ___ 
- *     | . ` | / _ \  / _` | / _ \
- *     | |\  || (_) || (_| ||  __/
- *     |_| \_| \___/  \__,_| \___|
- *                                
- *                                
- */
-
-void Node::drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
-                    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                    ObjectShader * objectShader, 
-                    QOpenGLFunctions_3_3_Core * glFunctions) const {
-    if (!objectShader) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to the shader is null.";
-        return;
-    }
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to OpenGL functions API is null.";
-        return;
-    }
-    
-    // Compute model matrix of the node and set uniforms
-    QMatrix4x4 object = model * m_transformation;
-    objectShader->setMatrixUniforms(object, view, projection, lightSpace);
-    
-    // Draw the meshes of the node
-    for (unsigned int i = 0; i < m_meshes.size(); i++) {
-        m_meshes[i]->drawMesh(objectShader, glFunctions);
-    }
-    
-    // Draw the children recursively
-    for (unsigned int i = 0; i < m_children.size(); i++) {
-        m_children[i]->drawNode(
-            object, view, projection, lightSpace,
-            objectShader, glFunctions
-        );
-    }
-}
-
-
+#include <iostream> // TODO remove this include
 
 /***
  *       ____   _      _              _   
@@ -95,6 +14,10 @@ void Node::drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view,
  */
 
 void Object::initialize() {
+    // If the model is not correctly loaded, do nothing
+    if(m_error)
+        return;
+    
     createShaderPrograms();
     createBuffers();
     createAttributes();
@@ -135,12 +58,12 @@ void Object::createBuffers() {
     );
 
     // Create a buffer and copy the vertex data to it
-    if(p_textureUV != nullptr && p_textureUV->size() != 0) {
+    if (p_textureUV != nullptr && p_textureUV->size() != 0) {
         m_textureUVBuffer.create();
         m_textureUVBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
         m_textureUVBuffer.bind();
         int texSize = 0;
-        for(int i=0; i<p_textureUV->size(); i++)
+        for (int i = 0; i < p_textureUV->size(); i++)
             texSize += p_textureUV->at(i).size();
         m_textureUVBuffer.allocate(
             &(*p_textureUV)[0][0], 
@@ -210,24 +133,25 @@ void Object::createAttributes() {
 
 
 
-void Object::render(const QMatrix4x4 & view, const QMatrix4x4 & projection, 
+void Object::render(const CasterLight & light, const QMatrix4x4 & view, 
+                    const QMatrix4x4 & projection, 
                     const QMatrix4x4 & lightSpace, ObjectShader * shader,
                     QOpenGLFunctions_3_3_Core * glFunctions)  {
+    if (!glFunctions) {
+        qWarning() << __FILE__ << __LINE__ <<
+            "The pointer to OpenGL functions API is null.";
+        return;
+    }
+    
+    // If the model is not correctly loaded, do nothing
+    if(m_error)
+        return;
+    
     // Bind shader program
     shader->bind();
 
     // Set light shader uniform
-    // TODO
-//     m_shaderProgram.setUniformValue("lightIntensity", light.getIntensity());
-//     // Downcast and set the uniform as required
-//     m_shaderProgram.setUniformValue("lightDirection", 
-//                                     view * light.getDirection());
-    
-    // Set shader uniform for skybox and camera position
-    // TODO
-//     QVector3D cameraPosition(view.inverted().column(3));
-//     m_shaderProgram.setUniformValue("skybox", 2);
-//     m_shaderProgram.setUniformValue("cameraPosition", cameraPosition);
+    p_objectShader->setLightUniforms(light, view);
 
     // Bind VAO and draw everything
     m_vao.bind();
@@ -246,33 +170,117 @@ void Object::render(const QMatrix4x4 & view, const QMatrix4x4 & projection,
 }
 
 
-void Object::render(const QMatrix4x4 & view, const QMatrix4x4 & projection, 
+void Object::render(const CasterLight & light, const QMatrix4x4 & view, 
+                    const QMatrix4x4 & projection, 
                     const QMatrix4x4 & lightSpace, 
                     QOpenGLFunctions_3_3_Core * glFunctions) {
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-            "The pointer to OpenGL functions API is null.";
-        return;
-    }
-    render(view, projection, lightSpace, p_objectShader.get(), glFunctions);
+    render(
+        light, view, projection, lightSpace, p_objectShader.get(), glFunctions
+    );
 }
 
 
-void Object::renderShadow(const QMatrix4x4 & view, 
+void Object::renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
                           const QMatrix4x4 & projection, 
                           const QMatrix4x4 & lightSpace, 
                           QOpenGLFunctions_3_3_Core * glFunctions){
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-            "The pointer to OpenGL functions API is null.";
-        return;
-    }
-    render(view, projection, lightSpace, p_shadowShader.get(), glFunctions);
+    render(
+        light, view, projection, lightSpace, p_shadowShader.get(), glFunctions
+    );
 }
 
 
 void Object::cleanUp() {
+    // If the model is not correctly loaded, do nothing
+    if(m_error)
+        return;
+}
+
+
+
+/***
+ *      __  __             _     
+ *     |  \/  |           | |    
+ *     | \  / |  ___  ___ | |__  
+ *     | |\/| | / _ \/ __|| '_ \ 
+ *     | |  | ||  __/\__ \| | | |
+ *     |_|  |_| \___||___/|_| |_|
+ *                               
+ *                               
+ */
+
+void Object::Mesh::drawMesh(ObjectShader * objectShader, 
+                    QOpenGLFunctions_3_3_Core * glFunctions) const {
+    if (!objectShader) {
+        qWarning() << __FILE__ << __LINE__ <<
+             "The pointer to the shader is null.";
+        return;
+    }
+    if (!glFunctions) {
+        qWarning() << __FILE__ << __LINE__ <<
+             "The pointer to OpenGL functions API is null.";
+        return;
+    }
     
+    // Set material uniforms in OpenGL
+    objectShader->setMaterialUniforms(m_material.get());
+    
+    // Draw the mesh
+    glFunctions->glDrawElements(
+        GL_TRIANGLES,
+        static_cast<GLsizei>(m_indexCount),
+        GL_UNSIGNED_INT,
+        reinterpret_cast<const void*>(m_indexOffset * sizeof(unsigned int))
+    );
+}
+
+
+
+/***
+ *      _   _             _       
+ *     | \ | |           | |      
+ *     |  \| |  ___    __| |  ___ 
+ *     | . ` | / _ \  / _` | / _ \
+ *     | |\  || (_) || (_| ||  __/
+ *     |_| \_| \___/  \__,_| \___|
+ *                                
+ *                                
+ */
+
+void Object::Node::drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
+                    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
+                    ObjectShader * objectShader, 
+                    QOpenGLFunctions_3_3_Core * glFunctions) const {
+    if (!objectShader) {
+        qWarning() << __FILE__ << __LINE__ <<
+             "The pointer to the shader is null.";
+        return;
+    }
+    if (!glFunctions) {
+        qWarning() << __FILE__ << __LINE__ <<
+             "The pointer to OpenGL functions API is null.";
+        return;
+    }
+    
+//     std::cout << "Node " << m_name.toStdString() << " has " << m_meshes.size() << " meshes and "
+//         << m_children.size() << " children." << std::endl;
+    
+    // Compute model matrix of the node and set uniforms
+    QMatrix4x4 object = model * m_transformation;
+    objectShader->setMatrixUniforms(object, view, projection, lightSpace);
+    
+    // Draw the meshes of the node
+    for (unsigned int i = 0; i < m_meshes.size(); i++) {
+        m_meshes[i]->drawMesh(objectShader, glFunctions);
+    }
+    
+    // Draw the children recursively
+    for (unsigned int i = 0; i < m_children.size(); i++) {
+        m_children[i]->drawNode(
+            object, view, projection, lightSpace,
+            objectShader, glFunctions
+        );
+    }
 }
 
 
@@ -310,8 +318,8 @@ std::unique_ptr<Object> Object::Loader::getObject() {
 bool Object::Loader::build() {
     // Check the file exists
     if (!QFile::exists(m_filePath)) {
-            qDebug() << __FILE__ << __LINE__ << 
-                "The path" << m_filePath 
+            qDebug() << __FILE__ << __LINE__
+                << "The path" << m_filePath 
                 << "to the texture file is not valid";
             return false;
     }
@@ -376,12 +384,19 @@ bool Object::Loader::build() {
         qDebug() << "Error while loading the model.";
         return false;
     }
-    
+     // TODO remove the following lines 
+    std:: cout << "The root node has " << rootNode->m_meshes.size() 
+        << " and " << rootNode->m_children.size() << " children." 
+        << std::endl;
     // Build the object
     p_object = std::make_unique<Object>(
         std::move(rootNode), std::move(vertices), std::move(normals), 
         std::move(textureUV), std::move(indices)
     );
+    
+//     TODO remove : std:: cout << "The root node has " << p_object->p_rootNode->m_meshes.size() 
+//         << " and " << p_object->p_rootNode->m_children.size() << " children." 
+//         << std::endl;
     
     return true;
 }
@@ -390,7 +405,7 @@ bool Object::Loader::build() {
 std::shared_ptr<const Material> Object::Loader::processMaterial(
     const aiMaterial* material, const QString textureDir
 ) {
-    std::shared_ptr<Material> mater;
+    std::shared_ptr<Material> mater(nullptr);
 
     // Get material name
     aiString mname;
@@ -432,6 +447,8 @@ std::shared_ptr<const Material> Object::Loader::processMaterial(
         std::vector<Texture *> textures = loadMaterialTextures(
             material, Texture::Type::Diffuse, textureDir
         );
+        if (textures.size() == 0)
+            textures.push_back(nullptr);
         mater = std::make_shared<Material>(name, textures.at(0));
         mater->setAmbientColor(QVector3D(amb.r, amb.g, amb.b));
         mater->setDiffuseColor(QVector3D(dif.r, dif.g, dif.b));
@@ -439,7 +456,7 @@ std::shared_ptr<const Material> Object::Loader::processMaterial(
         mater->setShininess(shine);
         mater->setAlpha(alpha);
     }
-
+    
     return mater;
 }
 
@@ -466,7 +483,7 @@ std::vector<Texture *> Object::Loader::loadMaterialTextures(
         default:
             qCritical() << __FILE__ << __LINE__ <<
             "No corresponding Assimp type for type" << type;
-            break;
+            return std::vector<Texture *>();
     }
     
     // Load all the textures used by the model
@@ -496,7 +513,7 @@ std::vector<Texture *> Object::Loader::loadMaterialTextures(
 }
 
 
-std::shared_ptr<const Mesh> Object::Loader::processMesh(
+std::shared_ptr<const Object::Mesh> Object::Loader::processMesh(
     const aiMesh* mesh, 
     const std::vector<std::shared_ptr<const Material>> & materials, 
     std::unique_ptr<QVector<float>> & vertices, 
@@ -504,6 +521,15 @@ std::shared_ptr<const Mesh> Object::Loader::processMesh(
     std::unique_ptr<QVector<QVector<float>>> & textureUV,
     std::unique_ptr<QVector<unsigned int>> & indices
 ) {
+    if (!vertices)
+        vertices = std::make_unique<QVector<float>>();
+    if (!normals)
+        normals = std::make_unique<QVector<float>>();
+    if (!textureUV)
+        textureUV = std::make_unique<QVector<QVector<float>>>();
+    if (!indices)
+        indices = std::make_unique<QVector<unsigned int>>();
+    
     // Get the mesh name
     QString name;
     if (mesh->mName.length != 0)
@@ -593,7 +619,7 @@ std::shared_ptr<const Mesh> Object::Loader::processMesh(
 }
 
 
-std::unique_ptr<const Node> Object::Loader::processNode(
+std::unique_ptr<const Object::Node> Object::Loader::processNode(
     const aiScene * scene, const aiNode * node, 
     const std::vector<std::shared_ptr<const Mesh>> & meshes
 ) {

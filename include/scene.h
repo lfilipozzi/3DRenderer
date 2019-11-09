@@ -10,6 +10,7 @@
 #include <memory>
 #include "camera.h"
 #include "abstractvehicle.h"
+#include "object.h"
 
 
 /// Scene class
@@ -255,6 +256,8 @@ private:
      * Show the global frame of the scene.
      */
     bool m_showGlobalFrame;
+    
+    std::unique_ptr<Object> p_object;
     
 };
 
