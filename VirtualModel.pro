@@ -38,8 +38,8 @@ SOURCES += \
     src/animationwindow.cpp \
     src/shaderprogram.cpp \ # New
     src/material.cpp \
-    src/texture.cpp #\
-#     src/object.cpp
+    src/texture.cpp \
+    src/object.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -73,8 +73,8 @@ HEADERS += \
     include/animationwindow.h \
     include/shaderprogram.h \ # new
     include/material.h \
-    include/texture.h #\
-#     include/object.h
+    include/texture.h \
+    include/object.h
 
 unix: !macx {
     INCLUDEPATH += lib/assimp/include

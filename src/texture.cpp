@@ -10,6 +10,8 @@ TextureManager::TextureManager() {}
 
 Texture * TextureManager::loadTexture(
     QString name, Texture::Type type, QImage & image) {
+    // TODO change so that two different texture can have the same name but a different type
+    // TODO do not create texture if it already exist
     m_textures[name] = std::make_unique<Texture>(type, image);
     return m_textures[name].get();
 }
