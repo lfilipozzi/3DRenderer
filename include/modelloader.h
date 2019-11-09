@@ -162,7 +162,7 @@ private:
      * @param newNode
      */
     void processNode(const aiScene *scene, aiNode *node, 
-                     Node *parentNode, Node &newNode);
+                     Node &newNode);
     
     /**
      * Vector of vertices for each point of the model.

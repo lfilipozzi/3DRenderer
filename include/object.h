@@ -40,7 +40,7 @@ public:
         std::unique_ptr<QVector<QVector<float>>> textureUV,
         std::unique_ptr<QVector<unsigned int>> indices
     ) : 
-    m_error(!rootNode),
+    m_error(!rootNode || !vertices || !normals || !textureUV || !indices),
     p_rootNode(std::move(rootNode)), 
     m_vertexBuffer(QOpenGLBuffer::VertexBuffer), 
     m_normalBuffer(QOpenGLBuffer::VertexBuffer), 
@@ -429,14 +429,14 @@ private:
     
     /**
      * @brief Process the Assimp node into a Node.
-     * @param[in] scene The Assimp scene.
      * @param[in] node The Assimp node.
+     * @param[in] scene The Assimp scene.
      * @param[in] meshes The processed meshes of the scene.
      * @return The processed node.
      */
-    std::unique_ptr<const Node> processNode(const aiScene * scene, 
-            const aiNode * node, 
-            const std::vector<std::shared_ptr<const Mesh>> & meshes);
+    std::unique_ptr<const Node> processNode(const aiNode * node, 
+            const aiScene * scene, 
+            const std::vector<std::shared_ptr<const Mesh>> & sceneMeshes);
     
 private:
     /**

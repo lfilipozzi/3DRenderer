@@ -15,8 +15,11 @@
 
 void Object::initialize() {
     // If the model is not correctly loaded, do nothing
-    if(m_error)
+    if(m_error) {
+        qDebug() << "There was an error while loading the model, "
+            << "the model will not be drawn.";
         return;
+    }
     
     createShaderPrograms();
     createBuffers();
@@ -221,9 +224,8 @@ void Object::Mesh::drawMesh(ObjectShader * objectShader,
              "The pointer to OpenGL functions API is null.";
         return;
     }
-    
     // Set material uniforms in OpenGL
-    objectShader->setMaterialUniforms(m_material.get());
+    objectShader->setMaterialUniforms(*m_material);
     
     // Draw the mesh
     glFunctions->glDrawElements(
@@ -261,9 +263,6 @@ void Object::Node::drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view,
              "The pointer to OpenGL functions API is null.";
         return;
     }
-    
-//     std::cout << "Node " << m_name.toStdString() << " has " << m_meshes.size() << " meshes and "
-//         << m_children.size() << " children." << std::endl;
     
     // Compute model matrix of the node and set uniforms
     QMatrix4x4 object = model * m_transformation;
@@ -378,25 +377,17 @@ bool Object::Loader::build() {
     // Process the nodes
     std::unique_ptr<const Node> rootNode;
     if (scene->mRootNode != nullptr) {
-        rootNode = processNode(scene, scene->mRootNode, meshes);
+        rootNode = processNode(scene->mRootNode, scene, meshes);
     }
     else {
         qDebug() << "Error while loading the model.";
         return false;
     }
-     // TODO remove the following lines 
-    std:: cout << "The root node has " << rootNode->m_meshes.size() 
-        << " and " << rootNode->m_children.size() << " children." 
-        << std::endl;
     // Build the object
     p_object = std::make_unique<Object>(
         std::move(rootNode), std::move(vertices), std::move(normals), 
         std::move(textureUV), std::move(indices)
     );
-    
-//     TODO remove : std:: cout << "The root node has " << p_object->p_rootNode->m_meshes.size() 
-//         << " and " << p_object->p_rootNode->m_children.size() << " children." 
-//         << std::endl;
     
     return true;
 }
@@ -620,9 +611,9 @@ std::shared_ptr<const Object::Mesh> Object::Loader::processMesh(
 
 
 std::unique_ptr<const Object::Node> Object::Loader::processNode(
-    const aiScene * scene, const aiNode * node, 
-    const std::vector<std::shared_ptr<const Mesh>> & meshes
-) {
+    const aiNode * node, const aiScene * scene, 
+    const std::vector<std::shared_ptr<const Mesh>> & sceneMeshes
+) {    
     // Get the node name
     QString name;
     if (node->mName.length != 0)
@@ -637,15 +628,18 @@ std::unique_ptr<const Object::Node> Object::Loader::processNode(
     std::vector<std::shared_ptr<const Mesh>> nodeMeshes;
     nodeMeshes.resize(node->mNumMeshes);
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-        std::shared_ptr<const Mesh> mesh = meshes[node->mMeshes[i]];
+        std::shared_ptr<const Mesh> mesh = sceneMeshes[node->mMeshes[i]];
         nodeMeshes[i] = mesh;
     }
     
     // Create the children of the node
     std::vector<std::unique_ptr<const Node>> children;
+    children.resize(node->mNumChildren);
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        std::unique_ptr<const Node> child = 
-            processNode(scene, node->mChildren[i], meshes);
+        std::unique_ptr<const Node> child = processNode(
+            node->mChildren[i], scene, sceneMeshes
+        );
+        children[i] = std::move(child);
     }
     
     // Create the node

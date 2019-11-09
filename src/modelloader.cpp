@@ -51,7 +51,7 @@ bool ModelLoader::Load(QString filePath, QString textureDir) {
     // Process the nodes and store the root node of the model.
     if(scene->mRootNode != nullptr) {
         Node *rootNode = new Node;
-        processNode(scene, scene->mRootNode, nullptr, *rootNode);
+        processNode(scene, scene->mRootNode, *rootNode);
         m_rootNode.reset(rootNode);
     }
     else {
@@ -295,7 +295,7 @@ QSharedPointer<Mesh> ModelLoader::processMesh(aiMesh *mesh) {
     return newMesh;
 }
 
-void ModelLoader::processNode(const aiScene *scene, aiNode *node, Node *parentNode, Node &newNode) {
+void ModelLoader::processNode(const aiScene *scene, aiNode *node, Node &newNode) {
     newNode.name = node->mName.length != 0 ? node->mName.C_Str() : "";
 
     newNode.transformation = QMatrix4x4(node->mTransformation[0]);
@@ -308,7 +308,7 @@ void ModelLoader::processNode(const aiScene *scene, aiNode *node, Node *parentNo
 
     for(int ich = 0; ich < static_cast<int>(node->mNumChildren); ++ich) {
         newNode.nodes.push_back(Node());
-        processNode(scene, node->mChildren[ich], parentNode, newNode.nodes[ich]);
+        processNode(scene, node->mChildren[ich], newNode.nodes[ich]);
     }
 }
 

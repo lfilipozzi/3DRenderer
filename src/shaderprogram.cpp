@@ -45,16 +45,17 @@ Shader::Shader(QString vShader, QString fShader) {
  *                                              
  */
 
-void ObjectShader::setMaterialUniforms(const Material * material) {
+void ObjectShader::setMaterialUniforms(const Material & material) {
     // Set material properties
-    setUniformValue("Ka", material->getAmbientColor());
-    setUniformValue("Kd", material->getDiffuseColor());
-    setUniformValue("Ks", material->getSpecularColor());
-    setUniformValue("shininess", material->getShininess());
-    setUniformValue("alpha", material->getAlpha());
+    setUniformValue("Ka", material.getAmbientColor());
+    setUniformValue("Kd", material.getDiffuseColor());
+    setUniformValue("Ks", material.getSpecularColor());
+    setUniformValue("shininess", material.getShininess());
+    setUniformValue("alpha", material.getAlpha());
     
     // Apply the texture
-    material->getTexture()->bind(0);
+    if (material.getTexture() != nullptr)
+        material.getTexture()->bind(0);
     setUniformValue("textureSampler", 0);
     setUniformValue("shadowMap", 1);
     setUniformValue("skybox", 2);
@@ -113,7 +114,7 @@ void ObjectShader::setLightUniforms(
  *                                                    
  */
 
-void ObjectShadowShader::setMaterialUniforms(const Material* /*material*/) {
+void ObjectShadowShader::setMaterialUniforms(const Material & /*material*/) {
     // Nothing to do: no need to apply material to render the shadow 
     // frame buffer.
 }

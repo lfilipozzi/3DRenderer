@@ -2,25 +2,33 @@
 
 
 // Instantiate static member variables
-TextureManager::TexturesMap TextureManager::m_textures;
-
+TextureManager::TexturesMapsContainer TextureManager::m_textures;
 
 TextureManager::TextureManager() {}
 
 
 Texture * TextureManager::loadTexture(
-    QString name, Texture::Type type, QImage & image) {
-    // TODO change so that two different texture can have the same name but a different type
-    // TODO do not create texture if it already exist
-    m_textures[name] = std::make_unique<Texture>(type, image);
-    return m_textures[name].get();
+    QString name, Texture::Type type, QImage & image
+) {
+    // Check if a texture with the same type has already been loaded
+    TexturesMapsContainer::iterator searchType = m_textures.find(type);
+    if (searchType != m_textures.end()) {
+        // Check if a texture with the same name and type has been loaded
+        TexturesMap::iterator searchTexture = m_textures[type].find(name);
+        if (searchTexture != m_textures.at(type).end()) {
+            // The texture has already been loaded
+            return searchTexture->second.get();
+        }
+    }
+    // The texture has not been loaded yet
+    m_textures[type][name] = std::make_unique<Texture>(type, image);
+    return m_textures[type][name].get();
 }
 
 
-Texture * TextureManager::getTexture(QString name) {
-    TexturesMap::iterator 
-        it(m_textures.find(name));
-    if(it != m_textures.end())
+Texture * TextureManager::getTexture(QString name, Texture::Type type) {
+    TexturesMap::iterator it(m_textures[type].find(name));
+    if(it != m_textures.at(type).end())
         return it->second.get();
     else
         return nullptr;
@@ -29,7 +37,16 @@ Texture * TextureManager::getTexture(QString name) {
 
 void TextureManager::cleanUp() {
     // Delete all textures
-    for(TexturesMap::iterator it = m_textures.begin(); 
-        it != m_textures.end(); it++)
-        it->second->destroy();
+    for (
+        TexturesMapsContainer::iterator itType = m_textures.begin();
+        itType != m_textures.end(); itType++
+    ) {
+        Texture::Type type = itType->first;
+        for (
+            TexturesMap::iterator itTextures = m_textures.at(type).begin(); 
+            itTextures != m_textures.at(type).end(); itTextures++
+        ) {
+            itTextures->second->destroy();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 #include "../include/material.h"
 #include "../include/texture.h"
+#include <QDebug>
 
 
 Material::Material(QString name, Texture * texture) :
@@ -25,7 +26,11 @@ void Material::setTexture(Texture * texture) {
 
 
 void Material::setDefaultTexture() { 
-    ///@todo set default texture   
-//     TODO set default texture
-//     m_texture = TextureManager::loadTexture(TODO path to default texture);
+    QImage image("asset/Texture/Default/noTexture.png");
+    if (image.isNull())
+        qCritical() << __FILE__ << __LINE__ << 
+            "The image file to the default diffuse texture does not exist.";
+    m_texture = TextureManager::loadTexture(
+        QString("DefaultDiffuseTexture"), Texture::Type::Diffuse, image
+    );
 }

@@ -169,7 +169,7 @@ void Scene::render() {
 //     if (m_showGlobalFrame) 
 //         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
 //     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
-//     m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
+    m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
     
     p_object->render(
         m_light, m_view, m_projection, lightSpaceMatrix, p_glFunctions

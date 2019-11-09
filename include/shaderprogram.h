@@ -46,7 +46,7 @@ public:
      * @brief Set the uniforms in OpenGL defining the material.
      * @param material The material to apply.
      */
-    virtual void setMaterialUniforms(const Material * material);
+    virtual void setMaterialUniforms(const Material & material);
     
     /**
      * @brief Set the matrix uniforms in OpenGL.
@@ -96,7 +96,7 @@ public:
      * @remark This function does not set any uniform as the material is not 
      * used when computing the shadow map.
      */
-    virtual void setMaterialUniforms(const Material * material);
+    virtual void setMaterialUniforms(const Material & material);
     
     /**
      * @overload

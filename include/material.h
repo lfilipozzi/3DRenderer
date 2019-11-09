@@ -26,6 +26,7 @@ public:
     void setAlpha(float alpha) {m_alpha = alpha;};
     void setTexture(Texture * texture);
     
+    QString getName() const {return m_name;};
     QVector3D getAmbientColor() const {return m_ambient;};
     QVector3D getDiffuseColor() const {return m_diffuse;};
     QVector3D getSpecularColor() const {return m_specular;};

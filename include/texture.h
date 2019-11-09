@@ -60,8 +60,10 @@ public:
      * @brief Get the texture.
      * @remark Return a null pointer if the texture has not been loaded yet.
      * @param path The path to the texture file.
+     * @param type The texture type.
+     * @return A pointer to the texture.
      */
-    static Texture * getTexture(QString name);
+    static Texture * getTexture(QString name, Texture::Type type);
     
     /**
      * @brief Properly deallocate all textures.
@@ -72,10 +74,14 @@ private:
     TextureManager();
     
     typedef std::map<QString, std::unique_ptr<Texture>> TexturesMap;
+    typedef std::map<Texture::Type, TexturesMap> TexturesMapsContainer;
     /**
      * List of loaded textures.
+     * @details This container stores all the loaded textures. It is a map of
+     * map. Each map correspond to a different texture type so that two textures
+     * can have a same name but a different type.
      */
-    static TexturesMap m_textures;
+    static TexturesMapsContainer m_textures;
 };
 
 #endif // TEXTURE_H
