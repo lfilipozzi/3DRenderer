@@ -52,6 +52,7 @@ public:
      * @param name The name of the texture.
      * @param type The texture type.
      * @param path The path to the texture file.
+     * @return A pointer to the texture.
      */
     static Texture * loadTexture(QString name, Texture::Type type,
                                  QImage & image);
@@ -59,7 +60,7 @@ public:
     /**
      * @brief Get the texture.
      * @remark Return a null pointer if the texture has not been loaded yet.
-     * @param path The path to the texture file.
+     * @param name The name of the texture to load
      * @param type The texture type.
      * @return A pointer to the texture.
      */
@@ -71,7 +72,7 @@ public:
     static void cleanUp();
     
 private:
-    TextureManager();
+    TextureManager() {};
     
     typedef std::map<QString, std::unique_ptr<Texture>> TexturesMap;
     typedef std::map<Texture::Type, TexturesMap> TexturesMapsContainer;

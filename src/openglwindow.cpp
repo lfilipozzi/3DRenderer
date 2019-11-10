@@ -109,6 +109,7 @@ void OpenGLWindow::resizeGL() {
 void OpenGLWindow::cleanUpGL() {
     p_context->makeCurrent(this);
     p_scene->cleanUp();
+    TextureManager::cleanUp();
 }
 
 

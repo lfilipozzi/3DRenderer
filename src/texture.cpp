@@ -1,10 +1,23 @@
 #include "../include/texture.h"
 
 
+/***
+ *             _______           _                     
+ *            |__   __|         | |                    
+ *               | |  ___ __  __| |_  _   _  _ __  ___ 
+ *               | | / _ \\ \/ /| __|| | | || '__|/ _ \
+ *      __  __   | ||  __/ >  < | |_ | |_| || |  |  __/
+ *     |  \/  |  |_| \___|/_/\_\ \__| \__,_||_|   \___|
+ *     | \  / |  __ _  _ __    __ _   __ _   ___  _ __ 
+ *     | |\/| | / _` || '_ \  / _` | / _` | / _ \| '__|
+ *     | |  | || (_| || | | || (_| || (_| ||  __/| |   
+ *     |_|  |_| \__,_||_| |_| \__,_| \__, | \___||_|   
+ *                                    __/ |            
+ *                                   |___/             
+ */
+
 // Instantiate static member variables
 TextureManager::TexturesMapsContainer TextureManager::m_textures;
-
-TextureManager::TextureManager() {}
 
 
 Texture * TextureManager::loadTexture(
@@ -28,7 +41,7 @@ Texture * TextureManager::loadTexture(
 
 Texture * TextureManager::getTexture(QString name, Texture::Type type) {
     TexturesMap::iterator it(m_textures[type].find(name));
-    if(it != m_textures.at(type).end())
+    if (it != m_textures.at(type).end())
         return it->second.get();
     else
         return nullptr;

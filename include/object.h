@@ -347,6 +347,36 @@ private:
 
 
 
+class ObjectManager {
+public:
+    /**
+     * @brief Load an Object and return a raw pointer to the object.
+     * @param name The name of the object.
+     * @param object The object to load.
+     * @return A pointer to the object.
+     */
+    static Object * loadObject(QString name, std::unique_ptr<Object> object);
+    
+    /**
+     * @brief Get the texture.
+     * @remark Return a null pointer if the texture has not been loaded yet.
+     * @param name The name of the model to load.
+     * @return A pointer to the object.
+     */
+    static Object * getObject(QString name);
+    
+private:
+    ObjectManager() {};
+    
+    typedef std::map<QString, std::unique_ptr<Object>> ObjectsMap;
+    /**
+     * List of loaded model.
+     */
+    static ObjectsMap m_objects;
+};
+
+
+
 /// Object builder interface
 /**
  * @brief Interface of an object builder.
