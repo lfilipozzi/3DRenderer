@@ -96,11 +96,11 @@ void Scene::initialize() {
         "asset/3DModels/Cars/MustangGT/mustangChassis.obj",
         "asset/3DModels/Cars/MustangGT/"
     );
-    bool status = modelLoader.build();
-    std::cout << (status ? "Model loaded" : "Error while loading the model") << std::endl;
-    std::unique_ptr<Object> tmp = modelLoader.getObject();
-    p_object.swap(tmp);
-    p_object->initialize();
+    if(modelLoader.build()) {
+        std::unique_ptr<Object> tmp = modelLoader.getObject();
+        p_object.swap(tmp);
+        p_object->initialize();
+    }
 }
 
 
@@ -150,6 +150,9 @@ void Scene::render() {
     // Render scene to compute the shadow map
     m_surface.renderShadow(lightSpaceMatrix);
     m_vehicle->renderShadow(lightSpaceMatrix);
+    p_object->renderShadow(
+        m_light, m_view, m_projection, lightSpaceMatrix, p_glFunctions
+    );
         
     p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
     
@@ -166,15 +169,14 @@ void Scene::render() {
     
     // Call update method of object in the scene
     m_skybox.render(m_view, m_projection);
-//     if (m_showGlobalFrame) 
-//         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
-//     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
+    if (m_showGlobalFrame) 
+        m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
+    m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
     
     p_object->render(
         m_light, m_view, m_projection, lightSpaceMatrix, p_glFunctions
     );
-//     std::cout << std::endl;
         
     printOpenGLError();
         

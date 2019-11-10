@@ -26,7 +26,7 @@
  */
 class Object {
 public:
-    class InterfaceBuilder;
+    class IBuilder;
     class Loader;
     
     class Node;
@@ -353,7 +353,7 @@ private:
  * @author Louis Filipozzi
  * @details The construction of the object is dealt with the builder pattern.
  */
-class Object::InterfaceBuilder {
+class Object::IBuilder {
 public:
     /**
      * @brief Build the object. Return true if the model has been loaded 
@@ -380,7 +380,7 @@ public:
  * @author Louis Filipozzi
  * @details The construction of the object is dealt with the builder pattern.
  */
-class Object::Loader : public Object::InterfaceBuilder {
+class Object::Loader : public Object::IBuilder {
 public:
     /**
      * This function loads the 3D model from filePath and return a pointer to 
