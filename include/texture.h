@@ -19,7 +19,7 @@ public:
     
     Texture(Type type, QImage & image, 
             QOpenGLTexture::MipMapGeneration genMipMaps = GenerateMipMaps) 
-    : QOpenGLTexture(image, genMipMaps), m_type(type) {}
+    : QOpenGLTexture(image.mirrored(), genMipMaps), m_type(type) {}
     
     Texture(Type type, QOpenGLTexture::Target target) 
     : QOpenGLTexture(target), m_type(type) {}

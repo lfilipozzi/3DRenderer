@@ -1,6 +1,8 @@
 #include "../include/modelloader.h"
 #include <QDir>
 
+#include <iostream>
+
 ModelLoader::ModelLoader() {
 
 }

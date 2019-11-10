@@ -135,7 +135,6 @@ void Object::createAttributes() {
 }
 
 
-
 void Object::render(const CasterLight & light, const QMatrix4x4 & view, 
                     const QMatrix4x4 & projection, 
                     const QMatrix4x4 & lightSpace, ObjectShader * shader,
@@ -495,7 +494,7 @@ std::vector<Texture *> Object::Loader::loadMaterialTextures(
         if (image.isNull())
             qCritical() << __FILE__ << __LINE__ << 
                 "The image file does not exist.";
-                
+        
         // Load the texture
         Texture * thisTexture = TextureManager::loadTexture(path, type, image);
         textures.push_back(thisTexture);
@@ -571,11 +570,11 @@ std::shared_ptr<const Object::Mesh> Object::Loader::processMesh(
                 (*textureUV)[iChannel].push_back(
                     mesh->mTextureCoords[iChannel][i].x
                 );
-                if (numUV > 1) {
+                if (mesh->mNumUVComponents[iChannel]> 1) {
                     (*textureUV)[iChannel].push_back(
                         mesh->mTextureCoords[iChannel][i].y
                     );
-                    if (numUV > 2) {
+                    if (mesh->mNumUVComponents[iChannel] > 2) {
                         (*textureUV)[iChannel].push_back(
                             mesh->mTextureCoords[iChannel][i].z
                         );

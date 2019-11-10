@@ -51,7 +51,7 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
     setUniformValue("Kd", material.getDiffuseColor());
     setUniformValue("Ks", material.getSpecularColor());
     setUniformValue("shininess", material.getShininess());
-    setUniformValue("alpha", material.getAlpha());
+    setUniformValue("alpha", 1.0f);//TODO use setUniformValue("alpha", material.getAlpha());
     
     // Apply the texture
     if (material.getTexture() != nullptr)
