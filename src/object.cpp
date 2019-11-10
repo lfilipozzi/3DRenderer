@@ -1,7 +1,5 @@
 #include "../include/object.h"
 
-#include <iostream> // TODO remove this include
-
 /***
  *       ____   _      _              _   
  *      / __ \ | |    (_)            | |  
@@ -157,15 +155,20 @@ void Object::render(const CasterLight & light, const QMatrix4x4 & view,
 
     // Bind VAO and draw everything
     m_vao.bind();
+    
     // Draw opaque node
     // TODO
+//     typedef std::multimap<float, >
 //     std::multimap<float, TransparentMeshInfo> transparentMeshes;
     p_rootNode->drawNode(m_model, view, projection, lightSpace,
                          shader, glFunctions);
+    
     // Draw transparent nodes from farthest to closest
     // TODO
-//     for(std::map<float,TransparentMeshInfo>::reverse_iterator it = transparentMeshes.rbegin(); 
-//         it != transparentMeshes.rend(); ++it) {
+//     for(
+//         std::map<float,TransparentMeshInfo>::reverse_iterator it = transparentMeshes.rbegin(); 
+//         it != transparentMeshes.rend(); ++it
+//     ) {
 //         drawSingleMesh(it->second, view, projection, lightSpaceMatrix);
 //     } 
     m_vao.release();
@@ -552,9 +555,6 @@ std::shared_ptr<const Object::Mesh> Object::Loader::processMesh(
     }
     
     // Retrieve the texture coordinates
-    // TODO simplify this by using 3 coordinates all the time as Assimp does not support more than 3 coordinates anyway
-//     std::vector<unsigned int> textureUVComponents;
-//     textureUVComponents.resize(textureUV.size());
     unsigned int numUV = mesh->GetNumUVChannels();
     if (numUV > 0) {
         if (textureUV->size() < static_cast<int>(numUV)) {
@@ -562,10 +562,8 @@ std::shared_ptr<const Object::Mesh> Object::Loader::processMesh(
             // channels (number of texture coordinates). Resize the textureUV
             // if the number of UV channel is not the same.
             textureUV->resize(numUV);
-//             textureUVComponents.resize(numUV);
         }
         for (unsigned int iChannel = 0; iChannel < numUV; iChannel++) {
-//             textureUVComponents[iChannel] = mesh->mNumUVComponents[iChannel];
             for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
                 (*textureUV)[iChannel].push_back(
                     mesh->mTextureCoords[iChannel][i].x

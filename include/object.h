@@ -119,7 +119,7 @@ private:
      */
     void createBuffers();
     
-//TODO reset private:
+private:
     /**
      * Set to true if the model is not valid.
      */
@@ -196,7 +196,6 @@ private:
      *   different dimension depending of the number of UV channel of each mesh.
      * The reason the texture UV is implemented this way is because it allowed 
      * to easily resize all the textureUV to use the same number of UV channels.
-     * TODO simplify this by using 3 coordinates all the time as Assimp does not support more than 3 coordinates anyway: need to change processMesh function.
      */
     std::unique_ptr<QVector<QVector<float>>> p_textureUV;
     
@@ -205,6 +204,70 @@ private:
      * initialization. This pointer is reset after initialization.
      */
     std::unique_ptr<QVector<unsigned int>> p_indices;
+};
+
+
+
+#include <QMatrix4x4>
+#include <memory>
+#include <QOpenGLFunctions_3_3_Core>
+
+/// Node of a 3D object
+/**
+ * @brief Define a node of a 3D object. The node is made of several meshes.
+ * @author Louis Filipozzi
+ */
+class Object::Node {
+public:
+    /**
+     * @brief Node constructor.
+     * @param name The name of the node.
+     */
+    Node(const QString name, const QMatrix4x4 transformation, 
+         const std::vector<std::shared_ptr<const Mesh>> meshes,
+         std::vector<std::unique_ptr<const Node>> children)
+    : m_name(name), m_transformation(transformation), m_meshes(meshes) ,
+    m_children(std::move(children)) {};
+    ~Node() {};
+    
+    const QString getName() const {return m_name;};
+    
+    /**
+     * @brief Draw the node and its children.
+     * @param model The model matrix use to position the node. Note that the 
+     * transformation stored in the node is applied for positioning the node.
+     * @param view The view matrix.
+     * @param projection The projection matrix.
+     * @param lightSpace The view and projection matrix of the light (used for 
+     * shadow mapping).
+     * @param objectShader The shader used to render the object.
+     * @param glFunctions Pointer to class containing OpenGL functions.
+     */
+    void drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
+                  const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
+                  ObjectShader * objectShader, 
+                  QOpenGLFunctions_3_3_Core * glFunctions) const;
+    
+private:
+    /**
+     * The name of the node.
+     */
+    const QString m_name;
+    
+    /**
+     * The transformation to move from the parent's node to the current node.
+     */
+    const QMatrix4x4 m_transformation;
+    
+    /**
+     * The meshes contained by the node.
+     */
+    const std::vector<std::shared_ptr<const Mesh>> m_meshes;
+    
+    /**
+     * The children of this node.
+     */
+    std::vector<std::unique_ptr<const Node>> m_children;
 };
 
 
@@ -264,70 +327,6 @@ private:
      * Pointer to the material of the mesh.
      */
     const std::shared_ptr<const Material> m_material;
-};
-
-
-
-#include <QMatrix4x4>
-#include <memory>
-#include <QOpenGLFunctions_3_3_Core>
-
-/// Node of a 3D object
-/**
- * @brief Define a node of a 3D object. The node is made of several meshes.
- * @author Louis Filipozzi
- */
-class Object::Node {
-public:
-    /**
-     * @brief Node constructor.
-     * @param name The name of the node.
-     */
-    Node(const QString name, const QMatrix4x4 transformation, 
-         const std::vector<std::shared_ptr<const Mesh>> meshes,
-         std::vector<std::unique_ptr<const Node>> children)
-    : m_name(name), m_transformation(transformation), m_meshes(meshes) ,
-    m_children(std::move(children)) {};
-    ~Node() {};
-    
-    const QString getName() const {return m_name;};
-    
-    /**
-     * @brief Draw the node and its children.
-     * @param model The model matrix use to position the node. Note that the 
-     * transformation stored in the node is applied for positioning the node.
-     * @param view The view matrix.
-     * @param projection The projection matrix.
-     * @param lightSpace The view and projection matrix of the light (used for 
-     * shadow mapping).
-     * @param objectShader The shader used to render the object.
-     * @param glFunctions Pointer to class containing OpenGL functions.
-     */
-    void drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
-                  const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                  ObjectShader * objectShader, 
-                  QOpenGLFunctions_3_3_Core * glFunctions) const;
-    
-// TODO reset private:
-    /**
-     * The name of the node.
-     */
-    const QString m_name;
-    
-    /**
-     * The transformation to move from the parent's node to the current node.
-     */
-    const QMatrix4x4 m_transformation;
-    
-    /**
-     * The meshes contained by the node.
-     */
-    const std::vector<std::shared_ptr<const Mesh>> m_meshes;
-    
-    /**
-     * The children of this node.
-     */
-    std::vector<std::unique_ptr<const Node>> m_children;
 };
 
 
