@@ -133,16 +133,11 @@ void Object::createAttributes() {
 }
 
 
-void Object::render(const CasterLight & light, const QMatrix4x4 & view, 
-                    const QMatrix4x4 & projection, 
-                    const QMatrix4x4 & lightSpace, ObjectShader * shader,
-                    QOpenGLFunctions_3_3_Core * glFunctions)  {
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-            "The pointer to OpenGL functions API is null.";
-        return;
-    }
-    
+void Object::render(
+    const CasterLight & light, const QMatrix4x4 & view, 
+    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
+    ObjectShader * shader
+)  {
     // If the model is not correctly loaded, do nothing
     if(m_error)
         return;
@@ -158,8 +153,9 @@ void Object::render(const CasterLight & light, const QMatrix4x4 & view,
     
     // Draw opaque node
     MeshesToDrawLater tMeshes;
-    p_rootNode->drawNode(m_model, view, projection, lightSpace, tMeshes, 
-                         shader, glFunctions);
+    p_rootNode->drawNode(
+        m_model, view, projection, lightSpace, tMeshes, shader
+    );
     
     // Draw transparent nodes from farthest to closest
     for (
@@ -170,37 +166,26 @@ void Object::render(const CasterLight & light, const QMatrix4x4 & view,
             shader->setMatrixUniforms(
                 it->second.first, view, projection, lightSpace
             );
-            it->second.second->drawMesh(shader, glFunctions);
+            it->second.second->drawMesh(shader);
         }
     }
-    // TODO
-//     for(
-//         std::map<float,TransparentMeshInfo>::reverse_iterator it = transparentMeshes.rbegin(); 
-//         it != transparentMeshes.rend(); ++it
-//     ) {
-//         drawSingleMesh(it->second, view, projection, lightSpaceMatrix);
-//     } 
     m_vao.release();
 }
 
 
-void Object::render(const CasterLight & light, const QMatrix4x4 & view, 
-                    const QMatrix4x4 & projection, 
-                    const QMatrix4x4 & lightSpace, 
-                    QOpenGLFunctions_3_3_Core * glFunctions) {
-    render(
-        light, view, projection, lightSpace, p_objectShader.get(), glFunctions
-    );
+void Object::render(
+    const CasterLight & light, const QMatrix4x4 & view, 
+    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
+) {
+    render(light, view, projection, lightSpace, p_objectShader.get());
 }
 
 
-void Object::renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
-                          const QMatrix4x4 & projection, 
-                          const QMatrix4x4 & lightSpace, 
-                          QOpenGLFunctions_3_3_Core * glFunctions){
-    render(
-        light, view, projection, lightSpace, p_shadowShader.get(), glFunctions
-    );
+void Object::renderShadow(
+    const CasterLight & light, const QMatrix4x4 & view, 
+    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
+){
+    render(light, view, projection, lightSpace, p_shadowShader.get());
 }
 
 
@@ -226,17 +211,11 @@ void Object::cleanUp() {
 void Object::Node::drawNode(
     const QMatrix4x4 & model, const QMatrix4x4 & view, 
     const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-    MeshesToDrawLater & drawLaterMeshes, ObjectShader * objectShader, 
-    QOpenGLFunctions_3_3_Core * glFunctions
+    MeshesToDrawLater & drawLaterMeshes, ObjectShader * objectShader
 ) const {
     if (!objectShader) {
         qWarning() << __FILE__ << __LINE__ <<
              "The pointer to the shader is null.";
-        return;
-    }
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to OpenGL functions API is null.";
         return;
     }
     
@@ -249,7 +228,7 @@ void Object::Node::drawNode(
         // Check if the mesh is opaque or transparent
         if (m_meshes[i]->isOpaque()) {
             // Draw now
-            m_meshes[i]->drawMesh(objectShader, glFunctions);
+            m_meshes[i]->drawMesh(objectShader);
         }
         else {
             // Store the mesh in the container to draw it later
@@ -272,8 +251,7 @@ void Object::Node::drawNode(
     // Draw the children recursively
     for (unsigned int i = 0; i < m_children.size(); i++) {
         m_children[i]->drawNode(
-            object, view, projection, lightSpace, drawLaterMeshes, 
-            objectShader, glFunctions
+            object, view, projection, lightSpace, drawLaterMeshes, objectShader
         );
     }
 }
@@ -291,18 +269,23 @@ void Object::Node::drawNode(
  *                               
  */
 
-void Object::Mesh::drawMesh(ObjectShader * objectShader, 
-                    QOpenGLFunctions_3_3_Core * glFunctions) const {
+#include <QOpenGLFunctions>
+
+void Object::Mesh::drawMesh(ObjectShader * objectShader) const {
     if (!objectShader) {
         qWarning() << __FILE__ << __LINE__ <<
              "The pointer to the shader is null.";
         return;
     }
-    if (!glFunctions) {
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
         qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to OpenGL functions API is null.";
+                      "Requires a valid current OpenGL context. \n" <<
+                      "Unable to draw the object.";
         return;
     }
+    QOpenGLFunctions * glFunctions = context->functions();
+    
     // Set material uniforms in OpenGL
     objectShader->setMaterialUniforms(*m_material);
     

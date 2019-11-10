@@ -6,7 +6,6 @@
 #include <QString>
 #include <memory>
 #include <QMatrix4x4>
-#include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
@@ -63,11 +62,9 @@ public:
      * @param projection The projection matrix.
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
-     * @param glFunctions Pointer to class containing OpenGL functions.
      */
     void render(const CasterLight & light, const QMatrix4x4 & view, 
-                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                QOpenGLFunctions_3_3_Core * glFunctions);
+                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace);
     
     /**
      * @brief Draw the object when computing the framebuffer for shadow mapping.
@@ -75,11 +72,9 @@ public:
      * @param projection The projection matrix.
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
-     * @param glFunctions Pointer to class containing OpenGL functions.
      */
     void renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
-                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                QOpenGLFunctions_3_3_Core * glFunctions);
+                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace);
     
     /**
      * @brief Clean up the object.
@@ -97,12 +92,10 @@ private:
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
      * @param shader The shader program used to draw the scene.
-     * @param glFunctions Pointer to class containing OpenGL functions.
      */
     void render(const CasterLight & light, const QMatrix4x4 & view, 
                 const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                ObjectShader * shader, 
-                QOpenGLFunctions_3_3_Core * glFunctions);
+                ObjectShader * shader);
     
     /**
      * @brief Create and link the shader program.
@@ -249,13 +242,11 @@ public:
      * @param drawLaterMeshes Container of meshes to draw later (transparent
      * meshes).
      * @param objectShader The shader used to render the object.
-     * @param glFunctions Pointer to class containing OpenGL functions.
      */
     void drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
                   const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
                   MeshesToDrawLater & drawLaterMeshes, 
-                  ObjectShader * objectShader, 
-                  QOpenGLFunctions_3_3_Core * glFunctions) const;
+                  ObjectShader * objectShader) const;
     
 private:
     /**
@@ -310,12 +301,10 @@ public:
     /**
      * @brief Set material uniform and draw the mesh.
      * @param objectShader The shader used to render the object.
-     * @param glFunctions Pointer to class containing OpenGL functions.
      * @remark This function does not set the uniform for the model, view, and
      * projection matrices. It only set the uniforms related to the material.
      */
-    void drawMesh(ObjectShader * objectShader, 
-                  QOpenGLFunctions_3_3_Core * glFunctions) const;
+    void drawMesh(ObjectShader * objectShader) const;
     
     /**
      * @brief Check if the material applied to the node is opaque.

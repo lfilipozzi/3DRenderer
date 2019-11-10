@@ -150,9 +150,7 @@ void Scene::render() {
     // Render scene to compute the shadow map
     m_surface.renderShadow(lightSpaceMatrix);
     m_vehicle->renderShadow(lightSpaceMatrix);
-    p_object->renderShadow(
-        m_light, m_view, m_projection, lightSpaceMatrix, p_glFunctions
-    );
+    p_object->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
         
     p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
     
@@ -174,9 +172,7 @@ void Scene::render() {
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
     
-    p_object->render(
-        m_light, m_view, m_projection, lightSpaceMatrix, p_glFunctions
-    );
+    p_object->render(m_light, m_view, m_projection, lightSpaceMatrix);
         
     printOpenGLError();
         
