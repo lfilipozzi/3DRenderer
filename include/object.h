@@ -121,6 +121,12 @@ private:
     
 private:
     /**
+     * @typedef Container used to store meshes to draw later.
+     */
+    typedef std::multimap<float, std::pair<QMatrix4x4, const Mesh *>> 
+        MeshesToDrawLater;
+    
+    /**
      * Set to true if the model is not valid.
      */
     bool m_error;
@@ -240,11 +246,14 @@ public:
      * @param projection The projection matrix.
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
+     * @param drawLaterMeshes Container of meshes to draw later (transparent
+     * meshes).
      * @param objectShader The shader used to render the object.
      * @param glFunctions Pointer to class containing OpenGL functions.
      */
     void drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
                   const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
+                  MeshesToDrawLater & drawLaterMeshes, 
                   ObjectShader * objectShader, 
                   QOpenGLFunctions_3_3_Core * glFunctions) const;
     
@@ -307,6 +316,13 @@ public:
      */
     void drawMesh(ObjectShader * objectShader, 
                   QOpenGLFunctions_3_3_Core * glFunctions) const;
+    
+    /**
+     * @brief Check if the material applied to the node is opaque.
+     * @return Return true for an opaque material.
+     */
+    bool isOpaque() const {return (m_material->getAlpha() == 1.0f);};
+    
 private:
     /**
      * The name of the mesh.

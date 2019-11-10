@@ -151,19 +151,28 @@ void Object::render(const CasterLight & light, const QMatrix4x4 & view,
     shader->bind();
 
     // Set light shader uniform
-    p_objectShader->setLightUniforms(light, view);
+    shader->setLightUniforms(light, view);
 
     // Bind VAO and draw everything
     m_vao.bind();
     
     // Draw opaque node
-    // TODO
-//     typedef std::multimap<float, >
-//     std::multimap<float, TransparentMeshInfo> transparentMeshes;
-    p_rootNode->drawNode(m_model, view, projection, lightSpace,
+    MeshesToDrawLater tMeshes;
+    p_rootNode->drawNode(m_model, view, projection, lightSpace, tMeshes, 
                          shader, glFunctions);
     
     // Draw transparent nodes from farthest to closest
+    for (
+        MeshesToDrawLater::reverse_iterator it = tMeshes.rbegin(); 
+        it != tMeshes.rend(); it++
+    ) {
+        if (it->second.second != nullptr) {
+            shader->setMatrixUniforms(
+                it->second.first, view, projection, lightSpace
+            );
+            it->second.second->drawMesh(shader, glFunctions);
+        }
+    }
     // TODO
 //     for(
 //         std::map<float,TransparentMeshInfo>::reverse_iterator it = transparentMeshes.rbegin(); 
@@ -204,6 +213,74 @@ void Object::cleanUp() {
 
 
 /***
+ *      _   _             _       
+ *     | \ | |           | |      
+ *     |  \| |  ___    __| |  ___ 
+ *     | . ` | / _ \  / _` | / _ \
+ *     | |\  || (_) || (_| ||  __/
+ *     |_| \_| \___/  \__,_| \___|
+ *                                
+ *                                
+ */
+
+void Object::Node::drawNode(
+    const QMatrix4x4 & model, const QMatrix4x4 & view, 
+    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
+    MeshesToDrawLater & drawLaterMeshes, ObjectShader * objectShader, 
+    QOpenGLFunctions_3_3_Core * glFunctions
+) const {
+    if (!objectShader) {
+        qWarning() << __FILE__ << __LINE__ <<
+             "The pointer to the shader is null.";
+        return;
+    }
+    if (!glFunctions) {
+        qWarning() << __FILE__ << __LINE__ <<
+             "The pointer to OpenGL functions API is null.";
+        return;
+    }
+    
+    // Compute model matrix of the node and set uniforms
+    QMatrix4x4 object = model * m_transformation;
+    objectShader->setMatrixUniforms(object, view, projection, lightSpace);
+    
+    // Draw the meshes of the node
+    for (unsigned int i = 0; i < m_meshes.size(); i++) {
+        // Check if the mesh is opaque or transparent
+        if (m_meshes[i]->isOpaque()) {
+            // Draw now
+            m_meshes[i]->drawMesh(objectShader, glFunctions);
+        }
+        else {
+            // Store the mesh in the container to draw it later
+            QVector3D objectPosition(object * QVector3D(0.0f, 0.0f, 0.0f));
+            QVector3D cameraPosition(view.inverted().column(3));
+            float distance(cameraPosition.distanceToPoint(objectPosition));
+            
+            // Add the info on the mesh to the map to draw it later
+            drawLaterMeshes.insert(
+                std::make_pair(
+                    distance,                   // Key of the map
+                    std::make_pair(             // Mesh and model matrix
+                        object, m_meshes[i].get()
+                    )
+                )
+            );
+        }
+    }
+    
+    // Draw the children recursively
+    for (unsigned int i = 0; i < m_children.size(); i++) {
+        m_children[i]->drawNode(
+            object, view, projection, lightSpace, drawLaterMeshes, 
+            objectShader, glFunctions
+        );
+    }
+}
+
+
+
+/***
  *      __  __             _     
  *     |  \/  |           | |    
  *     | \  / |  ___  ___ | |__  
@@ -236,52 +313,6 @@ void Object::Mesh::drawMesh(ObjectShader * objectShader,
         GL_UNSIGNED_INT,
         reinterpret_cast<const void*>(m_indexOffset * sizeof(unsigned int))
     );
-}
-
-
-
-/***
- *      _   _             _       
- *     | \ | |           | |      
- *     |  \| |  ___    __| |  ___ 
- *     | . ` | / _ \  / _` | / _ \
- *     | |\  || (_) || (_| ||  __/
- *     |_| \_| \___/  \__,_| \___|
- *                                
- *                                
- */
-
-void Object::Node::drawNode(const QMatrix4x4 & model, const QMatrix4x4 & view, 
-                    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace, 
-                    ObjectShader * objectShader, 
-                    QOpenGLFunctions_3_3_Core * glFunctions) const {
-    if (!objectShader) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to the shader is null.";
-        return;
-    }
-    if (!glFunctions) {
-        qWarning() << __FILE__ << __LINE__ <<
-             "The pointer to OpenGL functions API is null.";
-        return;
-    }
-    
-    // Compute model matrix of the node and set uniforms
-    QMatrix4x4 object = model * m_transformation;
-    objectShader->setMatrixUniforms(object, view, projection, lightSpace);
-    
-    // Draw the meshes of the node
-    for (unsigned int i = 0; i < m_meshes.size(); i++) {
-        m_meshes[i]->drawMesh(objectShader, glFunctions);
-    }
-    
-    // Draw the children recursively
-    for (unsigned int i = 0; i < m_children.size(); i++) {
-        m_children[i]->drawNode(
-            object, view, projection, lightSpace,
-            objectShader, glFunctions
-        );
-    }
 }
 
 
