@@ -29,10 +29,10 @@ void Object::initialize() {
 
 void Object::createShaderPrograms() {
     p_objectShader = std::make_unique<ObjectShader>(
-        ":/shaders/complex.vert", ":/shaders/complex.frag"
+        ":/shaders/object.vert", ":/shaders/object.frag"
     );
     p_shadowShader = std::make_unique<ObjectShadowShader>(
-        ":/shaders/complexShadow.vert", ":/shaders/complexShadow.frag"
+        ":/shaders/object_shadow.vert", ":/shaders/object_shadow.frag"
     );
 }
 

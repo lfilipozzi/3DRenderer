@@ -2,6 +2,7 @@ Keep track of file changed for refactoring and modification to do.
 
 File changed
 =============
+ * Rename the shader files.
  * main.cpp. Note: Keep the name AnimationWindow instead of MainWindow
  * animationwindow.h and animationwindow.cpp. Note: Use unique_ptr instead of ptr for m_openglwindow.
  * shaderprogram.h and shaderprogram.cpp. New files added to define the ShaderProgram class.
@@ -58,3 +59,4 @@ To-do list
  ==============
  * Do not use object in the vehicle class. Instead only use raw pointer to object. Maybe use decorator pattern for the vehicle model?
  * Move the frame object for shadow mapping n the openglwindow class and create two functions in the scene, one for rendering and one for generating the shadow map. So that the openglwindow is responsible for the openGL implementation and the scene only responsible for managing the object inside the scene.
+ * Do linear interpolation to get the vehicle position at a timestep which is not in the trajectory

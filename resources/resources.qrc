@@ -1,13 +1,11 @@
 <RCC>
     <qresource prefix="/shaders">
-        <file alias="complex.frag">shaders/complex.frag</file>
-        <file alias="complex.vert">shaders/complex.vert</file>
-        <file alias="arrow.frag">shaders/arrow.frag</file>
-        <file alias="arrow.vert">shaders/arrow.vert</file>
-        <file alias="complexShadow.frag">shaders/complexShadow.frag</file>
-        <file alias="complexShadow.vert">shaders/complexShadow.vert</file>
-        <file alias="debugQuad.frag">shaders/debugQuad.frag</file>
-        <file alias="debugQuad.vert">shaders/debugQuad.vert</file>
+        <file alias="object.frag">shaders/object.frag</file>
+        <file alias="object.vert">shaders/object.vert</file>
+        <file alias="object_shadow.frag">shaders/object_shadow.frag</file>
+        <file alias="object_shadow.vert">shaders/object_shadow.vert</file>
+        <file alias="line.frag">shaders/line.frag</file>
+        <file alias="line.vert">shaders/line.vert</file>
         <file alias="skybox.frag">shaders/skybox.frag</file>
         <file alias="skybox.vert">shaders/skybox.vert</file>
     </qresource>

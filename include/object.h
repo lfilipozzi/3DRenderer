@@ -14,7 +14,9 @@
 
 /// Object
 /**
- * @brief Defines a 3D object to be render in the scene.
+ * @brief Defines a 3D object to be render in the scene which uses the shader
+ * whose vertex shader is ":/shaders/line.vert", and whose fragment shader is
+ * ":/shaders/line.frag".
  * @author Louis Filipozzi
  * @details This class uses an architecture similar to the one used by Assimp.
  * The vertex data (vertices, normals, indices) are stored in a unique Vertex 

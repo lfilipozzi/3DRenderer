@@ -17,7 +17,7 @@ Line_GL33::~Line_GL33() {
 void Line_GL33::initialize() {
     initializeOpenGLFunctions();
     
-    createShaderProgram(":/shaders/arrow.vert", ":/shaders/arrow.frag");
+    createShaderProgram(":/shaders/line.vert", ":/shaders/line.frag");
     
     createBuffers();
     createAttributes();
