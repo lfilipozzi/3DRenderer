@@ -1,14 +1,11 @@
 #include "../include/light.h"
 
-AbstractLight::AbstractLight(QVector3D intensity) : 
+ABCLight::ABCLight(QVector3D intensity) : 
     m_intensity(intensity) {
 }
 
-AbstractLight::~AbstractLight() {
-}
-
 CasterLight::CasterLight(QVector3D intensity, QVector4D direction) : 
-    AbstractLight(intensity), m_direction(direction) {
+    ABCLight(intensity), m_direction(direction) {
 }
 
 CasterLight::~CasterLight() {
@@ -30,7 +27,7 @@ QMatrix4x4 CasterLight::getLightSpaceMatrix(QVector3D lightTarget) const {
 
 
 // PointLight::PointLight(QVector3D intensity, QVector3D position) : 
-//     AbstractLight(intensity), m_position(position) {
+//     ABCLight(intensity), m_position(position) {
 // }
 // 
 // PointLight::~PointLight() {

@@ -5,23 +5,17 @@
 #include <QVector3D>
 #include <QMatrix4x4>
 
-/// Lighting of the scene
+/// Abstract light
 /**
- * Define lights in the scene. Two type of lights are supported: caster lights 
- * and point lights.
+ * @brief Define a light source
+ * @author Louis Filipozzi
  */
-class AbstractLight {
+class ABCLight {
 public: 
-    AbstractLight(QVector3D intensity = QVector3D(1.0f, 1.0f, 1.0f));
-    ~AbstractLight();
-    
-    enum LightType {
-        CasterLight//, PointLight
-    };
+    ABCLight(QVector3D intensity = QVector3D(1.0f, 1.0f, 1.0f));
+    virtual ~ABCLight() {};
     
     QVector3D getIntensity() const {return m_intensity;}
-    
-    virtual LightType getLightType() const = 0;
     
     virtual QMatrix4x4 getLightSpaceMatrix(QVector3D lightTarget) const = 0;
     
@@ -29,14 +23,18 @@ private:
     QVector3D m_intensity;
 };
 
+
+
 /// Caster light
-class CasterLight : public AbstractLight {
+/**
+ * @brief Define a caster light source.
+ * @author Louis Filipozzi
+ */
+class CasterLight : public ABCLight {
 public:
     CasterLight(QVector3D intensity = QVector3D(1.0f, 1.0f, 1.0f), 
                 QVector4D direction = QVector4D(1.0f,-1.0f, -1.0f, 0.0f));
     ~CasterLight();
-    
-    virtual LightType getLightType() const {return LightType::CasterLight;}
     
     virtual QMatrix4x4 getLightSpaceMatrix(QVector3D lightTarget) const;
     
@@ -46,13 +44,17 @@ private:
     QVector4D m_direction;
 };
 
+
+
 /// Point light
-// class PointLight : public AbstractLight {
+/**
+ * @brief Define a point light source.
+ * @author Louis Filipozzi
+ */
+// class PointLight : public ABCLight {
 // public:
 //     PointLight(QVector3D intensity, QVector3D position);
 //     ~PointLight();
-//     
-//     virtual LightType getLightType() const {return LightType::PointLight;}
 //     
 //     virtual QMatrix4x4 getLightSpaceMatrix(QVector3D lightTarget) const;
 //     
@@ -63,5 +65,8 @@ private:
 // private:
 //     QVector3D m_position;
 // };
+
+
+
 
 #endif // LIGHT_H
