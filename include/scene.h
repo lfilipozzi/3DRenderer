@@ -115,7 +115,7 @@ public:
     
     void toggleGlobalFrame() {m_showGlobalFrame = !m_showGlobalFrame;}
     
-    void toggleTireForce() {m_vehicle->toggleTireForce();}
+    void toggleTireForce() {p_vehicle->toggleTireForce();}
 
 private:
     /**
@@ -164,7 +164,7 @@ private:
     /**
      * The surface of the scene.
      */
-    FlatSurface_GL33 m_surface;
+    Object * p_surface;
     
     /**
      * The XYZ frame of the scene.
@@ -249,7 +249,7 @@ private:
     /**
      * The vehicle.
      */
-    std::unique_ptr<Vehicle> m_vehicle;
+    std::unique_ptr<Vehicle> p_vehicle;
     
     /**
      * Show the global frame of the scene.

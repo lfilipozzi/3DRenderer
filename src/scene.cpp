@@ -1,13 +1,7 @@
 #include "../include/scene.h"
-#include <iostream>
 
 
 Scene::Scene(unsigned int refreshRate) : 
-    m_surface(6000.0f, 6000.0f,
-              QVector3D(0.0f, 0.0f, 0.0f),
-              QVector3D(1.0f, 0.0f, 0.0f), 
-              QVector3D(0.0f, 1.0f, 0.0f), 
-              10.0f),
     m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
     m_screenWidth(1200),
     m_screenHeight(900),
@@ -32,8 +26,8 @@ void Scene::initialize() {
     QOpenGLContext * context = QOpenGLContext::currentContext();
     if (!context) {
         qCritical() << __FILE__ << __LINE__ <<
-                      "Requires a valid current OpenGL context. \n" <<
-                      "Unable to draw the object.";
+            "Requires a valid current OpenGL context. \n" <<
+            "Unable to draw the object.";
         exit(1);
     }
     p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
@@ -85,10 +79,9 @@ void Scene::initialize() {
 
     // TODO: Use the object manager to initialize all the objects
     m_skybox.initialize();
-    m_surface.initialize();
     m_frame.initialize();
     
-    // Load and initialize the chassis model
+    // Load the chassis model
     Object * chassis = nullptr;
     Object::Loader chassisLoader(
         "asset/3DModels/Cars/MustangGT/mustangChassis.obj",
@@ -100,7 +93,7 @@ void Scene::initialize() {
         );
     }
     
-    // Load and initialize the wheel model
+    // Load the wheel model
     Object * wheel = nullptr;
     Object::Loader wheelLoader(
         "asset/3DModels/Cars/MustangGT/mustangWheel.obj",
@@ -111,6 +104,19 @@ void Scene::initialize() {
             "wheel", wheelLoader.getObject()
         );
     }
+    
+    // Load the surface 
+    Object * surface = nullptr;
+    Object::FlatSurfaceBuilder surfaceBuilder(
+        6000.0f, 6000.0f, QVector3D(0.0f, 0.0f, 0.0f), 
+        QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f), 10.0f
+    );
+    if (surfaceBuilder.build()) {
+        surface = ObjectManager::loadObject(
+            "surface", surfaceBuilder.getObject()
+        );
+    }
+    p_surface = surface;
     
     // TODO remove this
     p_line = new Line_GL33(
@@ -124,15 +130,15 @@ void Scene::initialize() {
     
     ObjectManager::initialize();
     
-    // Create the vehicle // FIXME
-    m_vehicle = std::make_unique<Vehicle>(
+    // Create the vehicle
+    p_vehicle = std::make_unique<Vehicle>(
         chassis, wheel, p_line, "asset/SimulationData/14DoF.txt"
     );
     
     // Get the simulation duration from the vehicle trajectory
-    if (m_vehicle != nullptr) {
-        m_timestepBegin = m_vehicle->getFirstTimeStep();
-        m_timestepEnd = m_vehicle->getFinalTimeStep();
+    if (p_vehicle != nullptr) {
+        m_timestepBegin = p_vehicle->getFirstTimeStep();
+        m_timestepEnd = p_vehicle->getFinalTimeStep();
     }
 }
 
@@ -167,9 +173,9 @@ void Scene::resize(int w, int h) {
 void Scene::render() {
     // Get the vehicle position
     Position vehiclePosition;
-    if (m_vehicle != nullptr) {
-        vehiclePosition = m_vehicle->getPosition(m_timestep);
-        m_vehicle->updatePosition(m_timestep);
+    if (p_vehicle != nullptr) {
+        vehiclePosition = p_vehicle->getPosition(m_timestep);
+        p_vehicle->updatePosition(m_timestep);
     }
     
     // Update camera to follow the vehicle
@@ -187,9 +193,10 @@ void Scene::render() {
         );
         
     // Render scene to compute the shadow map
-    m_surface.renderShadow(lightSpaceMatrix);
-    if (m_vehicle != nullptr)
-        m_vehicle->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
+    if (p_surface != nullptr)
+        p_surface->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
+    if (p_vehicle != nullptr)
+        p_vehicle->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
         
     p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
     
@@ -206,12 +213,12 @@ void Scene::render() {
     
     // Call update method of object in the scene
     m_skybox.render(m_view, m_projection);
+    if (p_surface != nullptr)
+        p_surface->render(m_light, m_view, m_projection, lightSpaceMatrix);
+    if (p_vehicle != nullptr)
+        p_vehicle->render(m_light, m_view, m_projection, lightSpaceMatrix);
     if (m_showGlobalFrame) 
         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
-    m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
-    // FIXME
-    if (m_vehicle != nullptr)
-        m_vehicle->render(m_light, m_view, m_projection, lightSpaceMatrix);
         
     printOpenGLError();
         
@@ -257,7 +264,6 @@ void Scene::printOpenGLError() {
 
 void Scene::cleanUp() {
     m_skybox.cleanUp();
-    m_surface.cleanup();
     m_frame.cleanup();
     
     ObjectManager::cleanUp();

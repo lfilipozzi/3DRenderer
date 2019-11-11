@@ -772,7 +772,10 @@ bool Object::FlatSurfaceBuilder::build() {
     std::unique_ptr<QVector<float>> normals;
     std::unique_ptr<QVector<QVector<float>>> textureUV;
     std::unique_ptr<QVector<unsigned int>> indices;
-    
+    vertices  = std::make_unique<QVector<float>>();
+    normals   = std::make_unique<QVector<float>>();
+    textureUV = std::make_unique<QVector<QVector<float>>>();
+    indices   = std::make_unique<QVector<unsigned int>>();
     // Define buffer data
     vertices->append(
         QVector<float>({
