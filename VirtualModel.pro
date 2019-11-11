@@ -35,8 +35,7 @@ SOURCES += \
     src/texture.cpp \
     src/vehicle.cpp \
     src/line.cpp \
-    src/frame_gl33.cpp \
-    src/abstractobject3d_gl33.cpp
+    src/frame_gl33.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -65,8 +64,7 @@ HEADERS += \
     include/texture.h \
     include/vehicle.h \
     include/line.h \
-    include/frame_gl33.h \
-    include/abstractobject3d_gl33.h
+    include/frame_gl33.h
 
 unix: !macx {
     INCLUDEPATH += lib/assimp/include
