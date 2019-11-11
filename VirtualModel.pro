@@ -52,10 +52,8 @@ HEADERS += \
     include/camera.h \
     include/inputmanager.h \
     include/position.h \
-    include/materialinfo.h \
     include/animationplayer.h \
     include/playerbutton.h \
-    include/opengltexture.h \
     include/line_gl33.h \
     include/frame_gl33.h \
     include/skybox.h \

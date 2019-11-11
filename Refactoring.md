@@ -26,6 +26,8 @@ Deleted files or renamed
  * include/skybox_gl33.h => include/skybox.h
  * include/flatsurface_gl33.h
  * include/abstractcomplex_gl33.h
+ * include/materialinfo.h
+ * include/opengltexture.h
 
 
 Other changes done
