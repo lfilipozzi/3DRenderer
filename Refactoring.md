@@ -18,6 +18,7 @@ Changing files (still work to do)
  * openglwindow.h and openglwindow.cpp. Finish changing constructor to remove scene selector and the 4 gl functions (initialize, update, cleanup and resize). Need to change all other functions and find a way to reduce number of function by avoiding creating function that just transit function/command. TODO: remove m_wasCameraOffset fro this class if possible.
  * scene.h and scene.cpp. Make changes to not inherit from QOpenGLFuntion but to use pointer instead. Need to check the rest of the code.
  * object.h and object.cpp defining the object and object builder.
+ * vehicle.h and vehicle.cpp to replace abstractvehicle and vehicle_gl33
 
 
 To-do list
@@ -28,3 +29,8 @@ To-do list
  * Delete old texture and material classes defined in files opengltexture.* and materialinfo.*, they will be replaced by classes defined in texture.* and material.*)
  * Remove name field from texture class, there is no need for that. Only required in the texture manager.
  * Redefine light class
+
+ Idea
+ ==============
+ * Do not use object in the vehicle class. Instead only use raw pointer to object. Maybe use decorator pattern for the vehicle model?
+ * Move the frame object for shadow mapping n the openglwindow class and create two functions in the scene, one for rendering and one for generating the shadow map. So that the openglwindow is responsible for the openGL implementation and the scene only responsible for managing the object inside the scene.

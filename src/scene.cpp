@@ -39,8 +39,14 @@ Scene::~Scene() {
 
 void Scene::initialize() {
     // Get pointer to OpenGL functions
-    p_glFunctions = QOpenGLContext::currentContext()->
-        versionFunctions<QOpenGLFunctions_3_3_Core>();
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
+        qCritical() << __FILE__ << __LINE__ <<
+                      "Requires a valid current OpenGL context. \n" <<
+                      "Unable to draw the object.";
+        exit(1);
+    }
+    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
     if (!p_glFunctions) {
         qCritical() << __FILE__ << __LINE__ <<
             "Could not obtain required OpenGL context version";
@@ -87,6 +93,7 @@ void Scene::initialize() {
     p_glFunctions->glEnable(GL_BLEND);
     p_glFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // TODO: Use the object manager to initialize all the objects
     m_skybox.initialize();
     m_surface.initialize();
     m_vehicle->initialize();
@@ -145,7 +152,9 @@ void Scene::render() {
         
     // Compute view and projection matrices of the light source
     QMatrix4x4 lightSpaceMatrix = 
-        m_light.getLightSpaceMatrix(chassisPosition.linearPosition);
+        m_light.getLightSpaceMatrix(
+            QVector3D(chassisPosition.x, chassisPosition.y, chassisPosition.z)
+        );
         
     // Render scene to compute the shadow map
     m_surface.renderShadow(lightSpaceMatrix);
@@ -217,6 +226,7 @@ void Scene::printOpenGLError() {
 
 
 void Scene::cleanUp() {
+    // TODO: use the object manager to clean up all the objects
     m_skybox.cleanUp();
     m_surface.cleanup();
     m_vehicle->cleanup();

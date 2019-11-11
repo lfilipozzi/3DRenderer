@@ -81,6 +81,13 @@ public:
      */
     void cleanUp();
     
+    /**
+     * @brief Set the model matrix of the object to position the object as 
+     * desired.
+     * @param model The model matrix.
+     */
+    void setModelMatrix(const QMatrix4x4 & model) {m_model = model;};
+    
 private:
     /**
      * @brief Draw the object using a given shader.

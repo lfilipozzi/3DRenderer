@@ -192,7 +192,7 @@ void Camera::processKeyboard()
 }
 
 void Camera::trackObject(Position const&position) {
-    m_targetTrack = position.linearPosition;
+    m_targetTrack = QVector3D(position.x, position.y, position.z);
     m_yawTrack = -position.yaw;
     m_pitchTrack = -position.pitch;
 }

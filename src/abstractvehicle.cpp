@@ -1,7 +1,7 @@
 #include "../include/abstractvehicle.h"
 
 #define NUMBER_FIELD_TO_LOAD 39
-#define PI           3.14159265358979323846f
+#define PI 3.14159265358979323846f
 #define FORCE_SCALE 3000
 
 //#define VEHICLE_VERBOSE // Set up verbose mode to check files loading
@@ -224,7 +224,7 @@ void AbstractVehicle::updateModelMatrices(const float timestep) {
 QMatrix4x4 AbstractVehicle::Position2ModelMatrix(Position position) {
     QMatrix4x4 modelMatrix;
     modelMatrix.setToIdentity();
-    modelMatrix.translate(position.linearPosition);
+    modelMatrix.translate(position.x, position.y, position.z);
     modelMatrix.translate(0.0f, 0.0f, m_verticalOffset);
     modelMatrix.rotate(position.yaw  *180/PI,0,0,1);
     modelMatrix.rotate(position.pitch*180/PI,0,1,0);
@@ -238,7 +238,7 @@ QMatrix4x4 AbstractVehicle::getForceModelMatrix(const QVector3D &force,
                                                 const QVector3D &offset) {
     QMatrix4x4 modelMatrix;
     modelMatrix.setToIdentity();
-    modelMatrix.translate(wheelPos.linearPosition);
+    modelMatrix.translate(wheelPos.x, wheelPos.y, wheelPos.z);
     modelMatrix.rotate(chassisPos.yaw *180/PI,0,0,1);
     modelMatrix.translate(offset);
     modelMatrix.scale(force / FORCE_SCALE);

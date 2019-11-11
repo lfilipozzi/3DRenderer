@@ -39,7 +39,8 @@ SOURCES += \
     src/shaderprogram.cpp \ # New
     src/material.cpp \
     src/texture.cpp \
-    src/object.cpp
+    src/object.cpp \
+    src/vehicle.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -74,7 +75,8 @@ HEADERS += \
     include/shaderprogram.h \ # new
     include/material.h \
     include/texture.h \
-    include/object.h
+    include/object.h \
+    include/vehicle.h
 
 unix: !macx {
     INCLUDEPATH += lib/assimp/include
