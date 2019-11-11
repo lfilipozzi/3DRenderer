@@ -24,13 +24,11 @@ SOURCES += \
     src/abstractobject3d_gl33.cpp \
     src/camera.cpp \
     src/inputmanager.cpp \
-    src/flatsurface_gl33.cpp \
     src/animationplayer.cpp \
     src/playerbutton.cpp \
     src/line_gl33.cpp \
     src/frame_gl33.cpp \
     src/skybox.cpp \
-    src/abstractcomplex_gl33.cpp \
     src/animationwindow.cpp \
     src/shaderprogram.cpp \ # New
     src/material.cpp \
@@ -54,7 +52,6 @@ HEADERS += \
     include/camera.h \
     include/inputmanager.h \
     include/position.h \
-    include/flatsurface_gl33.h \
     include/materialinfo.h \
     include/animationplayer.h \
     include/playerbutton.h \
@@ -62,7 +59,6 @@ HEADERS += \
     include/line_gl33.h \
     include/frame_gl33.h \
     include/skybox.h \
-    include/abstractcomplex_gl33.h \
     include/animationwindow.h \
     include/shaderprogram.h \ # new
     include/material.h \

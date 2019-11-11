@@ -8,6 +8,26 @@ File changed
  * texture.h and texture.cpp. New files added to define the Class Texture and TextureManager
  * material.h and material.cpp. New files added to define the material class.
  
+
+Deleted files or renamed
+============
+ * src/modelloader.cpp
+ * src/model3d_gl33.cpp
+ * src/abstractvehicle.cpp
+ * src/vehicle_gl33.cpp
+ * src/skybox_gl33.cpp => src/skybox.cpp
+ * src/flatsurface_gl33.cpp
+ * src/abstractcomplex_gl33.cpp
+
+ * include/modelloader.h
+ * include/model3d_gl33.h
+ * include/abstractvehicle.h
+ * include/vehicle_gl33.h
+ * include/skybox_gl33.h => include/skybox.h
+ * include/flatsurface_gl33.h
+ * include/abstractcomplex_gl33.h
+
+
 Other changes done
 ===============
  * Use pointer to OpenGL ES 2,0 in skybox instead of pointer to OpenGL 3.0 core
@@ -31,20 +51,7 @@ To-do list
  * Redefine light class
  * No need to give light, view, and projection when computig the shadow map, change the function to avoid sending unnecessary data.
  
-Deleted files or renamed
-============
- * src/modelloader.cpp
- * src/model3d_gl33.cpp
- * src/abstractvehicle.cpp
- * src/vehicle_gl33.cpp
- * src/skybox_gl33.cpp => src/skybox.cpp
  
- * include/modelloader.h
- * include/model3d_gl33.h
- * include/abstractvehicle.h
- * include/vehicle_gl33.h
- * include/skybox_gl33.h => include/skybox.h
-
  Idea
  ==============
  * Do not use object in the vehicle class. Instead only use raw pointer to object. Maybe use decorator pattern for the vehicle model?

@@ -4,7 +4,6 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include "vehicle.h"
-#include "flatsurface_gl33.h"
 #include "frame_gl33.h"
 #include "skybox.h"
 #include <memory>
