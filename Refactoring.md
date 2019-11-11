@@ -30,6 +30,20 @@ To-do list
  * Remove name field from texture class, there is no need for that. Only required in the texture manager.
  * Redefine light class
  * No need to give light, view, and projection when computig the shadow map, change the function to avoid sending unnecessary data.
+ 
+Deleted files or renamed
+============
+ * src/modelloader.cpp
+ * src/model3d_gl33.cpp
+ * src/abstractvehicle.cpp
+ * src/vehicle_gl33.cpp
+ * src/skybox_gl33.cpp => src/skybox.cpp
+ 
+ * include/modelloader.h
+ * include/model3d_gl33.h
+ * include/abstractvehicle.h
+ * include/vehicle_gl33.h
+ * include/skybox_gl33.h => include/skybox.h
 
  Idea
  ==============

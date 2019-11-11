@@ -9,7 +9,6 @@
 #include "skybox.h"
 #include <memory>
 #include "camera.h"
-#include "abstractvehicle.h"
 #include "object.h"
 
 
