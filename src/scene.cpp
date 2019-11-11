@@ -98,8 +98,6 @@ void Scene::initialize() {
         chassis = ObjectManager::loadObject(
             "chassis", chassisLoader.getObject()
         );
-        if (chassis != nullptr)
-            chassis->initialize();
     }
     
     // Load and initialize the wheel model
@@ -112,8 +110,6 @@ void Scene::initialize() {
         wheel = ObjectManager::loadObject(
             "wheel", wheelLoader.getObject()
         );
-        if (wheel != nullptr)
-            wheel->initialize();
     }
     
     // TODO remove this
@@ -125,6 +121,8 @@ void Scene::initialize() {
         QVector3D(0.0f, 0.0f, 1.0f)
     );
     p_line->initialize();
+    
+    ObjectManager::initialize();
     
     // Create the vehicle // FIXME
     m_vehicle = std::make_unique<Vehicle>(

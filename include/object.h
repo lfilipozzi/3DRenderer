@@ -368,6 +368,11 @@ public:
     static Object * getObject(QString name);
     
     /**
+     * @brief Initialize all the objects.
+     */
+    static void initialize();
+    
+    /**
      * @brief Properly deallocate all objects.
      */
     static void cleanUp();

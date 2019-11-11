@@ -352,26 +352,26 @@ Object * ObjectManager::getObject(QString name) {
 }
 
 
+void ObjectManager::initialize() {
+    // Delete all textures
+    for (
+        ObjectsMap::iterator it = m_objects.begin(); it != m_objects.end(); it++
+    ) {
+        if (it->second != nullptr)
+            it->second->initialize();
+    }
+}
+
+
 void ObjectManager::cleanUp() {
     // Delete all textures
     for (
         ObjectsMap::iterator it = m_objects.begin(); it != m_objects.end(); it++
     ) {
-        if (!it->second)
+        if (it->second != nullptr)
             it->second->cleanUp();
     }
 }
-
-
-// void ObjectManager::initialize() {
-//     // Delete all textures
-//     for (
-//         ObjectsMap::iterator it = m_objects.begin(); it != m_objects.end(); it++
-//     ) {
-//         if (!it->second)
-//             it->second->initialize();
-//     }
-// }
 
 
 
