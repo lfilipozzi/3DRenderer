@@ -1,12 +1,12 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
-#include "object.h"
+#include "abstractobject.h"
 #include "position.h"
 #include <QFile>
 #include <QMatrix4x4>
 
-#include "line_gl33.h"
+#include "line_gl33.h" // TODO remove
 
 /**
  * @brief Contains the position of the vehicle (chassis, wheels, tire forces).
@@ -94,7 +94,7 @@ private:
 class VehicleGraphics {
 public:
     VehicleGraphics(
-        Object * chassisModel, Object * wheelModel, Line_GL33 * line
+        ABCObject * chassisModel, ABCObject * wheelModel, Line_GL33 * line
     ) : 
     p_chassisModel(chassisModel),
     p_wheelModel(wheelModel), 
@@ -151,12 +151,12 @@ private:
     /**
      * The 3D model of the chassis.
      */
-    Object * p_chassisModel;
+    ABCObject * p_chassisModel;
 
     /**
      * The 3D model of the wheel.
      */
-    Object * p_wheelModel;
+    ABCObject * p_wheelModel;
     
     /**
      * Object to draw 3D lines in the scene.
@@ -196,7 +196,7 @@ private:
 class Vehicle {
 public:
     Vehicle(
-        Object * chassisModel, Object * wheelModel, Line_GL33 * line, 
+        ABCObject * chassisModel, ABCObject * wheelModel, Line_GL33 * line, 
         const QString filePath
     ) :
     m_graphics(chassisModel, wheelModel, line),

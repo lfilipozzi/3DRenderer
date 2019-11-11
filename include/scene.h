@@ -164,7 +164,7 @@ private:
     /**
      * The surface of the scene.
      */
-    Object * p_surface;
+    ABCObject * p_surface;
     
     /**
      * The XYZ frame of the scene.

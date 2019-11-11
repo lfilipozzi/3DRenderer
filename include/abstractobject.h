@@ -3,6 +3,7 @@
 
 #include "light.h"
 #include <QMatrix4x4>
+#include <memory>
 
 /// Abstract object class
 /**
@@ -59,6 +60,53 @@ protected:
      * Model matrix of the object.
      */
     QMatrix4x4 m_model;
+};
+
+
+
+/// Object manager
+/**
+ * @brief Manager of all ABCObject.
+ * @author Louis Filipozzi
+ */
+class ObjectManager {
+public:
+    /**
+     * @brief Load an Object and return a raw pointer to the object.
+     * @param name The name of the object.
+     * @param object The object to load.
+     * @return A pointer to the object.
+     */
+    static ABCObject * loadObject(
+        QString name, std::unique_ptr<ABCObject> object
+    );
+    
+    /**
+     * @brief Get the texture.
+     * @remark Return a null pointer if the texture has not been loaded yet.
+     * @param name The name of the model to load.
+     * @return A pointer to the object.
+     */
+    static ABCObject * getObject(QString name);
+    
+    /**
+     * @brief Initialize all the objects.
+     */
+    static void initialize();
+    
+    /**
+     * @brief Properly deallocate all objects.
+     */
+    static void cleanUp();
+    
+private:
+    ObjectManager() {};
+    
+    typedef std::map<QString, std::unique_ptr<ABCObject>> ObjectsMap;
+    /**
+     * List of loaded model.
+     */
+    static ObjectsMap m_objects;
 };
 
 #endif // ABSTRACTOBJECT_H

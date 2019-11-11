@@ -49,7 +49,7 @@ void Scene::initialize() {
     m_frame.initialize();
     
     // Load the chassis model
-    Object * chassis = nullptr;
+    ABCObject * chassis = nullptr;
     Object::Loader chassisLoader(
         "asset/3DModels/Cars/MustangGT/mustangChassis.obj",
         "asset/3DModels/Cars/MustangGT/"
@@ -61,7 +61,7 @@ void Scene::initialize() {
     }
     
     // Load the wheel model
-    Object * wheel = nullptr;
+    ABCObject * wheel = nullptr;
     Object::Loader wheelLoader(
         "asset/3DModels/Cars/MustangGT/mustangWheel.obj",
         "asset/3DModels/Cars/MustangGT/"
@@ -73,7 +73,7 @@ void Scene::initialize() {
     }
     
     // Load the surface 
-    Object * surface = nullptr;
+    ABCObject * surface = nullptr;
     Object::FlatSurfaceBuilder surfaceBuilder(
         6000.0f, 6000.0f, QVector3D(0.0f, 0.0f, 0.0f), 
         QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f), 10.0f

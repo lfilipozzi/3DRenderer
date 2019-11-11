@@ -28,6 +28,7 @@ SOURCES += \
     src/camera.cpp \
     src/light.cpp \
     src/shaderprogram.cpp \ 
+    src/abstractobject.cpp \
     src/skybox.cpp \
     src/object.cpp \
     src/material.cpp \
