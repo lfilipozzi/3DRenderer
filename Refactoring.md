@@ -53,6 +53,7 @@ To-do list
  * Remove name field from texture class, there is no need for that. Only required in the texture manager.
  * Redefine light class
  * No need to give light, view, and projection when computig the shadow map, change the function to avoid sending unnecessary data.
+ * Update the timer of the scene in openglwindow not in scene as the timer is in the openglwindow
  
  
  Idea

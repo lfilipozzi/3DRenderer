@@ -9,6 +9,7 @@
 #include <memory>
 #include "camera.h"
 #include "object.h"
+#include "depthmap.h"
 
 
 /// Scene class
@@ -136,7 +137,7 @@ private:
     /**
      * Store the OpenGL functions.
      */
-    QOpenGLFunctions_3_3_Core * p_glFunctions;
+    QOpenGLFunctions_3_3_Core * p_glFunctions; // TODO remove
 
     /**
      * Projection matrix: transform from the camera coordinates to the 
@@ -181,29 +182,9 @@ private:
     int m_screenHeight;
     
     /**
-     * Width of the texture produced by the frame buffer object for shadow
-     * mapping.
+     * The depth map used for shadow mapping
      */
-    const unsigned int c_shadowWidth;
-    
-    /**
-     * Height of the texture produced by the frame buffer object for shadow
-     * mapping.
-     */
-    const unsigned int c_shadowHeight;
-
-    /**
-     * ID of the frame buffer used to obtain the shadow by shadow mapping. Qt 
-     * provide a class for an OpenGL frame buffer object, but this class cannot
-     * be used for shadow mapping as it doesn't give access to the framebuffer's
-     * depth buffer.
-      */
-    unsigned int m_shadowFBO;
-    
-    /**
-     * Texture storing the framebuffer's depth buffer.
-     */
-    unsigned int m_shadowDepthMap;
+    std::unique_ptr<DepthMap> p_depthMap;
     
     /**
      * @brief The camera of the scene.

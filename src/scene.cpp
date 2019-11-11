@@ -5,8 +5,6 @@ Scene::Scene(unsigned int refreshRate) :
     m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
     m_screenWidth(1200),
     m_screenHeight(900),
-    c_shadowWidth(1024),
-    c_shadowHeight(1024), 
     m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)),
     m_timestep(0.0f),
     m_timestepBegin(0.0f),
@@ -38,38 +36,7 @@ void Scene::initialize() {
     }
     
     // Create the frame buffer and texture for shadow mapping
-    p_glFunctions->glGenTextures(1, &m_shadowDepthMap);
-    p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_shadowDepthMap);
-    p_glFunctions->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-                                c_shadowWidth, c_shadowHeight, 0, 
-                                GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
-                                   GL_TEXTURE_MIN_FILTER, 
-                                   GL_NEAREST);
-    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
-                                   GL_TEXTURE_MAG_FILTER, 
-                                   GL_NEAREST);
-    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
-                                   GL_TEXTURE_WRAP_S, 
-                                   GL_CLAMP_TO_BORDER);
-    p_glFunctions->glTexParameteri(GL_TEXTURE_2D, 
-                                   GL_TEXTURE_WRAP_T, 
-                                   GL_CLAMP_TO_BORDER);
-    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    p_glFunctions->glTexParameterfv(GL_TEXTURE_2D, 
-                                    GL_TEXTURE_BORDER_COLOR, 
-                                    borderColor); 
-    // Attach the depth texture to the FBO
-    p_glFunctions->glGenFramebuffers(1, &m_shadowFBO); 
-    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO);
-    p_glFunctions->glFramebufferTexture2D(GL_FRAMEBUFFER, 
-                                          GL_DEPTH_ATTACHMENT, 
-                                          GL_TEXTURE_2D, 
-                                          m_shadowDepthMap, 
-                                          0);
-    p_glFunctions->glDrawBuffer(GL_NONE);
-    p_glFunctions->glReadBuffer(GL_NONE);
-    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    p_depthMap = std::make_unique<DepthMap>(1024,1024);
     
     setupLightingAndMatrices();
 
@@ -182,9 +149,8 @@ void Scene::render() {
     m_camera.trackObject(vehiclePosition);
 
     // Render depth map for shadow mapping
-    p_glFunctions->glViewport(0, 0, c_shadowWidth, c_shadowHeight);
-    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, m_shadowFBO); // Bind the shadow FBO
-    p_glFunctions->glClear(GL_DEPTH_BUFFER_BIT);
+    if (p_depthMap != nullptr)
+        p_depthMap->bind();
         
     // Compute view and projection matrices of the light source
     QMatrix4x4 lightSpaceMatrix = 
@@ -197,8 +163,9 @@ void Scene::render() {
         p_surface->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
     if (p_vehicle != nullptr)
         p_vehicle->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
-        
-    p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
+    
+    if (p_depthMap != nullptr)
+        p_depthMap->release();
     
     // Render the scene with shadow mapping
     p_glFunctions->glViewport(0, 0, m_screenWidth, m_screenHeight);
@@ -208,8 +175,8 @@ void Scene::render() {
     m_view = m_camera.getViewMatrix();
         
     // Bind the shadow map to texture unit 1
-    p_glFunctions->glActiveTexture(GL_TEXTURE1);
-    p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_shadowFBO);
+    if (p_depthMap != nullptr)
+        p_depthMap->bindTexture(GL_TEXTURE1);
     
     // Call update method of object in the scene
     m_skybox.render(m_view, m_projection);

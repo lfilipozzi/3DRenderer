@@ -34,7 +34,8 @@ SOURCES += \
     src/material.cpp \
     src/texture.cpp \
     src/object.cpp \
-    src/vehicle.cpp
+    src/vehicle.cpp \
+    src/depthmap.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -62,7 +63,8 @@ HEADERS += \
     include/material.h \
     include/texture.h \
     include/object.h \
-    include/vehicle.h
+    include/vehicle.h \
+    include/depthmap.h
 
 unix: !macx {
     INCLUDEPATH += lib/assimp/include
