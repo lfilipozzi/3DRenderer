@@ -1,12 +1,11 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "abstractobject.h"
 #include "material.h"
 #include "shaderprogram.h"
-#include "light.h"
 #include <QString>
 #include <memory>
-#include <QMatrix4x4>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
@@ -24,7 +23,7 @@
  * When rendering the object, the VAO is bound. Then each node is draw 
  * recursively.
  */
-class Object {
+class Object : public ABCObject {
 public:
     class IBuilder;
     class Loader;
@@ -58,7 +57,7 @@ public:
     /**
      * @brief Initialize the object, i.e. create the buffers, attributes, ...
      */
-    void initialize();
+    virtual void initialize();
     
     /**
      * @brief Draw the object.
@@ -67,8 +66,10 @@ public:
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
      */
-    void render(const CasterLight & light, const QMatrix4x4 & view, 
-                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace);
+    virtual void render(
+        const CasterLight & light, const QMatrix4x4 & view, 
+        const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
+    );
     
     /**
      * @brief Draw the object when computing the framebuffer for shadow mapping.
@@ -77,20 +78,15 @@ public:
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
      */
-    void renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
-                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace);
+    virtual void renderShadow(
+        const CasterLight & light, const QMatrix4x4 & view, 
+        const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
+    );
     
     /**
      * @brief Clean up the object.
      */
-    void cleanUp();
-    
-    /**
-     * @brief Set the model matrix of the object to position the object as 
-     * desired.
-     * @param model The model matrix.
-     */
-    void setModelMatrix(const QMatrix4x4 & model) {m_model = model;};
+    virtual void cleanUp();
     
 private:
     /**
@@ -170,11 +166,6 @@ private:
      * Buffer of indices.
      */
     QOpenGLBuffer m_indexBuffer;
-    
-    /**
-     * Model matrix of the object.
-     */
-    QMatrix4x4 m_model;
 
     /**
      * The shader used to render the scene.

@@ -54,7 +54,7 @@ public:
      */
     void setModelMatrix(const QMatrix4x4 & model) {m_model = model;};
     
-private:
+protected:
     /**
      * Model matrix of the object.
      */
