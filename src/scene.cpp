@@ -50,8 +50,8 @@ void Scene::initialize() {
     // Load the chassis model
     ABCObject * chassis = nullptr;
     Object::Loader chassisLoader(
-        "asset/3DModels/Cars/MustangGT/mustangChassis.obj",
-        "asset/3DModels/Cars/MustangGT/"
+        "asset/Models/Cars/Mustang_GT/mustangChassis.obj",
+        "asset/Models/Cars/Mustang_GT/"
     );
     if (chassisLoader.build()) {
         chassis = ObjectManager::loadObject(
@@ -62,8 +62,8 @@ void Scene::initialize() {
     // Load the wheel model
     ABCObject * wheel = nullptr;
     Object::Loader wheelLoader(
-        "asset/3DModels/Cars/MustangGT/mustangWheel.obj",
-        "asset/3DModels/Cars/MustangGT/"
+        "asset/Models/Cars/Mustang_GT/mustangWheel.obj",
+        "asset/Models/Cars/Mustang_GT/"
     );
     if (wheelLoader.build()) {
         wheel = ObjectManager::loadObject(
