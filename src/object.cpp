@@ -736,6 +736,129 @@ std::unique_ptr<const Object::Node> Object::Loader::processNode(
 
 
 
+/***
+ *               ______ _       _            
+ *              |  ____| |     | |           
+ *              | |__  | | __ _| |_          
+ *              |  __| | |/ _` | __|         
+ *              | |    | | (_| | |_          
+ *       _____  |_|    |_|\__,_|\__|         
+ *      / ____|           / _|               
+ *     | (___  _   _ _ __| |_ __ _  ___ ___  
+ *      \___ \| | | | '__|  _/ _` |/ __/ _ \ 
+ *      ____) | |_| | |  | || (_| | (_|  __/ 
+ *     |_____/_\__,_|_|  |_| \__,_|\___\___| 
+ *          |  _ \      (_) |   | |          
+ *          | |_) |_   _ _| | __| | ___ _ __ 
+ *          |  _ <| | | | | |/ _` |/ _ \ '__|
+ *          | |_) | |_| | | | (_| |  __/ |   
+ *          |____/ \__,_|_|_|\__,_|\___|_|   
+ *                                           
+ *                                           
+ */
+
+bool Object::FlatSurfaceBuilder::build() {
+    // Define vertices
+    QVector3D cornerRL = m_origin-m_surfaceWidth/2*m_lateralSurface +
+            -m_surfaceLength/2*m_longitudinalSurface;
+    QVector3D cornerRR = m_origin+m_surfaceWidth/2*m_lateralSurface +
+            -m_surfaceLength/2*m_longitudinalSurface;
+    QVector3D cornerFL = m_origin-m_surfaceWidth/2*m_lateralSurface +
+             m_surfaceLength/2*m_longitudinalSurface;
+    QVector3D cornerFR = m_origin+m_surfaceWidth/2*m_lateralSurface +
+             m_surfaceLength/2*m_longitudinalSurface;
+    
+    std::unique_ptr<QVector<float>> vertices;
+    std::unique_ptr<QVector<float>> normals;
+    std::unique_ptr<QVector<QVector<float>>> textureUV;
+    std::unique_ptr<QVector<unsigned int>> indices;
+    
+    // Define buffer data
+    vertices->append(
+        QVector<float>({
+            // RL corner
+            cornerRL.x(), cornerRL.y(), cornerRL.z(),
+            // RR corner
+            cornerRR.x(), cornerRR.y(), cornerRR.z(),
+            // FL corner
+            cornerFL.x(), cornerFL.y(), cornerFL.z(),
+            // FR corner
+            cornerFR.x(), cornerFR.y(), cornerFR.z()
+        })
+    );
+    textureUV->append(   // x channel
+            QVector<float>({
+            // RL corner
+            0.0f, 0.0f,
+            // RR corner
+            m_surfaceWidth/m_textureSize, 0.0f,
+            // FL corner
+            0.0f, m_surfaceLength/m_textureSize,
+            // RR corner
+            m_surfaceWidth/m_textureSize, m_surfaceLength/m_textureSize
+        })
+    );
+    for (int i = 0; i < 4; i++) {
+        normals->append(QVector<float>({
+            m_normalSurface.x(),
+            m_normalSurface.y(),
+            m_normalSurface.z()
+        }));
+    }
+    indices->append(QVector<unsigned int>({0, 1, 2})); // RL, RR, and FL
+    indices->append(QVector<unsigned int>({2, 1, 3})); // FL, RR, and FR
+    unsigned int count = static_cast<unsigned int>(indices->size());
+    
+    
+    // Set up material the surface material
+    QString path("asset/Texture/RoadMaterials/MyRoad/Road_texture.png");
+    if (!QFile::exists(path))
+        qCritical() << __FILE__ << __LINE__ << 
+            "The path" << path 
+            << "to the texture file is not valid";
+    QImage image(path);
+    if (image.isNull())
+        qCritical() << __FILE__ << __LINE__ << 
+            "The image file does not exist.";
+    std::shared_ptr<Material> material;
+    material = std::make_shared<Material>(
+        "surface", 
+        TextureManager::loadTexture(path, Texture::Type::Diffuse, image)
+    );
+    material->setAmbientColor(QVector3D(0.5f, 0.5f, 0.5f));
+    material->setDiffuseColor(QVector3D(.6f, .6f, .6f));
+    material->setSpecularColor(QVector3D(.2f, .2f, .2f));
+    material->setShininess(50.0f);
+    material->setAlpha(1.0f);
+    
+    // Build the mesh
+    std::vector<std::shared_ptr<const Mesh>> meshes;
+    std::shared_ptr<const Mesh> mesh;
+    mesh = std::make_shared<const Mesh>("mesh", count, 0, material);
+    meshes.push_back(mesh);
+    
+    // Build the root node
+    std::vector<std::unique_ptr<const Node>> children;
+    std::unique_ptr<const Node> rootNode;
+    rootNode = std::make_unique<const Node>(
+        "root_node", QMatrix4x4(), meshes, std::move(children)
+    );
+    
+    // Build the object
+    p_object = std::make_unique<Object>(
+        std::move(rootNode), std::move(vertices), std::move(normals), 
+        std::move(textureUV), std::move(indices)
+    );
+    
+    return true;
+}
+
+
+std::unique_ptr<Object> Object::FlatSurfaceBuilder::getObject() {
+    return move(p_object);
+}
+
+
 
 
 

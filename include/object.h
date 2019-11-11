@@ -27,11 +27,13 @@ class Object {
 public:
     class IBuilder;
     class Loader;
+    class FlatSurfaceBuilder;
     
+private:
     class Node;
     class Mesh;
     
-    
+public:
     Object(
         std::unique_ptr<const Node> rootNode,
         std::unique_ptr<QVector<float>> vertices,
@@ -506,6 +508,78 @@ private:
      * the textures are stored in the same directory.
      */
     QString m_textureDir;
+    
+    /**
+     * Pointer to the object.
+     */
+    std::unique_ptr<Object> p_object;
+};
+
+
+
+/// Flat Surface Builder
+/**
+ * @brief Create a flat surface
+ * @author Louis Filipozzi
+ */
+class Object::FlatSurfaceBuilder : public Object::IBuilder {
+public:
+    /**
+     * This function loads the 3D model from filePath and return a pointer to 
+     * the object.
+     * @param filePath The path to the object to load.
+     * @param textureDir The path to the directory containing the textures to load.
+     */
+    FlatSurfaceBuilder(
+        float length, float width, QVector3D origin, QVector3D longitudinalAxis,
+        QVector3D lateralAxis, float textureGridSize
+    ) :
+    m_textureSize(textureGridSize), 
+    m_surfaceLength(length),
+    m_surfaceWidth(width),
+    m_origin(origin),
+    m_longitudinalSurface(longitudinalAxis),
+    m_lateralSurface(lateralAxis),
+    m_normalSurface(QVector3D::crossProduct(longitudinalAxis, lateralAxis)) {};
+    
+    virtual bool build();
+    virtual std::unique_ptr<Object>  getObject();
+    
+private:
+    /**
+     * Define the size of the texture pattern.
+     */
+    float m_textureSize;
+
+    /**
+     * The length of the surface.
+     */
+    float m_surfaceLength;
+
+    /**
+     * The width of the surface.
+     */
+    float m_surfaceWidth;
+    
+    /**
+     * Origin of the plane
+     */
+    QVector3D m_origin;
+
+    /**
+     * Longitudinal axis of the surface plane.
+     */
+    QVector3D m_longitudinalSurface;
+
+    /**
+     * Lateral axis of the surface plane.
+     */
+    QVector3D m_lateralSurface;
+
+    /**
+     * The normal to the surface.
+     */
+    QVector3D m_normalSurface;
     
     /**
      * Pointer to the object.
