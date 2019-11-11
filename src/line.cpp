@@ -89,7 +89,7 @@ void Line::createBuffers() {
     getBufferData(vertices, indices);
     
     // Create a vertex array object
-    m_vao.create(); // FIXME this line produce the message QOpenGLVertexArrayObject::create() VAO is already created, check why?
+    m_vao.create();
     m_vao.bind();
 
     // Create a buffer and copy the vertex data to it
