@@ -131,7 +131,7 @@ void ObjectShadowShader::setMatrixUniforms(const QMatrix4x4 & M,
 
 
 void ObjectShadowShader::setLightUniforms(
-    const CasterLight & /*light*/, const QMatrix4x4 & V
+    const CasterLight & /*light*/, const QMatrix4x4 & /*V*/
 ) {
     // Nothing to do
 }

@@ -3,7 +3,7 @@
 
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
-#include "vehicle_gl33.h"
+#include "vehicle.h"
 #include "flatsurface_gl33.h"
 #include "frame_gl33.h"
 #include "skybox.h"
@@ -250,15 +250,14 @@ private:
     /**
      * The vehicle.
      */
-    AbstractVehicle *m_vehicle;
+    std::unique_ptr<Vehicle> m_vehicle;
     
     /**
      * Show the global frame of the scene.
      */
     bool m_showGlobalFrame;
     
-    std::unique_ptr<Object> p_object;
-    
+    Line_GL33 * p_line; // TODO remove this
 };
 
 #endif // SCENE_H

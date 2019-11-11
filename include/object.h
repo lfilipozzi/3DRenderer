@@ -40,6 +40,7 @@ public:
         std::unique_ptr<QVector<unsigned int>> indices
     ) : 
     m_error(!rootNode || !vertices || !normals || !textureUV || !indices),
+    m_isInitialized(false),
     p_rootNode(std::move(rootNode)), 
     m_vertexBuffer(QOpenGLBuffer::VertexBuffer), 
     m_normalBuffer(QOpenGLBuffer::VertexBuffer), 
@@ -130,6 +131,11 @@ private:
      * Set to true if the model is not valid.
      */
     bool m_error;
+    
+    /**
+     * Check if the model has been initialized.
+     */
+    bool m_isInitialized;
     
     /**
      * The root node of the model.
@@ -360,6 +366,11 @@ public:
      * @return A pointer to the object.
      */
     static Object * getObject(QString name);
+    
+    /**
+     * @brief Properly deallocate all objects.
+     */
+    static void cleanUp();
     
 private:
     ObjectManager() {};

@@ -16,8 +16,8 @@
  */
 class Skybox {
 public:
-    Skybox();
-    ~Skybox();
+    Skybox() : m_isInitialized(false) {};
+    ~Skybox() {};
     
     /**
      * @brief Initialize the skybox, i.e. create the buffers, attributes, ...
@@ -59,7 +59,12 @@ private:
     
 private:
     /**
-     * @brief Textures used by the skybox.
+     * Check if the skybox has been initialized;
+     */
+    bool m_isInitialized;
+    
+    /**
+     * Textures used by the skybox.
      */
     std::unique_ptr<Texture> m_textures;
     

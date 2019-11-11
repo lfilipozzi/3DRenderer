@@ -128,6 +128,11 @@ public:
     void renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
                 const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace);
     
+    /**
+     * @brief Render/hide tire forces.
+     */
+    void toggleTireForce() {m_showTireForce = !m_showTireForce;};
+    
 private:
     /**
      * @brief Compute the model matrix to draw the force.
@@ -260,6 +265,11 @@ public:
     ) {
         m_graphics.renderShadow(light, view, projection, lightSpace);
     };
+    
+    /**
+     * @brief Render/hide tire forces.
+     */
+    void toggleTireForce() {m_graphics.toggleTireForce();};
     
 private:
     /**

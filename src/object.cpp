@@ -22,6 +22,8 @@ void Object::initialize() {
     createShaderPrograms();
     createBuffers();
     createAttributes();
+    
+    m_isInitialized = true;
 }
 
 
@@ -139,8 +141,14 @@ void Object::render(
     ObjectShader * shader
 )  {
     // If the model is not correctly loaded, do nothing
-    if(m_error)
+    if (m_error)
         return;
+    
+    // Check if the object has been initialized
+    if (!m_isInitialized) {
+        qCritical() << "The object must be initialized before being rendered.";
+        exit(1);
+    }
     
     // Bind shader program
     shader->bind();
@@ -344,6 +352,28 @@ Object * ObjectManager::getObject(QString name) {
 }
 
 
+void ObjectManager::cleanUp() {
+    // Delete all textures
+    for (
+        ObjectsMap::iterator it = m_objects.begin(); it != m_objects.end(); it++
+    ) {
+        if (!it->second)
+            it->second->cleanUp();
+    }
+}
+
+
+// void ObjectManager::initialize() {
+//     // Delete all textures
+//     for (
+//         ObjectsMap::iterator it = m_objects.begin(); it != m_objects.end(); it++
+//     ) {
+//         if (!it->second)
+//             it->second->initialize();
+//     }
+// }
+
+
 
 /***
  *                             _                     
@@ -380,7 +410,7 @@ bool Object::Loader::build() {
     if (!QFile::exists(m_filePath)) {
             qDebug() << __FILE__ << __LINE__
                 << "The path" << m_filePath 
-                << "to the texture file is not valid";
+                << "to the model is not valid.";
             return false;
     }
     

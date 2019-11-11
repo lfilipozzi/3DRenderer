@@ -120,7 +120,7 @@ QVector<OpenGLTexture*> ModelLoader::loadMaterialTextures(const aiMaterial *mate
         
         // If this texture has already been loaded, do not load it again
         bool skip = false;
-        for(unsigned int j = 0; j < m_texturesLoaded.size(); j++) {
+        for(int j = 0; j < m_texturesLoaded.size(); j++) {
             if (m_texturesLoaded.at(j)->path().compare(path) == 0) {
                 textures.push_back(m_texturesLoaded.at(j));
                 skip = true;
@@ -146,7 +146,7 @@ OpenGLTexture* ModelLoader::loadDefaultTexture() {
             << "' is not valid";
      
      // If this texture has already been loaded, do not load it again
-    for(unsigned int j = 0; j < m_texturesLoaded.size(); j++) {
+    for(int j = 0; j < m_texturesLoaded.size(); j++) {
         if (m_texturesLoaded.at(j)->path().compare(path) == 0) {
             return m_texturesLoaded.at(j);
         }

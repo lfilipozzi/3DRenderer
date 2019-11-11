@@ -21,20 +21,10 @@ Scene::Scene(unsigned int refreshRate) :
     m_timeRate(1.0f),
     m_frameRate(1 / static_cast<float>(m_refreshRate)),
     m_enableLoop(true),
-    m_showGlobalFrame(false) {
-    // Initialize the surface and the vehicle
-    m_vehicle = new Vehicle_GL33(QString("asset/SimulationData/14DoF.txt"));
-    // TODO check path to simulation data file is valid
-    
-    // Get the simulation duration from the vehicle trajectory
-    m_timestepBegin = m_vehicle->getInitialTime();
-    m_timestepEnd = m_vehicle->getFinalTime();
-}
+    m_showGlobalFrame(false) {}
 
 
-Scene::~Scene() {
-    delete(m_vehicle);
-}
+Scene::~Scene() {}
 
 
 void Scene::initialize() {
@@ -96,17 +86,55 @@ void Scene::initialize() {
     // TODO: Use the object manager to initialize all the objects
     m_skybox.initialize();
     m_surface.initialize();
-    m_vehicle->initialize();
     m_frame.initialize();
     
-    Object::Loader modelLoader(
+    // Load and initialize the chassis model
+    Object * chassis = nullptr;
+    Object::Loader chassisLoader(
         "asset/3DModels/Cars/MustangGT/mustangChassis.obj",
         "asset/3DModels/Cars/MustangGT/"
     );
-    if(modelLoader.build()) {
-        std::unique_ptr<Object> tmp = modelLoader.getObject();
-        p_object.swap(tmp);
-        p_object->initialize();
+    if (chassisLoader.build()) {
+        chassis = ObjectManager::loadObject(
+            "chassis", chassisLoader.getObject()
+        );
+        if (chassis != nullptr)
+            chassis->initialize();
+    }
+    
+    // Load and initialize the wheel model
+    Object * wheel = nullptr;
+    Object::Loader wheelLoader(
+        "asset/3DModels/Cars/MustangGT/mustangWheel.obj",
+        "asset/3DModels/Cars/MustangGT/"
+    );
+    if (wheelLoader.build()) {
+        wheel = ObjectManager::loadObject(
+            "wheel", wheelLoader.getObject()
+        );
+        if (wheel != nullptr)
+            wheel->initialize();
+    }
+    
+    // TODO remove this
+    p_line = new Line_GL33(
+        QVector<QVector3D>({
+        QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
+        QVector3D(0, 1, 0), QVector3D(0, 0, 1)}),
+        QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
+        QVector3D(0.0f, 0.0f, 1.0f)
+    );
+    p_line->initialize();
+    
+    // Create the vehicle // FIXME
+    m_vehicle = std::make_unique<Vehicle>(
+        chassis, wheel, p_line, "asset/SimulationData/14DoF.txt"
+    );
+    
+    // Get the simulation duration from the vehicle trajectory
+    if (m_vehicle != nullptr) {
+        m_timestepBegin = m_vehicle->getFirstTimeStep();
+        m_timestepEnd = m_vehicle->getFinalTimeStep();
     }
 }
 
@@ -139,11 +167,15 @@ void Scene::resize(int w, int h) {
 
 
 void Scene::render() {
-    // Get the vehicle position and update the model matrices of the vehicle
-    Position chassisPosition = m_vehicle->getChassisPosition(m_timestep);
-    m_vehicle->updateModelMatrices(m_timestep);
+    // Get the vehicle position
+    Position vehiclePosition;
+    if (m_vehicle != nullptr) {
+        vehiclePosition = m_vehicle->getPosition(m_timestep);
+        m_vehicle->updatePosition(m_timestep);
+    }
+    
     // Update camera to follow the vehicle
-    m_camera.trackObject(chassisPosition);
+    m_camera.trackObject(vehiclePosition);
 
     // Render depth map for shadow mapping
     p_glFunctions->glViewport(0, 0, c_shadowWidth, c_shadowHeight);
@@ -153,13 +185,13 @@ void Scene::render() {
     // Compute view and projection matrices of the light source
     QMatrix4x4 lightSpaceMatrix = 
         m_light.getLightSpaceMatrix(
-            QVector3D(chassisPosition.x, chassisPosition.y, chassisPosition.z)
+            vehiclePosition.getPoint()
         );
         
     // Render scene to compute the shadow map
     m_surface.renderShadow(lightSpaceMatrix);
-    m_vehicle->renderShadow(lightSpaceMatrix);
-    p_object->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
+    if (m_vehicle != nullptr)
+        m_vehicle->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
         
     p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0); // Release the shadow FBO
     
@@ -179,9 +211,9 @@ void Scene::render() {
     if (m_showGlobalFrame) 
         m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
     m_surface.update(m_light, m_view, m_projection, lightSpaceMatrix);
-    m_vehicle->update(m_light, m_view, m_projection, lightSpaceMatrix);
-    
-    p_object->render(m_light, m_view, m_projection, lightSpaceMatrix);
+    // FIXME
+    if (m_vehicle != nullptr)
+        m_vehicle->render(m_light, m_view, m_projection, lightSpaceMatrix);
         
     printOpenGLError();
         
@@ -226,13 +258,11 @@ void Scene::printOpenGLError() {
 
 
 void Scene::cleanUp() {
-    // TODO: use the object manager to clean up all the objects
     m_skybox.cleanUp();
     m_surface.cleanup();
-    m_vehicle->cleanup();
     m_frame.cleanup();
     
-    p_object->cleanUp();
+    ObjectManager::cleanUp();
 }
 
 

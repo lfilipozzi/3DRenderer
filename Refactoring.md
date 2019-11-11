@@ -29,6 +29,7 @@ To-do list
  * Delete old texture and material classes defined in files opengltexture.* and materialinfo.*, they will be replaced by classes defined in texture.* and material.*)
  * Remove name field from texture class, there is no need for that. Only required in the texture manager.
  * Redefine light class
+ * No need to give light, view, and projection when computig the shadow map, change the function to avoid sending unnecessary data.
 
  Idea
  ==============

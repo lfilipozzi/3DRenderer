@@ -2,16 +2,6 @@
 #include <memory>
 
 
-Skybox::Skybox() {
-    
-}
-
-
-Skybox::~Skybox() {
-    
-}
-
-
 void Skybox::initialize() {
     // Set pointer to functions of the OpenGL ES 2.0 API
     QOpenGLContext * context = QOpenGLContext::currentContext();
@@ -28,6 +18,8 @@ void Skybox::initialize() {
     loadCubeMapTextures();
     createBuffers();
     createAttributes();
+    
+    m_isInitialized = true;
 }
 
 
@@ -174,6 +166,12 @@ void Skybox::createAttributes() {
 }
 
 void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection) {
+    // Check if the object has been initialized
+    if (!m_isInitialized) {
+        qCritical() << "The skybox must be initialized before being rendered.";
+        exit(1);
+    }
+    
     // Bind shader program
     m_shader->bind();
     

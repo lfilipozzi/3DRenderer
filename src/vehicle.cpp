@@ -1,5 +1,7 @@
 #include "../include/vehicle.h"
 
+#include <iostream> // TODO remove
+
 #define NUMBER_FIELD_TO_LOAD 39
 #define FORCE_SCALE 3000
 
@@ -233,17 +235,21 @@ void VehicleGraphics::render(
     const CasterLight & light, const QMatrix4x4 & view, 
     const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
 ) {
-    p_wheelModel->setModelMatrix(m_wheelFLMatrix);
-    p_wheelModel->render(light, view, projection, lightSpace);
-    p_wheelModel->setModelMatrix(m_wheelFRMatrix);
-    p_wheelModel->render(light, view, projection, lightSpace);
-    p_wheelModel->setModelMatrix(m_wheelRLMatrix);
-    p_wheelModel->render(light, view, projection, lightSpace);
-    p_wheelModel->setModelMatrix(m_wheelRRMatrix);
-    p_wheelModel->render(light, view, projection, lightSpace);
-    p_chassisModel->setModelMatrix(m_chassisMatrix);
-    p_chassisModel->render(light, view, projection, lightSpace);
-    if (m_showTireForce) {
+    if (p_wheelModel != nullptr) {
+        p_wheelModel->setModelMatrix(m_wheelFLMatrix);
+        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->setModelMatrix(m_wheelFRMatrix);
+        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->setModelMatrix(m_wheelRLMatrix);
+        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->setModelMatrix(m_wheelRRMatrix);
+        p_wheelModel->render(light, view, projection, lightSpace);
+    }
+    if (p_chassisModel != nullptr) {
+        p_chassisModel->setModelMatrix(m_chassisMatrix);
+        p_chassisModel->render(light, view, projection, lightSpace);
+    }
+    if (p_forceLine != nullptr && m_showTireForce) {
         p_forceLine->setModelMatrix(m_forceFLMatrix);
         p_forceLine->update(light, view, projection, lightSpace);
         p_forceLine->setModelMatrix(m_forceFRMatrix);
@@ -257,16 +263,20 @@ void VehicleGraphics::render(
 
 
 void VehicleGraphics::renderShadow(const CasterLight& light, const QMatrix4x4& view, const QMatrix4x4& projection, const QMatrix4x4& lightSpace) {
-    p_wheelModel->setModelMatrix(m_wheelFLMatrix);
-    p_wheelModel->renderShadow(light, view, projection, lightSpace);
-    p_wheelModel->setModelMatrix(m_wheelFRMatrix);
-    p_wheelModel->renderShadow(light, view, projection, lightSpace);
-    p_wheelModel->setModelMatrix(m_wheelRLMatrix);
-    p_wheelModel->renderShadow(light, view, projection, lightSpace);
-    p_wheelModel->setModelMatrix(m_wheelRRMatrix);
-    p_wheelModel->renderShadow(light, view, projection, lightSpace);
-    p_chassisModel->setModelMatrix(m_chassisMatrix);
-    p_chassisModel->renderShadow(light, view, projection, lightSpace);
+    if (p_wheelModel != nullptr) {
+        p_wheelModel->setModelMatrix(m_wheelFLMatrix);
+        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->setModelMatrix(m_wheelFRMatrix);
+        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->setModelMatrix(m_wheelRLMatrix);
+        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->setModelMatrix(m_wheelRRMatrix);
+        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+    }
+    if (p_chassisModel != nullptr) {
+        p_chassisModel->setModelMatrix(m_chassisMatrix);
+        p_chassisModel->renderShadow(light, view, projection, lightSpace);
+    }
 }
 
 
