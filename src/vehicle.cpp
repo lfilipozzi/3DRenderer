@@ -1,7 +1,5 @@
 #include "../include/vehicle.h"
 
-#include <iostream> // TODO remove
-
 #define NUMBER_FIELD_TO_LOAD 39
 #define FORCE_SCALE 3000
 
@@ -251,13 +249,13 @@ void VehicleGraphics::render(
     }
     if (p_forceLine != nullptr && m_showTireForce) {
         p_forceLine->setModelMatrix(m_forceFLMatrix);
-        p_forceLine->update(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace);
         p_forceLine->setModelMatrix(m_forceFRMatrix);
-        p_forceLine->update(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace);
         p_forceLine->setModelMatrix(m_forceRLMatrix);
-        p_forceLine->update(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace);
         p_forceLine->setModelMatrix(m_forceRRMatrix);
-        p_forceLine->update(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace);
     }
 }
 

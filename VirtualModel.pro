@@ -34,7 +34,7 @@ SOURCES += \
     src/material.cpp \
     src/texture.cpp \
     src/vehicle.cpp \
-    src/line_gl33.cpp \
+    src/line.cpp \
     src/frame_gl33.cpp \
     src/abstractobject3d_gl33.cpp
 
@@ -64,7 +64,7 @@ HEADERS += \
     include/material.h \
     include/texture.h \
     include/vehicle.h \
-    include/line_gl33.h \
+    include/line.h \
     include/frame_gl33.h \
     include/abstractobject3d_gl33.h
 

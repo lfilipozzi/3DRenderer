@@ -43,8 +43,7 @@ void Scene::initialize() {
     p_glFunctions->glEnable(GL_DEPTH_TEST);
     p_glFunctions->glEnable(GL_BLEND);
     p_glFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // TODO: Use the object manager to initialize all the objects
+    
     m_skybox.initialize();
     m_frame.initialize();
     
@@ -85,21 +84,24 @@ void Scene::initialize() {
     }
     p_surface = surface;
     
-    // TODO remove this
-    p_line = new Line_GL33(
-        QVector<QVector3D>({
-        QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
-        QVector3D(0, 1, 0), QVector3D(0, 0, 1)}),
-        QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
-        QVector3D(0.0f, 0.0f, 1.0f)
+    ABCObject * line = nullptr;
+    line = ObjectManager::loadObject(
+        "line", 
+        std::make_unique<Line>(
+            QVector<QVector3D>({
+            QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
+            QVector3D(0, 1, 0), QVector3D(0, 0, 1)}),
+            QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
+            QVector3D(0.0f, 0.0f, 1.0f)
+        )
     );
-    p_line->initialize();
+    line->initialize();
     
     ObjectManager::initialize();
     
     // Create the vehicle
     p_vehicle = std::make_unique<Vehicle>(
-        chassis, wheel, p_line, "asset/SimulationData/14DoF.txt"
+        chassis, wheel, line, "asset/SimulationData/14DoF.txt"
     );
     
     // Get the simulation duration from the vehicle trajectory

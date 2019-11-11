@@ -6,8 +6,6 @@
 #include <QFile>
 #include <QMatrix4x4>
 
-#include "line_gl33.h" // TODO remove
-
 /**
  * @brief Contains the position of the vehicle (chassis, wheels, tire forces).
  */
@@ -94,7 +92,7 @@ private:
 class VehicleGraphics {
 public:
     VehicleGraphics(
-        ABCObject * chassisModel, ABCObject * wheelModel, Line_GL33 * line
+        ABCObject * chassisModel, ABCObject * wheelModel, ABCObject * line
     ) : 
     p_chassisModel(chassisModel),
     p_wheelModel(wheelModel), 
@@ -161,7 +159,7 @@ private:
     /**
      * Object to draw 3D lines in the scene.
      */
-    Line_GL33 * p_forceLine;
+    ABCObject * p_forceLine;
     
     /**
      * Offset used to better position the vehicle.
@@ -196,7 +194,7 @@ private:
 class Vehicle {
 public:
     Vehicle(
-        ABCObject * chassisModel, ABCObject * wheelModel, Line_GL33 * line, 
+        ABCObject * chassisModel, ABCObject * wheelModel, ABCObject * line, 
         const QString filePath
     ) :
     m_graphics(chassisModel, wheelModel, line),

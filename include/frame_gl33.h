@@ -1,7 +1,7 @@
 #ifndef FRAME_GL33_H
 #define FRAME_GL33_H
 
-#include "line_gl33.h"
+#include "line.h"
 
 // 3D frame
 /**
@@ -32,17 +32,17 @@ private:
     /**
      * The x axis.
      */
-    Line_GL33 X_AXIS;
+    Line X_AXIS;
     
     /**
      * The y axis.
      */
-    Line_GL33 Y_AXIS;
+    Line Y_AXIS;
     
     /**
      * The z axis.
      */
-    Line_GL33 Z_AXIS;
+    Line Z_AXIS;
 };
 
 #endif // FRAME_GL33_H

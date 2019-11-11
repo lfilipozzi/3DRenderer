@@ -27,13 +27,13 @@ void Frame_GL33::initialize() {
 void Frame_GL33::update(const CasterLight &light, const QMatrix4x4 view,
                         const QMatrix4x4 projection, 
                         const QMatrix4x4 lightSpaceMatrix) {
-    X_AXIS.update(light, view, projection, lightSpaceMatrix);
-    Y_AXIS.update(light, view, projection, lightSpaceMatrix);
-    Z_AXIS.update(light, view, projection, lightSpaceMatrix);
+    X_AXIS.render(light, view, projection, lightSpaceMatrix);
+    Y_AXIS.render(light, view, projection, lightSpaceMatrix);
+    Z_AXIS.render(light, view, projection, lightSpaceMatrix);
 }
 
 void Frame_GL33::cleanup() {
-    X_AXIS.cleanup();
-    Y_AXIS.cleanup();
-    Z_AXIS.cleanup();
+    X_AXIS.cleanUp();
+    Y_AXIS.cleanUp();
+    Z_AXIS.cleanUp();
 }

@@ -19,6 +19,7 @@ Deleted files or renamed
  * src/skybox_gl33.cpp => src/skybox.cpp
  * src/flatsurface_gl33.cpp
  * src/abstractcomplex_gl33.cpp
+ * src/line_gl33.cpp => src/line.cpp
 
  * include/modelloader.h
  * include/model3d_gl33.h
@@ -29,7 +30,9 @@ Deleted files or renamed
  * include/abstractcomplex_gl33.h
  * include/materialinfo.h
  * include/opengltexture.h
+ * include/line_gl33.h => include/line.h
 
+ * shader source files
 
 Other changes done
 ===============

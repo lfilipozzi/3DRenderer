@@ -146,7 +146,8 @@ void Object::render(
     
     // Check if the object has been initialized
     if (!m_isInitialized) {
-        qCritical() << "The object must be initialized before being rendered.";
+        qCritical() << __FILE__ << __LINE__
+            << "The object must be initialized before being rendered.";
         exit(1);
     }
     

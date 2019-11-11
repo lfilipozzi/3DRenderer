@@ -235,8 +235,6 @@ private:
      * Show the global frame of the scene.
      */
     bool m_showGlobalFrame;
-    
-    Line_GL33 * p_line; // TODO remove this
 };
 
 #endif // SCENE_H
