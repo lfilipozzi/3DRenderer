@@ -3,13 +3,12 @@
 
 #include "material.h"
 #include "shaderprogram.h"
+#include "light.h"
 #include <QString>
 #include <memory>
 #include <QMatrix4x4>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
-
-#include "light.h"
 
 
 /// Object

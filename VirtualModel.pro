@@ -18,24 +18,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     src/main.cpp \
-    src/scene.cpp \
+    src/animationwindow.cpp \
     src/openglwindow.cpp \
-    src/light.cpp \
-    src/abstractobject3d_gl33.cpp \
-    src/camera.cpp \
-    src/inputmanager.cpp \
     src/animationplayer.cpp \
     src/playerbutton.cpp \
-    src/line_gl33.cpp \
-    src/frame_gl33.cpp \
+    src/inputmanager.cpp \
+    src/depthmap.cpp \
+    src/scene.cpp \
+    src/camera.cpp \
+    src/light.cpp \
+    src/shaderprogram.cpp \ 
     src/skybox.cpp \
-    src/animationwindow.cpp \
-    src/shaderprogram.cpp \ # New
+    src/object.cpp \
     src/material.cpp \
     src/texture.cpp \
-    src/object.cpp \
     src/vehicle.cpp \
-    src/depthmap.cpp
+    src/line_gl33.cpp \
+    src/frame_gl33.cpp \
+    src/abstractobject3d_gl33.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -46,25 +46,26 @@ RESOURCES += \
     resources/resources.qrc
 
 HEADERS += \
-    include/scene.h \
+    include/animationwindow.h \
     include/openglwindow.h \
-    include/abstractobject3d_gl33.h \
-    include/light.h \
-    include/camera.h \
-    include/inputmanager.h \
-    include/position.h \
     include/animationplayer.h \
     include/playerbutton.h \
-    include/line_gl33.h \
-    include/frame_gl33.h \
+    include/inputmanager.h \
+    include/depthmap.h \
+    include/scene.h \
+    include/camera.h \
+    include/light.h \
+    include/position.h \
+    include/shaderprogram.h \
+    include/abstractobject.h \
     include/skybox.h \
-    include/animationwindow.h \
-    include/shaderprogram.h \ # new
+    include/object.h \
     include/material.h \
     include/texture.h \
-    include/object.h \
     include/vehicle.h \
-    include/depthmap.h
+    include/line_gl33.h \
+    include/frame_gl33.h \
+    include/abstractobject3d_gl33.h
 
 unix: !macx {
     INCLUDEPATH += lib/assimp/include
