@@ -24,8 +24,8 @@ struct Position {
         float posX = 0.0f, float posY = 0.0f, float posZ = 0.0f, 
         float yawFoo = 0.0f, float pitchFoo = 0.0f, float rollFoo = 0.0f
     ) :
-        x(posX), y(posY), z(posZ),
-        yaw(yawFoo), pitch(pitchFoo), roll(rollFoo) {};
+    x(posX), y(posY), z(posZ),
+    yaw(yawFoo), pitch(pitchFoo), roll(rollFoo) {};
     
     /**
      * @brief Get the x, y, and z coordinates.
@@ -52,26 +52,46 @@ struct Position {
         return modelMatrix;
     }
     
-    Position operator+(const Position & a) {
+    void operator+=(const Position & a) {
         x += a.x;
         y += a.y;
         z += a.z;
         yaw   += a.yaw;
         pitch += a.pitch;
         roll  += a.roll;
-        return *this;
+    }
+    
+    void operator-=(const Position & a) {
+        x -= a.x;
+        y -= a.y;
+        z -= a.z;
+        yaw   -= a.yaw;
+        pitch -= a.pitch;
+        roll  -= a.roll;
+    }
+    
+    Position operator+(const Position & a) {
+        Position tmp(*this);
+        tmp += a;
+        return tmp;
+    }
+    
+    Position operator-(const Position & a) {
+        Position tmp(*this);
+        tmp -= a;
+        return tmp;
     }
 };
 
-// Position operator+(const Position & a, const Position & b) {
-//     Position pos;
-//     pos.x = a.x + b.x;
-//     pos.y = a.y + b.y;
-//     pos.z = a.z + b.z;
-//     pos.yaw   = a.yaw   + b.yaw;
-//     pos.pitch = a.pitch + b.pitch;
-//     pos.roll  = a.roll  + b.roll;
-//     return pos;
-// }
+inline Position operator*(const Position & lhs, const float & rhs) {
+    return Position(
+        lhs.x*rhs, lhs.y*rhs, lhs.z*rhs, lhs.yaw*rhs, lhs.pitch*rhs, lhs.yaw*rhs
+    );
+}
+
+inline Position operator*(const float & lhs, const Position & rhs) {
+    return rhs * lhs;
+}
+
 
 #endif // POSITION_H

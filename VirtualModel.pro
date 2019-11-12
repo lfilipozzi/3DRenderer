@@ -67,8 +67,12 @@ HEADERS += \
     include/frame.h
 
 unix: !macx {
-    INCLUDEPATH += lib/assimp/include
+#     INCLUDEPATH += /usr/include/
     LIBS += /usr/lib/libassimp.so
+    INCLUDEPATH += lib/assimp/include
+#     LIBS += \
+#         $$PWD/lib/assimp/lib/libIrrXML.a \
+#         $$PWD/lib/assimp/lib/libassimp.a
 }
 
 macx {

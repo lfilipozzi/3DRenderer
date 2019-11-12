@@ -3,6 +3,28 @@
 #define NUMBER_FIELD_TO_LOAD 39
 #define FORCE_SCALE 3000
 
+
+// Overload operator*() of the VehiclePosition structure
+VehiclePosition operator*(const VehiclePosition & lhs, const float & rhs) {
+    return VehiclePosition(
+        lhs.chassis * rhs,
+        lhs.wheelFL * rhs, 
+        lhs.wheelFR * rhs, 
+        lhs.wheelRL * rhs, 
+        lhs.wheelRR * rhs, 
+        lhs.forceFL * rhs, 
+        lhs.forceFR * rhs, 
+        lhs.forceRL * rhs, 
+        lhs.forceRR * rhs
+    );
+}
+
+VehiclePosition operator*(const float & lhs, const VehiclePosition & rhs) {
+    return rhs * lhs;
+}
+
+
+
 /***
  *         __      __  _     _      _                 
  *         \ \    / / | |   (_)    | |                
@@ -135,14 +157,37 @@ void VehicleController::setVehicleTrajectory(const QString filePath) {
 }
 
 
-VehiclePosition VehicleController::getVehiclePosition(const float timestep) {
+VehiclePosition VehicleController::getVehiclePosition(const float time) {
     // Find the first element which occur before time-step
-    Trajectory::iterator it = m_trajectory.lower_bound(timestep);
+    Trajectory::iterator it = m_trajectory.lower_bound(time);
     
     // No interpolation (only find the element happening just before time-step)
     if (it != m_trajectory.end())
         return it->second;
     return VehiclePosition();
+    
+//     // Linear interpolation:: 
+//     // FIXME some glitches with the wheel when using this method (probably because the angles have been truncated between 0 and 2*PI)
+//     if (it != m_trajectory.end()) {
+//         // Can find the position in the trajectory
+//         float time0 = it->first;
+//         VehiclePosition position0 = it->second;
+//         if (++it != m_trajectory.end() && time0 != time) {
+//             // Can find a position at the next time-step
+//             float time1 = it->first;
+//             VehiclePosition position1 = it->second;
+//             float alpha = (time - time0) / (time1 - time0);
+//             return (position1 - position0) * alpha + position0;
+//         }
+//         else {
+//             // Cannot find a position at the next time-step
+//             return position0;
+//         }
+//     }
+//     else {
+//         // Cannot find the position
+//         return VehiclePosition();
+//     }
 }
 
 

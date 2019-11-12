@@ -8,6 +8,7 @@
 
 /**
  * @brief Contains the position of the vehicle (chassis, wheels, tire forces).
+ * @author Louis Filipozzi
  */
 struct VehiclePosition {
     Position chassis;
@@ -19,6 +20,67 @@ struct VehiclePosition {
     QVector3D forceFR;
     QVector3D forceRL;
     QVector3D forceRR;
+    
+    VehiclePosition () :
+    chassis(Position()),
+    wheelFL(Position()),
+    wheelFR(Position()), 
+    wheelRL(Position()),
+    wheelRR(Position()),
+    forceFL(QVector3D()),
+    forceFR(QVector3D()),
+    forceRL(QVector3D()),
+    forceRR(QVector3D()) {};
+    
+    VehiclePosition(
+        Position cha, Position wFL, Position wFR, Position wRL, Position wRR, 
+        QVector3D fFL, QVector3D fFR, QVector3D fRL, QVector3D fRR
+    ) : 
+    chassis(cha),
+    wheelFL(wFL),
+    wheelFR(wFR), 
+    wheelRL(wRL),
+    wheelRR(wRR),
+    forceFL(fFL),
+    forceFR(fFR),
+    forceRL(fRL),
+    forceRR(fRR) {};
+    
+    void operator+=(const VehiclePosition & a) {
+        chassis += a.chassis;
+        wheelFL += a.wheelFL;
+        wheelFR += a.wheelFR;
+        wheelRL += a.wheelRL;
+        wheelRR += a.wheelRR;
+        forceFL += a.forceFL;
+        forceFR += a.forceFR;
+        forceRL += a.forceRL;
+        forceRR += a.forceRR;
+    };
+    
+    void operator-=(const VehiclePosition & a) {
+        chassis -= a.chassis;
+        wheelFL -= a.wheelFL;
+        wheelFR -= a.wheelFR;
+        wheelRL -= a.wheelRL;
+        wheelRR -= a.wheelRR;
+        forceFL -= a.forceFL;
+        forceFR -= a.forceFR;
+        forceRL -= a.forceRL;
+        forceRR -= a.forceRR;
+    };
+    
+    VehiclePosition operator+(const VehiclePosition & a) {
+        VehiclePosition tmp(*this);
+        tmp += a;
+        return tmp;
+    };
+    
+    VehiclePosition operator-(const VehiclePosition & a) {
+        VehiclePosition tmp(*this);
+        tmp -= a;
+        return tmp;
+    };
 };
 
 
