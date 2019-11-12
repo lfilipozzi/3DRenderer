@@ -61,7 +61,32 @@ OpenGLWindow::~OpenGLWindow() {
 
 
 void OpenGLWindow::initializeGL() {
+    // Make the OpenGL context current
     p_context->makeCurrent(this);
+    
+    // Get pointer to OpenGL functions
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "Requires a valid current OpenGL context. \n" <<
+            "Unable to draw the object.";
+        exit(1);
+    }
+    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    if (!p_glFunctions) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "Could not obtain required OpenGL context version";
+        exit(1);
+    }
+    
+    // Create the frame buffer and texture for shadow mapping
+    p_depthMap = std::make_unique<DepthMap>(1024,1024);
+    
+    p_glFunctions->glEnable(GL_DEPTH_TEST);
+    p_glFunctions->glEnable(GL_BLEND);
+    p_glFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Initialize the scene
     p_scene->initialize();
 }
 
@@ -73,11 +98,18 @@ void OpenGLWindow::renderGL() {
     // Update the input
     InputManager::update();
 
-    // Update the camera
-    p_scene->updateCamera();
-
     // Draw the scene
     p_context->makeCurrent(this);
+    p_scene->update();
+    // Generate the shadow map
+    if (p_depthMap != nullptr)
+        p_depthMap->bind();
+    p_scene->renderShadow();
+    // Render the scene
+    if (p_depthMap != nullptr) {
+        p_depthMap->release();
+        p_depthMap->bindTexture(GL_TEXTURE1);
+    }
     p_scene->render();
     p_context->swapBuffers(this);
 
@@ -101,6 +133,7 @@ void OpenGLWindow::renderGL() {
 
 void OpenGLWindow::resizeGL() {
     p_context->makeCurrent(this);
+    p_glFunctions->glViewport(0, 0, width(), height());
     p_scene->resize(width(), height());
     renderGL();
 }
@@ -109,7 +142,6 @@ void OpenGLWindow::resizeGL() {
 void OpenGLWindow::cleanUpGL() {
     p_context->makeCurrent(this);
     p_scene->cleanUp();
-    TextureManager::cleanUp();
 }
 
 

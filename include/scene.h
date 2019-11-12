@@ -9,7 +9,6 @@
 #include <memory>
 #include "camera.h"
 #include "object.h"
-#include "depthmap.h"
 
 
 /// Scene class
@@ -37,11 +36,21 @@ public:
      * @param h The new height of the animation.
      */
     void resize(int w, int h);
+    
+    /**
+     * @brief Update the scene.
+     */
+    void update();
 
     /**
-     * @brief Render the animation.
+     * @brief Render the scene.
      */
     void render();
+    
+    /**
+     * @brief Render the scene to generate the shadow map.
+     */
+    void renderShadow();
 
     /**
      * @brief Cleanup the animation.
@@ -52,12 +61,6 @@ public:
      * @brief Update the timestep of the animation.
      */
     void updateTimestep();
-
-    /**
-     * @brief Update the view of the camera based on the user inputs from the 
-     * InputManager.
-     */
-    void updateCamera();
 
     /**
      * Play or pause the animation.
@@ -138,6 +141,11 @@ private:
      * Store the OpenGL functions.
      */
     QOpenGLFunctions_3_3_Core * p_glFunctions; // TODO remove
+    
+    /**
+     * Light space matrix.
+     */
+    QMatrix4x4 m_lightSpace;
 
     /**
      * Projection matrix: transform from the camera coordinates to the 
@@ -170,21 +178,6 @@ private:
      * The XYZ frame of the scene.
      */
     Frame_GL33 m_frame;
-    
-    /**
-     * The animation widget width.
-     */
-    int m_screenWidth;
-    
-    /**
-     * The animation widget height.
-     */
-    int m_screenHeight;
-    
-    /**
-     * The depth map used for shadow mapping
-     */
-    std::unique_ptr<DepthMap> p_depthMap;
     
     /**
      * @brief The camera of the scene.

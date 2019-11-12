@@ -29,18 +29,18 @@ public:
      */
     void bind();
     
+    /**
+     * @brief Switches rendering back to the default, windowing system provided
+     * framebuffer. This also restore the viewport and clear the color and depth
+     * buffer.
+     */
+    void release();
     
     /**
      * @brief Bind the shadow map to supplied texture unit.
      * @param GL_TEXTUREi The texture unit to bind the shadow map texture.
      */
     void bindTexture(GLenum GL_TEXTUREi);
-    
-    
-    /**
-     * @brief Switches rendering back to the default, windowing system provided framebuffer.
-     */
-    void release() {p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0);};
     
     /**
      * @brief Returns the id of the underlying OpenGL framebuffer object.
@@ -74,6 +74,11 @@ private:
      * Height of the framebuffer.
      */
     const unsigned int c_height;
+    
+    /**
+     * Dimension of the viewport before binding the underlying framebuffer.
+     */
+    GLint m_previousViewport[4];
 
     /**
      * OpenGL ID of the framebuffer.

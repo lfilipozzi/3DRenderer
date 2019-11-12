@@ -61,9 +61,22 @@ DepthMap::~DepthMap() {}
 
 void DepthMap::bind() {
     if (p_glFunctions != nullptr) {
+        p_glFunctions->glGetIntegerv(GL_VIEWPORT, m_previousViewport);
         p_glFunctions->glViewport(0, 0, c_width, c_height);
         p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, m_FBOId);
         p_glFunctions->glClear(GL_DEPTH_BUFFER_BIT);
+    }
+}
+
+
+void DepthMap::release() {
+    if (p_glFunctions != nullptr) {
+        p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        p_glFunctions->glViewport(
+            m_previousViewport[0], m_previousViewport[1], 
+            m_previousViewport[2], m_previousViewport[3]
+        );
+        p_glFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 }
 

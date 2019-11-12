@@ -4,6 +4,8 @@
 #include <QWindow>
 #include <memory>
 #include "scene.h"
+#include "depthmap.h"
+#include <QOpenGLFunctions_3_3_Core>
 
 class AnimationPlayer;
 
@@ -153,6 +155,16 @@ private:
      * Timer used for the refresh rate.
      */
     QTimer * p_timer;
+    
+    /**
+     * Store the OpenGL functions.
+     */
+    QOpenGLFunctions_3_3_Core * p_glFunctions;
+    
+    /**
+     * The depth map used for shadow mapping
+     */
+    std::unique_ptr<DepthMap> p_depthMap;
 
     /**
      * Scene.

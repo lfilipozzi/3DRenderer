@@ -3,8 +3,6 @@
 
 Scene::Scene(unsigned int refreshRate) : 
     m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
-    m_screenWidth(1200),
-    m_screenHeight(900),
     m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)),
     m_timestep(0.0f),
     m_timestepBegin(0.0f),
@@ -35,15 +33,8 @@ void Scene::initialize() {
         exit(1);
     }
     
-    // Create the frame buffer and texture for shadow mapping
-    p_depthMap = std::make_unique<DepthMap>(1024,1024);
-    
     setupLightingAndMatrices();
 
-    p_glFunctions->glEnable(GL_DEPTH_TEST);
-    p_glFunctions->glEnable(GL_BLEND);
-    p_glFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     m_skybox.initialize();
     m_frame.initialize();
     
@@ -129,16 +120,16 @@ void Scene::setupLightingAndMatrices() {
 
 
 void Scene::resize(int w, int h) {
-    m_screenWidth = w;
-    m_screenHeight = h;
-    p_glFunctions->glViewport(0, 0, w, h);
-
     m_projection.setToIdentity();
     m_projection.perspective(60.0f, static_cast<float>(w)/h, .3f, 1000);
 }
 
 
-void Scene::render() {
+void Scene::update() {
+    // Process inputs to the camera // TODO remove this with command pattern
+    m_camera.processKeyboard();
+    m_camera.processMouseMovement();
+    
     // Get the vehicle position
     Position vehiclePosition;
     if (p_vehicle != nullptr) {
@@ -148,50 +139,38 @@ void Scene::render() {
     
     // Update camera to follow the vehicle
     m_camera.trackObject(vehiclePosition);
-
-    // Render depth map for shadow mapping
-    if (p_depthMap != nullptr)
-        p_depthMap->bind();
-        
+    
     // Compute view and projection matrices of the light source
-    QMatrix4x4 lightSpaceMatrix = 
-        m_light.getLightSpaceMatrix(
-            vehiclePosition.getPoint()
-        );
-        
-    // Render scene to compute the shadow map
-    if (p_surface != nullptr)
-        p_surface->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
-    if (p_vehicle != nullptr)
-        p_vehicle->renderShadow(m_light, m_view, m_projection, lightSpaceMatrix);
+    m_lightSpace = m_light.getLightSpaceMatrix(vehiclePosition.getPoint());
     
-    if (p_depthMap != nullptr)
-        p_depthMap->release();
-    
-    // Render the scene with shadow mapping
-    p_glFunctions->glViewport(0, 0, m_screenWidth, m_screenHeight);
-    p_glFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-    // Get view matrix of the camera
+    // Update the view matrix of the camera
     m_view = m_camera.getViewMatrix();
-        
-    // Bind the shadow map to texture unit 1
-    if (p_depthMap != nullptr)
-        p_depthMap->bindTexture(GL_TEXTURE1);
-    
-    // Call update method of object in the scene
+}
+
+
+
+void Scene::render() {
+    // Call the render method of object in the scene
     m_skybox.render(m_view, m_projection);
     if (p_surface != nullptr)
-        p_surface->render(m_light, m_view, m_projection, lightSpaceMatrix);
+        p_surface->render(m_light, m_view, m_projection, m_lightSpace);
     if (p_vehicle != nullptr)
-        p_vehicle->render(m_light, m_view, m_projection, lightSpaceMatrix);
+        p_vehicle->render(m_light, m_view, m_projection, m_lightSpace);
     if (m_showGlobalFrame) 
-        m_frame.update(m_light, m_view, m_projection, lightSpaceMatrix);
+        m_frame.update(m_light, m_view, m_projection, m_lightSpace);
         
     printOpenGLError();
         
-    // Update time-step
+    // Update time-step // TODO remove this
     updateTimestep();
+}
+
+void Scene::renderShadow() {
+    // Render the shadow map
+    if (p_surface != nullptr)
+        p_surface->renderShadow(m_light, m_view, m_projection, m_lightSpace);
+    if (p_vehicle != nullptr)
+        p_vehicle->renderShadow(m_light, m_view, m_projection, m_lightSpace);
 }
 
 
@@ -233,8 +212,8 @@ void Scene::printOpenGLError() {
 void Scene::cleanUp() {
     m_skybox.cleanUp();
     m_frame.cleanup();
-    
     ObjectManager::cleanUp();
+    TextureManager::cleanUp();
 }
 
 
@@ -248,18 +227,6 @@ void Scene::updateTimestep() {
 
     // Make sure the timestep is between the min and max value
     m_timestep = std::max(m_timestepBegin, std::min(m_timestep, m_timestepEnd));
-}
-
-
-void Scene::updateCamera() {
-    // Update camera based of user inputs (this is done here rather than
-    // in the scene class to prevent writing this code for every scene).
-
-    // Handle translations
-    m_camera.processKeyboard();
-
-    // Handle rotations
-    m_camera.processMouseMovement();
 }
 
 
