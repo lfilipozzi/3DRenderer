@@ -71,7 +71,7 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     QObject::connect(m_goEndButton, SIGNAL(clicked()), 
                      openGLWindow, SLOT(goEndAnimation()));
     QObject::connect(m_playLoopButton, SIGNAL(clicked()), 
-                     openGLWindow, SLOT(toggleLoopAnimation()));
+                     openGLWindow, SLOT(toggleAnimationLoop()));
     QObject::connect(m_lockCameraButton, SIGNAL(clicked()),
                      openGLWindow, SLOT(resetCameraOffset()));
 

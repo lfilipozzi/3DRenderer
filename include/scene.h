@@ -61,56 +61,38 @@ public:
      * @brief Update the timestep of the animation.
      */
     void updateTimestep();
-
-    /**
-     * Play or pause the animation.
-     */
-    void playPauseAnimation();
-
-    /**
-     * Restart the animation from the beginning.
-     */
-    void restartAnimation();
-
-    /**
-     * Pause the animation and go to the end of the animation.
-     */
-    void goEndAnimation();
-
-    /**
-     * @brief Set the time rate of the animation to slow down or speed up the 
-     * animation.
-     * @param timeRate The time rate of the animation.
-     */
+    
+public:
+    void playPauseAnimation() {
+        if (m_frameRate == 0.0f)
+            m_frameRate = 1 / static_cast<float>(m_refreshRate);
+        else
+            m_frameRate = 0.0f;
+    };
+    
+    void restartAnimation() {m_timestep = m_firstTimestep;};
+    
+    void goEndAnimation() {
+        m_frameRate = 0.0f;
+        m_timestep = m_finalTimestep;
+    };
+    
     void setTimeRate(const float timeRate) {m_timeRate = timeRate;}
-
-    /**
-     * @brief Enable/disable the animation loop.
-     */
-    void toggleLoopAnimation() {m_enableLoop = !m_enableLoop;}
-
-    /**
-     * Return the timestep of the scene.
-     */
+    
+    void toggleAnimationLoop() {m_loop = !m_loop;}
+    
     float getTimestep() const {return m_timestep;}
-
-    /**
-     * Return the first timestep of the scene.
-     */
-    float getTimestepBegin() const {return m_timestepBegin;}
-
-    /**
-     * Return the final timestep of the scene.
-     */
-    float getTimestepEnd() const {return m_timestepEnd;}
-
-    /**
-     * Return true if the animation is paused
-     */
+    
+    float getFirstTimestep() const {return m_firstTimestep;}
+    
+    float getFinalTimestep() const {return m_finalTimestep;}
+    
     bool isPaused() {return m_frameRate == 0.0f;}
 
-    void setTimestepFromSlider(float slider) {m_timestep = slider *
-                (m_timestepEnd - m_timestepBegin) + m_timestepBegin;}
+    void setTimestepFromSlider(float slider) {
+        m_timestep = 
+            slider * (m_finalTimestep - m_firstTimestep) + m_firstTimestep;
+    }
                 
     void resetCameraOffset() {m_camera.resetTargetOffset();};
     
@@ -119,40 +101,8 @@ public:
     void toggleGlobalFrame() {m_showGlobalFrame = !m_showGlobalFrame;}
     
     void toggleTireForce() {p_vehicle->toggleTireForce();}
-
-private:
-    /**
-     * @brief Print OpenGL errors if any.
-     */
-    void printOpenGLError();
-    
-    /**
-     * @brief Set projection and view matrices. Set lightning.
-     */
-    void setupLightingAndMatrices();
     
 private:
-    /**
-     * Store the OpenGL context.
-     */
-    QOpenGLContext * p_context;
-    
-    /**
-     * Store the OpenGL functions.
-     */
-    QOpenGLFunctions_3_3_Core * p_glFunctions; // TODO remove
-    
-    /**
-     * Light space matrix.
-     */
-    QMatrix4x4 m_lightSpace;
-
-    /**
-     * Projection matrix: transform from the camera coordinates to the 
-     * homogeneous coordinates (the 2D coordinates of the screen).
-     */
-    QMatrix4x4 m_projection;
-
     /**
      * View matrix: transform from the world (scene) coordinates to the camera 
      * coordinates, this is used to change the position of the camera.
@@ -160,9 +110,25 @@ private:
     QMatrix4x4 m_view;
 
     /**
+     * Projection matrix: transform from the camera coordinates to the 
+     * homogeneous coordinates (the 2D coordinates of the screen).
+     */
+    QMatrix4x4 m_projection;
+    
+    /**
+     * Light space matrix.
+     */
+    QMatrix4x4 m_lightSpace;
+
+    /**
      * The lighting of the scene.
      */
     CasterLight m_light;
+    
+    /**
+     * @brief The camera of the scene.
+     */
+    Camera m_camera;
     
     /**
      * The skybox of the scene.
@@ -173,16 +139,16 @@ private:
      * The surface of the scene.
      */
     ABCObject * p_surface;
+
+    /**
+     * The vehicle.
+     */
+    std::unique_ptr<Vehicle> p_vehicle;
     
     /**
      * The XYZ frame of the scene.
      */
     Frame_GL33 m_frame;
-    
-    /**
-     * @brief The camera of the scene.
-     */
-    Camera m_camera;
 
     /**
      * @brief The current timestep at which the frame is drawn.
@@ -192,12 +158,12 @@ private:
     /**
      * @brief First timestep of the animation.
      */
-    float m_timestepBegin;
+    float m_firstTimestep;
 
     /**
      * @brief Last timestep of the animation
      */
-    float m_timestepEnd;
+    float m_finalTimestep;
 
     /**
      * @brief The refresh rate of the animation.
@@ -217,12 +183,7 @@ private:
     /**
      * @brief Enable/disable the animation loop.
      */
-    bool m_enableLoop;
-
-    /**
-     * The vehicle.
-     */
-    std::unique_ptr<Vehicle> p_vehicle;
+    bool m_loop;
     
     /**
      * Show the global frame of the scene.

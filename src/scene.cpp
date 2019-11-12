@@ -2,15 +2,13 @@
 
 
 Scene::Scene(unsigned int refreshRate) : 
-    m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
     m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)),
+    m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
     m_timestep(0.0f),
-    m_timestepBegin(0.0f),
-    m_timestepEnd(std::numeric_limits<float>::max()),
     m_refreshRate(refreshRate),
     m_timeRate(1.0f),
     m_frameRate(1 / static_cast<float>(m_refreshRate)),
-    m_enableLoop(true),
+    m_loop(true),
     m_showGlobalFrame(false) {}
 
 
@@ -18,24 +16,15 @@ Scene::~Scene() {}
 
 
 void Scene::initialize() {
-    // Get pointer to OpenGL functions
-    QOpenGLContext * context = QOpenGLContext::currentContext();
-    if (!context) {
-        qCritical() << __FILE__ << __LINE__ <<
-            "Requires a valid current OpenGL context. \n" <<
-            "Unable to draw the object.";
-        exit(1);
-    }
-    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
-    if (!p_glFunctions) {
-        qCritical() << __FILE__ << __LINE__ <<
-            "Could not obtain required OpenGL context version";
-        exit(1);
-    }
-    
-    setupLightingAndMatrices();
+    // Set up the scene light
+    QVector4D lightDirection(1.0f,-1.0f, -1.0f, 0.0f);
+    QVector3D lightIntensity(1.0f, 1.0f, 1.0f);
+    m_light = CasterLight(lightIntensity, lightDirection);
 
+    // Set up the skybox
     m_skybox.initialize();
+    
+    // TODO Rewrite Frame_GL33
     m_frame.initialize();
     
     // Load the chassis model
@@ -75,6 +64,7 @@ void Scene::initialize() {
     }
     p_surface = surface;
     
+    // Load line
     ABCObject * line = nullptr;
     line = ObjectManager::loadObject(
         "line", 
@@ -96,26 +86,9 @@ void Scene::initialize() {
     
     // Get the simulation duration from the vehicle trajectory
     if (p_vehicle != nullptr) {
-        m_timestepBegin = p_vehicle->getFirstTimeStep();
-        m_timestepEnd = p_vehicle->getFinalTimeStep();
+        m_firstTimestep = p_vehicle->getFirstTimeStep();
+        m_finalTimestep = p_vehicle->getFinalTimeStep();
     }
-}
-
-
-void Scene::setupLightingAndMatrices() {
-    m_view = m_camera.getViewMatrix();
-
-    float aspect = 4.0f/3.0f;
-    m_projection.setToIdentity();
-    m_projection.perspective(
-                60.0f,          // field of vision
-                aspect,         // aspect ratio
-                0.3f,           // near clipping plane
-                1000.0f);       // far clipping plane
-
-    QVector4D lightDirection(1.0f,-1.0f, -1.0f, 0.0f);
-    QVector3D lightIntensity(1.0f, 1.0f, 1.0f);
-    m_light = CasterLight(lightIntensity, lightDirection);
 }
 
 
@@ -148,7 +121,6 @@ void Scene::update() {
 }
 
 
-
 void Scene::render() {
     // Call the render method of object in the scene
     m_skybox.render(m_view, m_projection);
@@ -158,12 +130,8 @@ void Scene::render() {
         p_vehicle->render(m_light, m_view, m_projection, m_lightSpace);
     if (m_showGlobalFrame) 
         m_frame.update(m_light, m_view, m_projection, m_lightSpace);
-        
-    printOpenGLError();
-        
-    // Update time-step // TODO remove this
-    updateTimestep();
 }
+
 
 void Scene::renderShadow() {
     // Render the shadow map
@@ -171,41 +139,6 @@ void Scene::renderShadow() {
         p_surface->renderShadow(m_light, m_view, m_projection, m_lightSpace);
     if (p_vehicle != nullptr)
         p_vehicle->renderShadow(m_light, m_view, m_projection, m_lightSpace);
-}
-
-
-void Scene::printOpenGLError() {
-    GLenum errorCode;
-    QString error;
-    while ((errorCode = p_glFunctions->glGetError()) != GL_NO_ERROR)
-    {
-        switch (errorCode)
-        {
-            case GL_INVALID_ENUM:
-                error.append("INVALID_ENUM");
-                break;
-            case GL_INVALID_VALUE:
-                error.append("INVALID_VALUE");
-                break;
-            case GL_INVALID_OPERATION:
-                error.append("INVALID_OPERATION");
-                break;
-            case GL_STACK_OVERFLOW:
-                error.append("STACK_OVERFLOW");
-                break;
-            case GL_STACK_UNDERFLOW:
-                error.append("STACK_UNDERFLOW");
-                break;
-            case GL_OUT_OF_MEMORY:
-                error.append("OUT_OF_MEMORY");
-                break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                error.append("INVALID_FRAMEBUFFER_OPERATION"); 
-                break;
-        }
-    }
-    if (!error.isEmpty())
-        qWarning() << __FILE__ << __LINE__ << "OpenGL error:" << error;
 }
 
 
@@ -222,30 +155,13 @@ void Scene::updateTimestep() {
     m_timestep += m_frameRate * m_timeRate;
 
     // Restart the animation if necessary
-    if (m_enableLoop && m_timestep > m_timestepEnd)
-        m_timestep = m_timestepBegin;
+    if (m_loop && m_timestep > m_finalTimestep)
+        m_timestep = m_firstTimestep;
 
     // Make sure the timestep is between the min and max value
-    m_timestep = std::max(m_timestepBegin, std::min(m_timestep, m_timestepEnd));
-}
-
-
-void Scene::playPauseAnimation() {
-    if (m_frameRate == 0.0f)
-        m_frameRate = 1 / static_cast<float>(m_refreshRate);
-    else
-        m_frameRate = 0.0f;
-}
-
-
-void Scene::restartAnimation() {
-    m_timestep = m_timestepBegin;
-}
-
-
-void Scene::goEndAnimation() {
-    m_frameRate = 0.0f;
-    m_timestep = m_timestepEnd;
+    m_timestep = std::max(
+        m_firstTimestep, std::min(m_timestep, m_finalTimestep)
+    );
 }
 
 

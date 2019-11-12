@@ -31,6 +31,10 @@ public:
      */
     void setPlayer(AnimationPlayer * player);
     
+    /**
+     * @brief Print OpenGL errors (if any) of the current OpenGL context.
+     */
+    static void printOpenGLError();
 protected:
     /**
      * @brief This function is called once before the first call to renderGL() 
@@ -100,14 +104,20 @@ public slots:
     void playPauseAnimation();
 
     /**
-     * Qt slot used to enable/disable the looping of the animation.
+     * Qt slot used to enable/disable the animation loop.
      */
-    void toggleLoopAnimation();
+    void toggleAnimationLoop() {
+        if (p_scene != nullptr)
+            p_scene->toggleAnimationLoop();
+    };
 
     /**
      * Qt slot used to restart the animation from the beginning.
      */
-    void restartAnimation();
+    void restartAnimation() {
+        if (p_scene != nullptr)
+            p_scene->restartAnimation();
+    };
 
     /**
      * Qt slot used to go at the end of the animation.

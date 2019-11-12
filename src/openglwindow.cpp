@@ -41,7 +41,10 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
 
     connect(this, SIGNAL(widthChanged(int)), this, SLOT(resizeGL()));
     connect(this, SIGNAL(heightChanged(int)), this, SLOT(resizeGL()));
-    connect(p_context, SIGNAL(aboutToBeDestroyed()), this, SLOT(cleanUpGL()), Qt::DirectConnection);
+    connect(
+        p_context, SIGNAL(aboutToBeDestroyed()), 
+            this, SLOT(cleanUpGL()), Qt::DirectConnection
+    );
 
     initializeGL();
     resizeGL();
@@ -111,13 +114,17 @@ void OpenGLWindow::renderGL() {
         p_depthMap->bindTexture(GL_TEXTURE1);
     }
     p_scene->render();
+    p_scene->updateTimestep();
     p_context->swapBuffers(this);
+    
+    // Print OpenGL errors (if any)
+    printOpenGLError();
 
     // Update the slider of the player
-    float timeBegin = p_scene->getTimestepBegin();
+    float timeMin = p_scene->getFirstTimestep();
+    float timeMax = p_scene->getFinalTimestep();
     float time = p_scene->getTimestep();
-    float timeEnd = p_scene->getTimestepEnd();
-    p_player->updateTimestepValue(time, timeBegin, timeEnd);
+    p_player->updateTimestepValue(time, timeMin, timeMax);
     
     // Emit a signal if the camera has been offset 
     bool isCameraOffset = p_scene->isCameraOffset();
@@ -142,6 +149,56 @@ void OpenGLWindow::resizeGL() {
 void OpenGLWindow::cleanUpGL() {
     p_context->makeCurrent(this);
     p_scene->cleanUp();
+}
+
+
+void OpenGLWindow::printOpenGLError() {
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "Requires a valid current OpenGL context. \n" <<
+            "Unable to draw the object.";
+        exit(1);
+    }
+    QOpenGLFunctions_3_3_Core * glFunctions;
+    glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    if (!glFunctions) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "Could not obtain required OpenGL context version";
+        exit(1);
+    }
+    
+    GLenum errorCode;
+    QString error;
+    while ((errorCode = glFunctions->glGetError()) != GL_NO_ERROR)
+    {
+        switch (errorCode)
+        {
+            case GL_INVALID_ENUM:
+                error.append("INVALID_ENUM");
+                break;
+            case GL_INVALID_VALUE:
+                error.append("INVALID_VALUE");
+                break;
+            case GL_INVALID_OPERATION:
+                error.append("INVALID_OPERATION");
+                break;
+            case GL_STACK_OVERFLOW:
+                error.append("STACK_OVERFLOW");
+                break;
+            case GL_STACK_UNDERFLOW:
+                error.append("STACK_UNDERFLOW");
+                break;
+            case GL_OUT_OF_MEMORY:
+                error.append("OUT_OF_MEMORY");
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                error.append("INVALID_FRAMEBUFFER_OPERATION"); 
+                break;
+        }
+    }
+    if (!error.isEmpty())
+        qWarning() << __FILE__ << __LINE__ << "OpenGL error:" << error;
 }
 
 
@@ -188,26 +245,20 @@ void OpenGLWindow::wheelEvent(QWheelEvent *event)
     InputManager::registerWheelScroll(event->delta());
 }
 
-// Slots
+
 void OpenGLWindow::playPauseAnimation() {
-    p_scene->playPauseAnimation();
-    p_player->updatePlayPauseButton(p_scene->isPaused());
-}
-
-
-void OpenGLWindow::restartAnimation() {
-    p_scene->restartAnimation();
-}
+    if (p_scene != nullptr && p_player != nullptr) {
+        p_scene->playPauseAnimation();
+        p_player->updatePlayPauseButton(p_scene->isPaused());
+    }
+};
 
 
 void OpenGLWindow::goEndAnimation() {
-    p_scene->goEndAnimation();
-    p_player->updatePlayPauseButton(p_scene->isPaused());
-}
-
-
-void OpenGLWindow::toggleLoopAnimation() {
-    p_scene->toggleLoopAnimation();
+    if (p_scene != nullptr && p_player != nullptr) {
+        p_scene->goEndAnimation();
+        p_player->updatePlayPauseButton(p_scene->isPaused());
+    }
 }
 
 

@@ -1,5 +1,5 @@
-#ifndef FRAME_GL33_H
-#define FRAME_GL33_H
+#ifndef FRAME_H
+#define FRAME_H
 
 #include "line.h"
 
@@ -45,4 +45,4 @@ private:
     Line Z_AXIS;
 };
 
-#endif // FRAME_GL33_H
+#endif // FRAME_H
