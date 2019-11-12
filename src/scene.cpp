@@ -23,8 +23,6 @@ void Scene::initialize() {
 
     // Set up the skybox
     m_skybox.initialize();
-    
-    // TODO Rewrite Frame_GL33
     m_frame.initialize();
     
     // Load the chassis model

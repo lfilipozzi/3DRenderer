@@ -21,7 +21,8 @@ Deleted files or renamed
  * src/abstractcomplex_gl33.cpp
  * src/line_gl33.cpp => src/line.cpp
  * src/abstractobject3d_gl33.cpp
-
+ * src/frame_gl33.cpp => src/frame.cpp
+    
  * include/modelloader.h
  * include/model3d_gl33.h
  * include/abstractvehicle.h
@@ -32,7 +33,8 @@ Deleted files or renamed
  * include/materialinfo.h
  * include/opengltexture.h
  * include/line_gl33.h => include/line.h
-  * include/abstractobject3d_gl33.h
+ * include/abstractobject3d_gl33.h
+ * include/frame_gl33.h => include/frame.h
 
  * shader source files
 

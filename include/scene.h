@@ -4,7 +4,7 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include "vehicle.h"
-#include "frame_gl33.h"
+#include "frame.h"
 #include "skybox.h"
 #include <memory>
 #include "camera.h"
@@ -148,7 +148,7 @@ private:
     /**
      * The XYZ frame of the scene.
      */
-    Frame_GL33 m_frame;
+    Frame m_frame;
 
     /**
      * @brief The current timestep at which the frame is drawn.
