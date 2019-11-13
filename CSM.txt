@@ -1,7 +1,7 @@
 http://ogldev.atspace.co.uk/www/tutorial49/tutorial49.html
 
  * Delete method getLightSpaceMatrix(QVector3D lightTarget) in the Light class.
- * Compute the light projection matrix with the getLightProjections() function. Put this function either in the Scene (or in the Camera class (as it is related to properties of the camera: FOV and camera view matrix) but the best is probably the Scene class)
+ * Compute the light projection matrix with the getLightProjections() function. Put this function either in the Scene or in the Light class (or in the Camera class (as it is related to properties of the camera: FOV and camera view matrix) but the best is probably the Scene class)
  * Create getLightViewMatrix() in the Scene or in the Camera (or the the Light class), the best is probably the scene as it has access to everything we need.
  * Redefine the lightSpace matrix as lightSpace = lightProjection * lightView; in the Scene
  

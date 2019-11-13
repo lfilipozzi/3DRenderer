@@ -53,10 +53,7 @@ void Line::render(
 }
 
 
-void Line::renderShadow(
-    const CasterLight & /*light*/, const QMatrix4x4 & /*view*/, 
-    const QMatrix4x4 & /*projection*/, const QMatrix4x4 & /*lightSpace*/
-) {
+void Line::renderShadow(const QMatrix4x4 & /*lightSpace*/) {
     // Nothing to do: Do not render the shadow of the line.
 }
 

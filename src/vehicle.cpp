@@ -305,20 +305,20 @@ void VehicleGraphics::render(
 }
 
 
-void VehicleGraphics::renderShadow(const CasterLight& light, const QMatrix4x4& view, const QMatrix4x4& projection, const QMatrix4x4& lightSpace) {
+void VehicleGraphics::renderShadow(const QMatrix4x4 & lightSpace) {
     if (p_wheelModel != nullptr) {
         p_wheelModel->setModelMatrix(m_wheelFLMatrix);
-        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->renderShadow(lightSpace);
         p_wheelModel->setModelMatrix(m_wheelFRMatrix);
-        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->renderShadow(lightSpace);
         p_wheelModel->setModelMatrix(m_wheelRLMatrix);
-        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->renderShadow(lightSpace);
         p_wheelModel->setModelMatrix(m_wheelRRMatrix);
-        p_wheelModel->renderShadow(light, view, projection, lightSpace);
+        p_wheelModel->renderShadow(lightSpace);
     }
     if (p_chassisModel != nullptr) {
         p_chassisModel->setModelMatrix(m_chassisMatrix);
-        p_chassisModel->renderShadow(light, view, projection, lightSpace);
+        p_chassisModel->renderShadow(lightSpace);
     }
 }
 

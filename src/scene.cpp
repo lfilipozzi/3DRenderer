@@ -134,9 +134,9 @@ void Scene::render() {
 void Scene::renderShadow() {
     // Render the shadow map
     if (p_surface != nullptr)
-        p_surface->renderShadow(m_light, m_view, m_projection, m_lightSpace);
+        p_surface->renderShadow(m_lightSpace);
     if (p_vehicle != nullptr)
-        p_vehicle->renderShadow(m_light, m_view, m_projection, m_lightSpace);
+        p_vehicle->renderShadow(m_lightSpace);
 }
 
 

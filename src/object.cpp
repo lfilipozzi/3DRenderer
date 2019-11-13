@@ -190,11 +190,11 @@ void Object::render(
 }
 
 
-void Object::renderShadow(
-    const CasterLight & light, const QMatrix4x4 & view, 
-    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
-){
-    render(light, view, projection, lightSpace, p_shadowShader.get());
+void Object::renderShadow(const QMatrix4x4 & lightSpace) {
+    render(
+        CasterLight(), QMatrix4x4(), QMatrix4x4(), lightSpace, 
+        p_shadowShader.get()
+    );
 }
 
 

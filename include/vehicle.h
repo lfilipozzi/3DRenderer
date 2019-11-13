@@ -180,13 +180,10 @@ public:
     
     /**
      * @brief Draw the object when computing the framebuffer for shadow mapping.
-     * @param view The view matrix.
-     * @param projection The projection matrix.
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
      */
-    void renderShadow(const CasterLight & light, const QMatrix4x4 & view, 
-                const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace);
+    void renderShadow(const QMatrix4x4 & lightSpace);
     
     /**
      * @brief Render/hide tire forces.
@@ -314,16 +311,11 @@ public:
     /**
      * @brief Draw the vehicle when computing the framebuffer for shadow 
      * mapping.
-     * @param view The view matrix.
-     * @param projection The projection matrix.
      * @param lightSpace The view and projection matrix of the light (used for 
      * shadow mapping).
      */
-    void renderShadow(
-        const CasterLight & light, const QMatrix4x4 & view, 
-        const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
-    ) {
-        m_graphics.renderShadow(light, view, projection, lightSpace);
+    void renderShadow(const QMatrix4x4 & lightSpace) {
+        m_graphics.renderShadow(lightSpace);
     };
     
     /**
