@@ -4,35 +4,13 @@
 
 # define PI           3.14159265358979323846f
 
-// #define CAMERA_VERBOSE // Verbose mode for camera information
+const float Camera::c_mouseSensitivity = 5.0f / 1920;
+const float Camera::c_velocity = 0.05f;
+const float Camera::c_wheelSensitivity = 24.0f;
+const float Camera::c_minDistance = 5.0f;
+const float Camera::c_maxDistance = 250.0f;
+const QVector3D Camera::c_worldUpAxis = QVector3D(0.0f, 0.0f, 1.0f);
 
-#ifdef CAMERA_VERBOSE
-#include <iostream>
-#endif // CAMERA_VERBOSE
-
-//TODO: update this value based on the screen
-const int Camera::SCREEN_SIZE = 1920;
-
-const float Camera::MOUSE_SENSITIVITY = 5.0f;
-
-const float Camera::MOVEMENT_VELOCITY = 0.05f;
-
-const float Camera::WHEEL_SENSITIVITY = 24.0f;
-
-const float Camera::MIN_DISTANCE = 5.0f;
-
-const float Camera::MAX_DISTANCE = 250.0f;
-
-Camera::Camera() :
-    m_pitchTrack(-35.0f),
-    m_yawTrack(0.0f),
-    m_targetTrack(0.0f, 0.0f, 0.0f),
-    m_pitchOffset(-0.4f),
-    m_yawOffset(0.0f),
-    m_targetOffset(0.0f, 0.0f, 0.0f),
-    m_distanceFromTarget(10.0f) {
-    updateCameraAxes();
-}
 
 Camera::Camera(float pitch, float yaw, QVector3D target) :
     m_pitchTrack(pitch),
@@ -45,11 +23,11 @@ Camera::Camera(float pitch, float yaw, QVector3D target) :
     updateCameraAxes();
 }
 
+
 Camera::~Camera() {
 
 }
 
-const QVector3D Camera::worldUpAxis = QVector3D(0.0f, 0.0f, 1.0f);
 
 void Camera::updateCameraAxes() {
     // Define camera yaw and pitch
@@ -60,11 +38,12 @@ void Camera::updateCameraAxes() {
     m_frontAxis = QVector3D(cos(yaw) * cos(pitch),
                            -sin(yaw) * cos(pitch),
                             sin(pitch));
-    m_rightAxis = QVector3D::crossProduct(m_frontAxis, worldUpAxis);
+    m_rightAxis = QVector3D::crossProduct(m_frontAxis, c_worldUpAxis);
     m_upAxis = QVector3D::crossProduct(m_rightAxis, m_frontAxis);
 }
 
-QMatrix4x4 Camera::getRotMatrixVehicleToWorld() {
+
+QMatrix4x4 Camera::getTargetToWorldMatrix() {
     QMatrix4x4 rotationMatrix;
     rotationMatrix.setToIdentity();
     
@@ -73,13 +52,11 @@ QMatrix4x4 Camera::getRotMatrixVehicleToWorld() {
     return rotationMatrix;
 }
 
-QMatrix4x4 Camera::getRotMatrixWorldToVehicle() {
-    QMatrix4x4 rotationMatrix;
-    rotationMatrix.setToIdentity();
-    rotationMatrix.rotate(m_yawTrack  *180/PI,0,0,1);
-    rotationMatrix.rotate(m_pitchTrack*180/PI,0,1,0);
-    return rotationMatrix;
+
+QMatrix4x4 Camera::getWorldToTargetMatrix() {
+    return getTargetToWorldMatrix().inverted();
 }
+
 
 QMatrix4x4 Camera::getViewMatrix() {
     QMatrix4x4 viewMatrix;
@@ -87,15 +64,16 @@ QMatrix4x4 Camera::getViewMatrix() {
     updateCameraAxes();
 
     // Define the camera position from the target and its distance to the target
-    /* The target is set to m_targetTrack to follow the vehicle and an 
+    /* The target is set to m_targetTrack to follow the target and an 
      * additional vector is used to position the camera as desired. To avoid 
-     * rotating around this point because of the vehicle yaw motion, this vector
-     * is defined in the vehicle frame (only yaw and pitch, roll is neglected) 
+     * rotating around this point because of the target yaw motion, this vector
+     * is defined in the target frame (only yaw and pitch, roll is neglected) 
      * and therefore must first be converted to the world frame.
      */
-    QVector3D target = m_targetTrack 
-        + getRotMatrixVehicleToWorld() * m_targetOffset;
-    QVector3D cameraPosition = target - m_frontAxis * m_distanceFromTarget;
+    QVector3D target;
+    QVector3D cameraPosition;
+    target = m_targetTrack  + getTargetToWorldMatrix() * m_targetOffset;
+    cameraPosition = target - m_frontAxis * m_distanceFromTarget;
 
     // Create the view matrix
     viewMatrix.setToIdentity();
@@ -103,10 +81,11 @@ QMatrix4x4 Camera::getViewMatrix() {
     return viewMatrix;
 }
 
+
 void Camera::processMouseMovement() {
     if (InputManager::isButtonPressed(Qt::RightButton)) {
-        float xOffset = InputManager::mouseDelta().x() * MOUSE_SENSITIVITY / SCREEN_SIZE;
-        float yOffset = InputManager::mouseDelta().y() * MOUSE_SENSITIVITY / SCREEN_SIZE;
+        float xOffset = InputManager::mouseDelta().x() * c_mouseSensitivity;
+        float yOffset = InputManager::mouseDelta().y() * c_mouseSensitivity;
 
         m_yawOffset += xOffset;
         m_pitchOffset -= yOffset;
@@ -119,77 +98,42 @@ void Camera::processMouseMovement() {
 
         // Make sure yaw is between 0 and 360
         m_yawOffset = fmod(m_yawOffset, 360.0f);
-
-        #ifdef CAMERA_VERBOSE
-        if (InputManager::mouseDelta().x() != 0 && InputManager::mouseDelta().y() != 0) {
-            std::cout << "Delta mouse: x=" << InputManager::mouseDelta().x() <<
-                      ", y=" << InputManager::mouseDelta().y() <<
-                      ", yawOffset=" << m_yawOffset <<
-                      ", pitchOffset" << m_pitchOffset << std::endl;
-        }
-        #endif //CAMERA_VERBOSE
     }
 
     // Process the scroll wheel
-    m_distanceFromTarget -= InputManager::getWheelScroll() / WHEEL_SENSITIVITY;
-    m_distanceFromTarget = std::max(MIN_DISTANCE, std::min(m_distanceFromTarget, MAX_DISTANCE));
+    m_distanceFromTarget -= InputManager::getWheelScroll() / c_wheelSensitivity;
+    m_distanceFromTarget = std::max(
+        c_minDistance, std::min(m_distanceFromTarget, c_maxDistance)
+    );
 }
+
 
 void Camera::processKeyboard()
 {
     /* Need to compute rotation matrix so that pressing this key will result in 
-     * the same effect no matter the vehicle's yaw angle.
+     * the same effect no matter the target's yaw angle.
      */
+    QMatrix4x4 rotation = getWorldToTargetMatrix();
     if (InputManager::isKeyPressed(Qt::Key_W)) {
-        m_targetOffset += getRotMatrixWorldToVehicle() * m_frontAxis * MOVEMENT_VELOCITY;
-        #ifdef CAMERA_VERBOSE
-        std::cout << "W pressed: x=" << m_targetOffset.x() <<
-                   ", y=" <<  m_targetOffset.y() <<
-                   ", z=" <<  m_targetOffset.z() << std::endl;
-        #endif // CAMERA_VERBOSE
+        m_targetOffset += rotation * m_frontAxis * c_velocity;
     }
     if (InputManager::isKeyPressed(Qt::Key_S)) {
-        m_targetOffset -= getRotMatrixWorldToVehicle() * m_frontAxis * MOVEMENT_VELOCITY;
-        #ifdef CAMERA_VERBOSE
-        std::cout << "S pressed: x=" << m_targetOffset.x() <<
-                   ", y=" <<  m_targetOffset.y() <<
-                   ", z=" <<  m_targetOffset.z() << std::endl;
-        #endif // CAMERA_VERBOSE
+        m_targetOffset -= rotation * m_frontAxis * c_velocity;
     }
     if (InputManager::isKeyPressed(Qt::Key_A)) {
-        m_targetOffset -= getRotMatrixWorldToVehicle() * m_rightAxis * MOVEMENT_VELOCITY;
-        #ifdef CAMERA_VERBOSE
-        std::cout << "A pressed: x=" << m_targetOffset.x() <<
-                   ", y=" <<  m_targetOffset.y() <<
-                   ", z=" <<  m_targetOffset.z() << std::endl;
-        #endif // CAMERA_VERBOSE
+        m_targetOffset -= rotation * m_rightAxis * c_velocity;
     }
     if (InputManager::isKeyPressed(Qt::Key_D)) {
-        m_targetOffset += getRotMatrixWorldToVehicle() * m_rightAxis * MOVEMENT_VELOCITY;
-        
-        #ifdef CAMERA_VERBOSE
-        std::cout << "D pressed: x=" << m_targetOffset.x() <<
-                   ", y=" <<  m_targetOffset.y() <<
-                   ", z=" <<  m_targetOffset.z() << std::endl;
-        #endif // CAMERA_VERBOSE
+        m_targetOffset += rotation * m_rightAxis * c_velocity;
     }
     if (InputManager::isKeyPressed(Qt::Key_Q)) {
-        m_targetOffset -= getRotMatrixWorldToVehicle() * m_upAxis * MOVEMENT_VELOCITY;
-        #ifdef CAMERA_VERBOSE
-        std::cout << "Q pressed: x=" << m_targetOffset.x() <<
-                   ", y=" <<  m_targetOffset.y() <<
-                   ", z=" <<  m_targetOffset.z() << std::endl;
-        #endif // CAMERA_VERBOSE
+        m_targetOffset -= rotation * m_upAxis * c_velocity;
     }
     if (InputManager::isKeyPressed(Qt::Key_E)) {
-        m_targetOffset += getRotMatrixWorldToVehicle() * m_upAxis * MOVEMENT_VELOCITY;
-        #ifdef CAMERA_VERBOSE
-        std::cout << "E pressed: x=" << m_targetOffset.x() <<
-                   ", y=" <<  m_targetOffset.y() <<
-                   ", z=" <<  m_targetOffset.z() << std::endl;
-        #endif // CAMERA_VERBOSE
+        m_targetOffset += rotation * m_upAxis * c_velocity;
     }
 }
+
 
 void Camera::trackObject(const Position & position) {
     m_targetTrack = QVector3D(position.x, position.y, position.z);

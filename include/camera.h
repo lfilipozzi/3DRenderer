@@ -8,40 +8,35 @@
 /// Camera to view the scene
 /**
  * @brief Represent a camera to view a scene.
- *
- * The camera is defined by its position, target, and up vector. The camera 
- * usual behavior is to follow the vehicle. Therefore, it is more convenient 
- * to define the camera by its target, forward direction, distance from the 
- * target (adjustable by scrolling), and up axis. Moreover, WASDQE keys can be 
- * used to move the camera. Thus, the property m_targetOffset is used to define
- * an offset to the target and can move the camera. Finally, the mouse movement
- * will change the orientation of the camera, the properties m_yawOffset and 
- * m_pitchOffset are used to distinct between the angle offset defined from the 
- * user's input and the angle used to follow the vehicle.
+ * @author Louis Filipozzi
+ * @details The camera has two behavior, one is to follow an object in the scene,
+ * the other one is being controlled by the user.
  */
 class Camera {
 public:
-    Camera();
-    ~Camera();
-
     /**
-     * Overloaded constructor of Camera
+     * @brief Overloaded constructor of Camera
      * @param pitch The pitch angle of the camera.
      * @param yaw The yaw angle of the camera.
      * @param target The point at the center of the camera.
      */
-    Camera(float pitch, float yaw, QVector3D target);
+    Camera(
+        float pitch = -35.0f, float yaw = 0.0f, 
+        QVector3D target = QVector3D(0.0f, 0.0f, 0.0f)
+    );
+    ~Camera();
 
     /**
-     * @brief Update the position of the camera to track an object: The camera 
-     * is locked to the object (except for the roll).
+     * @brief Update the position of the camera to track an object.
+     * @details The camera is locked to the object: if the yaw or pitch angle of
+     * the object change, it also changes the yaw and pitch angle of the camera 
+     * (not the roll angle).
      * @param position The position of the object to track.
      */
-    void trackObject(Position const& position);
+    void trackObject(Position const & position);
 
     /**
-     * Define the view matrix.
-     * @return The view matrix which corresponds to the camera settings.
+     * @brief Return the view matrix of the camera.
      */
     QMatrix4x4 getViewMatrix();
 
@@ -57,60 +52,63 @@ public:
     void processKeyboard();
     
     /**
-     * Refocus the camera on the vehicle by eliminating the offset.
+     * @brief Reset the offset to the target to zero.
      */
     void resetTargetOffset() {m_targetOffset = QVector3D(0.0f, 0.0f, 0.0f);};
     
     /**
-     * Indicate if the camera is offset.
+     * @brief Indicate if the camera is offset.
      */
     bool isCameraOffset() {return m_targetOffset != QVector3D(0, 0, 0);};
 
 private:
     /**
-     * Return the rotation matrix used to go from the vehicle to the world
-     * frame.
+     * @brief Return the rotation matrix used to go from the target to the 
+     * world frame.
      */
-    QMatrix4x4 getRotMatrixVehicleToWorld();
+    QMatrix4x4 getTargetToWorldMatrix();
     
     /**
-     * Return the rotation matrix used to go from the world to the vehicle.
+     * @brief Return the rotation matrix used to go from the world to the 
+     * target.
      */
-    QMatrix4x4 getRotMatrixWorldToVehicle();
+    QMatrix4x4 getWorldToTargetMatrix();
+    
+    /**
+     * @brief Update the local axes of the camera from its yaw and pitch.
+     */
+    void updateCameraAxes();
+    
+private:
     /**
      * Used to tune the sensitivity of the mouse for camera rotation.
      */
-    static const float MOUSE_SENSITIVITY;
+    static const float c_mouseSensitivity;
 
     /**
      * Used to tune the velocity of camera translations.
      */
-    static const float MOVEMENT_VELOCITY;
-
-    /**
-     * Maximum screen size (used to normalize the mouse sensitivity).
-     */
-    static const int SCREEN_SIZE;
+    static const float c_velocity;
 
     /**
      * Used to tune the sensitivity of the wheel mouse.
      */
-    static const float WHEEL_SENSITIVITY;
+    static const float c_wheelSensitivity;
 
     /**
-     * Saturate the distance of the camera to the target.
+     * Minimum authorised distance of the camera to the target.
      */
-    static const float MIN_DISTANCE;
+    static const float c_minDistance;
 
     /**
-     * Saturate the distance of the camera to the target.
+     * Maximum authorized distance of the camera to the target.
      */
-    static const float MAX_DISTANCE;
+    static const float c_maxDistance;
 
     /**
      * Up axis of the world.
      */
-    static const QVector3D worldUpAxis;
+    static const QVector3D c_worldUpAxis;
 
     /**
      * Camera pitch angle used to track an object in the scene.
@@ -138,38 +136,30 @@ private:
     float m_yawOffset;
 
     /**
-     * Target offset of the camera according to the user input. This is defined 
-     * in the vehicle frame and must be rotated, that's why it is using a
-     * QVector4D instead of a QVector3D.
+     * Target offset of the camera according to the user input defined in the
+     * target reference frame and must be rotated.
      */
     QVector3D m_targetOffset;
 
     /**
-     * Variable used to define the distance between the camera and its target 
-     * along the camera forward axis.
-     * @brief The distance between the camera and its target.
+     * The distance between the camera and its target.
      */
     float m_distanceFromTarget;
 
     /**
-     * Front axis of the camera. This is computed from the camera pitch and yaw.
+     * Front axis of the camera.
      */
     QVector3D m_frontAxis;
 
     /**
-     * Right axis of the camera. This is computed from the camera pitch and yaw.
+     * Right axis of the camera.
      */
     QVector3D m_rightAxis;
 
     /**
-     * Up axis of the camera. This is computed from the camera pitch and yaw.
+     * Up axis of the camera.
      */
     QVector3D m_upAxis;
-
-    /**
-     * Update the local axes of the camera from its yaw and pitch.
-     */
-    void updateCameraAxes();
 };
 
 #endif // CAMERA_H

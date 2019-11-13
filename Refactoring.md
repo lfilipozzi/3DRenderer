@@ -49,6 +49,7 @@ Changing files (still work to do)
  * scene.h and scene.cpp. Make changes to not inherit from QOpenGLFuntion but to use pointer instead. Need to check the rest of the code.
  * object.h and object.cpp defining the object and object builder.
  * vehicle.h and vehicle.cpp to replace abstractvehicle and vehicle_gl33
+ * camera.cpp and camera.h
 
 
 To-do list
