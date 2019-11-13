@@ -1,0 +1,91 @@
+http://ogldev.atspace.co.uk/www/tutorial49/tutorial49.html
+
+ * Delete method getLightSpaceMatrix(QVector3D lightTarget) in the Light class.
+ * Compute the light projection matrix with the getLightProjections() function. Put this function either in the Scene (or in the Camera class (as it is related to properties of the camera: FOV and camera view matrix) but the best is probably the Scene class)
+ * Create getLightViewMatrix() in the Scene or in the Camera (or the the Light class), the best is probably the scene as it has access to everything we need.
+ * Redefine the lightSpace matrix as lightSpace = lightProjection * lightView; in the Scene
+ 
+ * Change the depthMap class to allow to have several shadow map
+ 
+ * Generate all the shadow map in OpenGLWindow
+ * Change the render() functions (and their prototypes) to use several shadow maps (several lightSpace transform)
+ 
+ * Change the object shader program to use several shadow map
+
+
+getLightViewMatrix() {
+    QMatrix4x4 lightView = lookat(
+        QVector3D(0.0f, 0.0f, 0.0f),// (Dummy) light position
+        lightDirection,             // Light direction
+        QVector3D(0.0f, 0.0f, 1.0f) // Light up axis
+    );
+    
+    return lightView
+}
+
+getLightProjectionMatrices() {
+    // Four steps
+    //  1: Compute the eight corners of each cascade in the camera view space.
+    //  2: Transform the coordinates from camera view space to world space (with inverse of camera view matrix).
+    //  3: Transform from world space to light view space (with light view matrix).
+    //  4: Compute light projection matrix which encompass the bounding box (the eight corner of the frustrum).
+
+    // Get the light view matrix
+    QMatrix4x4 lightV = getLightViewMatrix;
+
+    // Compute tangent of vertical and horizontal FOV
+    float aspect = projectionHeight/projectionWidth;
+    float tanHalfHFOV = tan(FOV / (2*aspect));  // Qt use vertical FOV (not horizontal)
+    float tanHalfVFOV = tan(FOV /2);
+    // float tanHalfHFOV = tan(FOV/2);
+    // float tanHalfVFOV = tan(FOV * aspect /2);
+
+    for (unsigned int i = 0; i < m_cascades; i++) {
+        float xn = m_cascadeEnd[i]   * tanHalfHFOV;
+        float xf = m_cascadeEnd[i+1] * tanHalfHFOV;
+        float yn = m_cascadeEnd[i]   * tanHalfVFOV;
+        float yf = m_cascadeEnd[i+1] * tanHalfVFOV;
+        
+        // Compute the eight corners of each cascade in the camera view space
+        QVector4D frustrumCorners[NUM_FRUSTRUM_CORNERS] = {
+            // Near face
+            QVector4D( xn,  yn, m_cascadeEnd[i], 1.0f),
+            QVector4D(-xn,  yn, m_cascadeEnd[i], 1.0f),
+            QVector4D( xn, -yn, m_cascadeEnd[i], 1.0f),
+            QVector4D(-xn, -yn, m_cascadeEnd[i], 1.0f),
+            // Far face
+            
+            QVector4D( xn,  yn, m_cascadeEnd[i+1], 1.0f),
+            QVector4D(-xn,  yn, m_cascadeEnd[i+1], 1.0f),
+            QVector4D( xn, -yn, m_cascadeEnd[i+1], 1.0f),
+            QVector4D(-xn, -yn, m_cascadeEnd[i+1], 1.0f)
+        }
+        
+        // Corners of each cascade in the light view space
+        QVector4D frustrumCornerLight[NUM_FRUSTRUM_CORNERS];
+        QMatrix4x4 V2lightV = lightV * m_view.inverted();
+        float left   = std::numeric_limits::max();
+        float right  = std::numeric_limits::min();
+        float bottom = std::numeric_limits::max();
+        float top    = std::numeric_limits::min();
+        float near   = std::numeric_limits::max();
+        float far    = std::numeric_limits::min();
+        
+        // Compute the eight corners of each cascade in the light view space
+        for (unsigned int j = 0; j < NUM_FRUSTRUM_CORNERS; j++) {
+            // Transform the frustum coordinate from camera view to light view space
+            frustumCornersLight[j] = V2lightV * frustumCorners[j];
+            
+            // Find the box of the cascade in light view space
+            left   = min(left,   frustumCornersLight[j].x);
+            right  = max(right,  frustumCornersLight[j].x);
+            bottom = min(bottom, frustumCornersLight[j].y);
+            top    = max(top,    frustumCornersLight[j].y);
+            near   = min(near,   frustumCornersLight[j].z);
+            far    = max(far,    frustumCornersLight[j].z);
+        }
+        
+        // Compute the projection matrix which contains the frustum corners
+        m_lightProjection[i] = QMatrix4z4::ortho(left, right, bottom, top, near, far);
+    }
+}
