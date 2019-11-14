@@ -23,7 +23,7 @@ getLightViewMatrix() {
     return lightView
 }
 
-getLightProjectionMatrices() {
+getLightProjectionMatrices(Camera camera) {
     // Four steps
     //  1: Compute the eight corners of each cascade in the camera view space.
     //  2: Transform the coordinates from camera view space to world space (with inverse of camera view matrix).
@@ -35,8 +35,9 @@ getLightProjectionMatrices() {
 
     // Compute tangent of vertical and horizontal FOV
     float aspect = projectionHeight/projectionWidth;
-    float tanHalfHFOV = tan(FOV / (2*aspect));  // Qt use vertical FOV (not horizontal)
-    float tanHalfVFOV = tan(FOV /2);
+    std::pair<float, float> FOV = camera.getFOV();
+    float tanHalfHFOV = tan(pair.first);
+    float tanHalfVFOV = tan(pair.second);
     // float tanHalfHFOV = tan(FOV/2);
     // float tanHalfVFOV = tan(FOV * aspect /2);
 
@@ -63,7 +64,7 @@ getLightProjectionMatrices() {
         
         // Corners of each cascade in the light view space
         QVector4D frustrumCornerLight[NUM_FRUSTRUM_CORNERS];
-        QMatrix4x4 V2lightV = lightV * m_view.inverted();
+        QMatrix4x4 V2lightV = lightV * camera.getViewMatrix().inverted();
         float left   = std::numeric_limits::max();
         float right  = std::numeric_limits::min();
         float bottom = std::numeric_limits::max();

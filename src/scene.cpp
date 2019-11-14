@@ -91,16 +91,11 @@ void Scene::initialize() {
 
 
 void Scene::resize(int w, int h) {
-    m_projection.setToIdentity();
-    m_projection.perspective(60.0f, static_cast<float>(w)/h, .3f, 1000);
+    m_camera.setAspectRatio(static_cast<float>(w)/h);
 }
 
 
 void Scene::update() {
-    // Process inputs to the camera // TODO remove this with command pattern
-    m_camera.processKeyboard();
-    m_camera.processMouseMovement();
-    
     // Get the vehicle position
     Position vehiclePosition;
     if (p_vehicle != nullptr) {
@@ -108,14 +103,20 @@ void Scene::update() {
         p_vehicle->updatePosition(m_timestep);
     }
     
-    // Update camera to follow the vehicle
+    // Update camera
     m_camera.trackObject(vehiclePosition);
+    m_camera.processKeyboard();
+    m_camera.processMouseMovement();
+    m_camera.updateAxes();
     
     // Compute view and projection matrices of the light source
     m_lightSpace = m_light.getLightSpaceMatrix(vehiclePosition.getPoint());
     
-    // Update the view matrix of the camera
+    // Update the camera view matrix
     m_view = m_camera.getViewMatrix();
+    
+    // Update the camera projection matrix
+    m_projection = m_camera.getProjectionMatrix();
 }
 
 

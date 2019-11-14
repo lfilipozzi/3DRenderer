@@ -9,8 +9,8 @@
 /**
  * @brief Represent a camera to view a scene.
  * @author Louis Filipozzi
- * @details The camera has two behavior, one is to follow an object in the scene,
- * the other one is being controlled by the user.
+ * @details The camera has two behavior, one is to follow an object in the 
+ * scene, the other one is being controlled by the user.
  */
 class Camera {
 public:
@@ -38,7 +38,27 @@ public:
     /**
      * @brief Return the view matrix of the camera.
      */
-    QMatrix4x4 getViewMatrix();
+    QMatrix4x4 getViewMatrix() const;
+    
+    /**
+     * @brief Return the projection matrix of the camera.
+     */
+    QMatrix4x4 getProjectionMatrix() const;
+    
+    /**
+     * @brief Set the aspect ratio of the camera.
+     */
+    void setAspectRatio(const float aspect) {m_aspect = aspect;};
+    
+    /**
+     * @brief Return a pair with the horizontal and vertical field of view.
+     */
+    std::pair<float, float> getFOV() const {
+        return std::pair<float, float>(
+            c_FOV / m_aspect,   // Horizontal FOV
+            c_FOV               // Vertical FOV
+        );
+    };
 
     /**
      * @brief Process the displacement of the mouse and convert it into camera 
@@ -60,26 +80,31 @@ public:
      * @brief Indicate if the camera is offset.
      */
     bool isCameraOffset() {return m_targetOffset != QVector3D(0, 0, 0);};
+    
+    /**
+     * @brief Update the local axes of the camera from its yaw and pitch.
+     */
+    void updateAxes();
 
 private:
     /**
      * @brief Return the rotation matrix used to go from the target to the 
      * world frame.
      */
-    QMatrix4x4 getTargetToWorldMatrix();
+    QMatrix4x4 getTargetToWorldMatrix() const;
     
     /**
      * @brief Return the rotation matrix used to go from the world to the 
      * target.
      */
-    QMatrix4x4 getWorldToTargetMatrix();
-    
-    /**
-     * @brief Update the local axes of the camera from its yaw and pitch.
-     */
-    void updateCameraAxes();
+    QMatrix4x4 getWorldToTargetMatrix() const;
     
 private:
+    /**
+     * Vertical field of view of the camera.
+     */
+    static const float c_FOV;
+    
     /**
      * Used to tune the sensitivity of the mouse for camera rotation.
      */
@@ -160,6 +185,11 @@ private:
      * Up axis of the camera.
      */
     QVector3D m_upAxis;
+    
+    /**
+     * Aspect ratio (ratio of horizontal FOV over vertical FOV) of the camera.
+     */
+    float m_aspect;
 };
 
 #endif // CAMERA_H

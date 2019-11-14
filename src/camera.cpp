@@ -9,6 +9,7 @@ const float Camera::c_velocity = 0.05f;
 const float Camera::c_wheelSensitivity = 24.0f;
 const float Camera::c_minDistance = 5.0f;
 const float Camera::c_maxDistance = 250.0f;
+const float Camera::c_FOV = 60.0f;
 const QVector3D Camera::c_worldUpAxis = QVector3D(0.0f, 0.0f, 1.0f);
 
 
@@ -20,16 +21,14 @@ Camera::Camera(float pitch, float yaw, QVector3D target) :
     m_yawOffset(0.0f),
     m_targetOffset(0.0f, 0.0f, 0.0f),
     m_distanceFromTarget(10.0f) {
-    updateCameraAxes();
+    updateAxes();
 }
 
 
-Camera::~Camera() {
-
-}
+Camera::~Camera() {}
 
 
-void Camera::updateCameraAxes() {
+void Camera::updateAxes() {
     // Define camera yaw and pitch
     float yaw = m_yawTrack + m_yawOffset;
     float pitch = m_pitchTrack + m_pitchOffset;
@@ -43,7 +42,7 @@ void Camera::updateCameraAxes() {
 }
 
 
-QMatrix4x4 Camera::getTargetToWorldMatrix() {
+QMatrix4x4 Camera::getTargetToWorldMatrix() const {
     QMatrix4x4 rotationMatrix;
     rotationMatrix.setToIdentity();
     
@@ -53,15 +52,13 @@ QMatrix4x4 Camera::getTargetToWorldMatrix() {
 }
 
 
-QMatrix4x4 Camera::getWorldToTargetMatrix() {
+QMatrix4x4 Camera::getWorldToTargetMatrix() const {
     return getTargetToWorldMatrix().inverted();
 }
 
 
-QMatrix4x4 Camera::getViewMatrix() {
+QMatrix4x4 Camera::getViewMatrix() const {
     QMatrix4x4 viewMatrix;
-
-    updateCameraAxes();
 
     // Define the camera position from the target and its distance to the target
     /* The target is set to m_targetTrack to follow the target and an 
@@ -80,6 +77,14 @@ QMatrix4x4 Camera::getViewMatrix() {
     viewMatrix.lookAt(cameraPosition, target, m_upAxis);
     return viewMatrix;
 }
+
+
+QMatrix4x4 Camera::getProjectionMatrix() const {
+    QMatrix4x4 projectionMatrix;
+    projectionMatrix.perspective(c_FOV, m_aspect, .3f, 1000);
+    return projectionMatrix;
+}
+
 
 
 void Camera::processMouseMovement() {
