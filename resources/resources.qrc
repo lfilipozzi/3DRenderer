@@ -4,6 +4,8 @@
         <file alias="object.vert">shaders/object.vert</file>
         <file alias="object_shadow.frag">shaders/object_shadow.frag</file>
         <file alias="object_shadow.vert">shaders/object_shadow.vert</file>
+        <file alias="shadow_debug.frag">shaders/shadow_debug.frag</file>
+        <file alias="shadow_debug.vert">shaders/shadow_debug.vert</file>
         <file alias="line.frag">shaders/line.frag</file>
         <file alias="line.vert">shaders/line.vert</file>
         <file alias="skybox.frag">shaders/skybox.frag</file>

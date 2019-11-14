@@ -1,7 +1,16 @@
 #ifndef DEPTHMAP_H
 #define DEPTHMAP_H
 
+#define SHADOW_FBO_DEBUG    // Render the shadow FBO for debugging
+
 #include <QOpenGLFunctions_3_0>
+
+#ifdef SHADOW_FBO_DEBUG
+#include "shaderprogram.h"
+#include <memory>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
+#endif // SHADOW_FBO_DEBUG
 
 /// Depth map
 /**
@@ -89,6 +98,20 @@ private:
      * Texture ID storing the framebuffer depth buffer.
      */
     unsigned int m_textureId;
+    
+#ifdef SHADOW_FBO_DEBUG
+public:
+    /**
+     * @brief Draw the FBO for debugging.
+     */
+    void render();
+    
+private:
+    std::unique_ptr<Shader> p_debugShader;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_vertexBuffer;
+    QOpenGLBuffer m_textureUVBuffer;
+#endif // SHADOW_FBO_DEBUG
 };
 
 

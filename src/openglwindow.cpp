@@ -109,11 +109,15 @@ void OpenGLWindow::renderGL() {
         p_depthMap->bind();
     p_scene->renderShadow();
     // Render the scene
+#ifndef SHADOW_FBO_DEBUG
     if (p_depthMap != nullptr) {
         p_depthMap->release();
         p_depthMap->bindTexture(GL_TEXTURE1);
     }
     p_scene->render();
+#else
+    p_depthMap->render();
+#endif // SHADOW_FBO_DEBUG
     p_scene->updateTimestep();
     p_context->swapBuffers(this);
     

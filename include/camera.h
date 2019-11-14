@@ -52,6 +52,7 @@ public:
     
     /**
      * @brief Return a pair with the horizontal and vertical field of view.
+     * Angles are in degrees.
      */
     std::pair<float, float> getFOV() const {
         return std::pair<float, float>(

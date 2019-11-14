@@ -53,6 +53,60 @@ c_height(height) {
     p_glFunctions->glDrawBuffer(GL_NONE);
     p_glFunctions->glReadBuffer(GL_NONE);
     p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    
+#ifdef SHADOW_FBO_DEBUG
+    p_debugShader = std::make_unique<Shader>(
+        ":/shaders/shadow_debug.vert", ":/shaders/shadow_debug.frag"
+    );
+    
+    QVector<float> vertices({
+        -1.0f,  1.0f, 0.0f, 
+        -1.0f, -1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f,
+         1.0f, -1.0f, 0.0f
+    });
+    QVector<float> normals;
+    QVector<float> textureUV({
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f
+    });
+    
+    // Create a vertex array object
+    m_vao.create();
+    m_vao.bind();
+
+    // Create a buffer and copy the vertex data to it
+    m_vertexBuffer.create();
+    m_vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_vertexBuffer.bind();
+    m_vertexBuffer.allocate(
+        &(vertices)[0], vertices.size() * static_cast<int>(sizeof(float))
+    );
+
+    // Create a buffer and copy the vertex data to it
+    m_textureUVBuffer.create();
+    m_textureUVBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_textureUVBuffer.bind();
+    m_textureUVBuffer.allocate(
+        &(textureUV)[0], textureUV.size() * static_cast<int>(sizeof(float))
+    );
+    
+    m_vao.bind();
+    p_debugShader->bind();
+
+    // Map vertex data to the vertex shader's layout location '0'
+    m_vertexBuffer.bind();
+    p_debugShader->enableAttributeArray(0);
+    p_debugShader->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+
+    if(!m_textureUVBuffer.isCreated())
+        return;
+    m_textureUVBuffer.bind();
+    p_debugShader->enableAttributeArray(1);       // layout location
+    p_debugShader->setAttributeBuffer(1, GL_FLOAT, 0, 2);
+#endif // SHADOW_FBO_DEBUG
 }
 
 
@@ -81,11 +135,29 @@ void DepthMap::release() {
 }
 
 
-
 void DepthMap::bindTexture(GLenum GL_TEXTUREi) {
     if (p_glFunctions != nullptr) {
         p_glFunctions->glActiveTexture(GL_TEXTUREi);
         p_glFunctions->glBindTexture(GL_TEXTURE_2D, m_FBOId);
     }
 }
+
+
+#ifdef SHADOW_FBO_DEBUG
+void DepthMap::render() {
+    p_debugShader->bind();
+    p_debugShader->setUniformValue("depthMap", 1);
+    p_debugShader->setUniformValue("near_plane", 0.1f);
+    p_debugShader->setUniformValue("far_plane", 10);
+        
+    m_vao.bind();
+    p_glFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    m_vao.release();
+}
+#endif // SHADOW_FBO_DEBUG
+
+
+
+
+
 
