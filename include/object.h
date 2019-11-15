@@ -211,7 +211,6 @@ private:
 
 #include <QMatrix4x4>
 #include <memory>
-#include <QOpenGLFunctions_3_3_Core>
 
 /// Node of a 3D object
 /**

@@ -1,7 +1,7 @@
 #ifndef DEPTHMAP_H
 #define DEPTHMAP_H
 
-#define SHADOW_FBO_DEBUG    // Render the shadow FBO for debugging
+// #define SHADOW_FBO_DEBUG    // Render the shadow FBO for debugging
 
 #include <QOpenGLFunctions_3_0>
 

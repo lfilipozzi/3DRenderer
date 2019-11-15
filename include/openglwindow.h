@@ -5,7 +5,7 @@
 #include <memory>
 #include "scene.h"
 #include "depthmap.h"
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLFunctions>
 
 class AnimationPlayer;
 
@@ -169,7 +169,7 @@ private:
     /**
      * Store the OpenGL functions.
      */
-    QOpenGLFunctions_3_3_Core * p_glFunctions;
+    QOpenGLFunctions * p_glFunctions;
     
     /**
      * The depth map used for shadow mapping

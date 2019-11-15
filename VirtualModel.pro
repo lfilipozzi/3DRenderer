@@ -81,8 +81,11 @@ macx {
 }
 
 win32 {
-    INCLUDEPATH += "C:/ProgramFiles/Assimp/include"
-    LIBS += -L"C:/ProgramFiles/Assimp/lib/Release" -lassimp
+#     INCLUDEPATH += "C:/ProgramFiles/Assimp/include"
+#     LIBS += -L"C:/ProgramFiles/Assimp/lib/Release" -lassimp
+    INCLUDEPATH += lib/assimp/include
+    LIBS += lib/assimp/lib/assimp-vc142-mt.dll
+#     LIBS += -L "lib/assimp/lib/" -lassimp
 }
 
 DISTFILES += \

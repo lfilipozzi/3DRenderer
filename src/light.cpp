@@ -116,6 +116,82 @@ QMatrix4x4 CasterLight::getLightSpaceMatrix(QVector3D lightTarget) const {
 //     
 //     return lightSpace;
 // }
+// 
+// std::vector<QMatrix4x4> CasterLight::getProjectionMatrix(
+//     const Camera& camera, std::vector<float> cascades
+// ) const {
+//     QMatrix4x4 lightView = getViewMatrix();
+//     
+//     // Compute the light projection matrices (and lightSpace matrices)
+//     std::vector<QMatrix4x4> lightProjection;
+//     /* Four steps are needed:
+//      *  1. Compute the eight corners of each cascade in the camera view space.
+//      *  2. Transform the coordinates from camera view space to world space (with
+//      *     inverse of camera view matrix).
+//      *  3. Transform from world space to light view space (with light view 
+//      *     matrix).
+//      *  4. Compute light projection matrix which encompass the bounding box (the
+//      *     eight corner of the frustum).
+//      */
+// 
+//     // Compute tangent of vertical and horizontal FOV
+//     std::pair<float, float> FOV = camera.getFOV();
+//     float tanHalfHFOV = std::tan(FOV.first  * PI / 180);
+//     float tanHalfVFOV = std::tan(FOV.second * PI / 180);
+// 
+//     for (unsigned int i = 0; i < cascades.size()-1; i++) {
+//         float xn = cascades.at(i)   * tanHalfHFOV;
+//         float xf = cascades.at(i+1) * tanHalfHFOV;
+//         float yn = cascades.at(i)   * tanHalfVFOV;
+//         float yf = cascades.at(i+1) * tanHalfVFOV;
+//         
+//         // Compute the eight corners of each cascade in the camera view space
+//         QVector4D frustumCorners[NUMBER_FRUSTUM_CORNERS] = {
+//             // Near face
+//             QVector4D( xn,  yn, cascades.at(i), 1.0f),
+//             QVector4D(-xn,  yn, cascades.at(i), 1.0f),
+//             QVector4D( xn, -yn, cascades.at(i), 1.0f),
+//             QVector4D(-xn, -yn, cascades.at(i), 1.0f),
+//             // Far face
+//             
+//             QVector4D( xf,  yf, cascades.at(i+1), 1.0f),
+//             QVector4D(-xf,  yf, cascades.at(i+1), 1.0f),
+//             QVector4D( xf, -yf, cascades.at(i+1), 1.0f),
+//             QVector4D(-xf, -yf, cascades.at(i+1), 1.0f)
+//         };
+//         
+//         // Corners of each cascade in the light view space
+//         QVector4D frustumCornersLight[NUMBER_FRUSTUM_CORNERS];
+//         QMatrix4x4 V2lightV = lightView * camera.getViewMatrix().inverted();
+//         float left   = std::numeric_limits<float>::max();
+//         float right  = std::numeric_limits<float>::min();
+//         float bottom = std::numeric_limits<float>::max();
+//         float top    = std::numeric_limits<float>::min();
+//         float near   = std::numeric_limits<float>::max();
+//         float far    = std::numeric_limits<float>::min();
+//         
+//         // Compute the eight corners of each cascade in the light view space
+//         for (unsigned int j = 0; j < NUMBER_FRUSTUM_CORNERS; j++) {
+//             // Transform the frustum coordinate from camera view to light view space
+//             frustumCornersLight[j] = V2lightV * frustumCorners[j];
+//             
+//             // Find the box of the cascade in light view space
+//             left   = std::min(left,   frustumCornersLight[j].x());
+//             right  = std::max(right,  frustumCornersLight[j].x());
+//             bottom = std::min(bottom, frustumCornersLight[j].y());
+//             top    = std::max(top,    frustumCornersLight[j].y());
+//             near   = std::min(near,   frustumCornersLight[j].z());
+//             far    = std::max(far,    frustumCornersLight[j].z());
+//         }
+//         
+//         // Compute the projection matrix which contains the frustum corners
+//         QMatrix4x4 projection;
+//         projection.ortho(left, right, bottom, top, near, far);
+//         lightProjection.push_back(projection);
+//     }
+//     
+//     return lightProjection;
+// }
 
 
 

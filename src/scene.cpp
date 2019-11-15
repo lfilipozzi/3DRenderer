@@ -110,13 +110,17 @@ void Scene::update() {
     m_camera.updateAxes();
     
     // Update the camera view matrix
-//     m_view = m_camera.getViewMatrix();
+    m_view = m_camera.getViewMatrix();
     // Update the camera projection matrix
-//     m_projection = m_camera.getProjectionMatrix();
-    m_view = m_light.getViewMatrix(vehiclePosition.getPoint());
-    m_projection = m_light.getProjectionMatrix();
-    // Compute view and projection matrices of the light source
+    m_projection = m_camera.getProjectionMatrix();
+    
+//     m_view = m_light.getViewMatrix(vehiclePosition.getPoint());
+//     m_projection = m_light.getProjectionMatrix();
     m_lightSpace = m_light.getLightSpaceMatrix(vehiclePosition.getPoint());
+    
+    // Compute view and projection matrices of the light source
+//     m_view = m_light.getViewMatrix();
+//     m_projection = m_light.getProjectionMatrix(m_camera, {0.5f, 10.0f}).at(0);
 //     m_lightSpace = m_light.getLightSpaceMatrix(m_camera, {0.5f, 10.0f}).at(0);
 }
 

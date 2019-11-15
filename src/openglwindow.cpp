@@ -13,6 +13,7 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
     QSurfaceFormat requestedFormat;
     requestedFormat.setDepthBufferSize(24);
     requestedFormat.setVersion(3,3);
+//     requestedFormat.setVersion(4,5);
 
     requestedFormat.setSamples(4);
     requestedFormat.setProfile(QSurfaceFormat::CoreProfile);
@@ -32,6 +33,14 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
     }
     else {
         p_scene = std::make_unique<Scene>(refreshRate);
+        QString openGLAPI;
+        if (p_context->isOpenGLES()) 
+            openGLAPI = QString("OpenGL ES");
+        else
+            openGLAPI = QString("OpenGL");
+        qInfo() << "Using " << openGLAPI << 
+            p_context->format().version().first << "." << 
+            p_context->format().version().second;
     }
 
     setSurfaceType(OpenGLSurface);
@@ -75,7 +84,7 @@ void OpenGLWindow::initializeGL() {
             "Unable to draw the object.";
         exit(1);
     }
-    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    p_glFunctions = context->functions();
     if (!p_glFunctions) {
         qCritical() << __FILE__ << __LINE__ <<
             "Could not obtain required OpenGL context version";
@@ -164,8 +173,8 @@ void OpenGLWindow::printOpenGLError() {
             "Unable to draw the object.";
         exit(1);
     }
-    QOpenGLFunctions_3_3_Core * glFunctions;
-    glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    QOpenGLFunctions * glFunctions;
+    glFunctions = context->functions();
     if (!glFunctions) {
         qCritical() << __FILE__ << __LINE__ <<
             "Could not obtain required OpenGL context version";

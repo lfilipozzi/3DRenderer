@@ -3,6 +3,10 @@
 
 build/
 asset/
+debug/
+release/
+Debug/
+Release/
 
 # Doxygen
 doc/
