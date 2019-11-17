@@ -31,6 +31,11 @@ public:
      */
     void cleanup();
     
+    /**
+     * @brief Set the model matrix.
+     */
+    void setModelMatrix(QMatrix4x4 const model);
+    
 private:
     /**
      * The x axis.

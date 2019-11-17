@@ -20,6 +20,7 @@ void Frame::initialize() {
     Z_AXIS.initialize();
 }
 
+
 void Frame::update(
     const CasterLight &light, const QMatrix4x4 view,
     const QMatrix4x4 projection, const QMatrix4x4 lightSpaceMatrix
@@ -29,8 +30,18 @@ void Frame::update(
     Z_AXIS.render(light, view, projection, lightSpaceMatrix);
 }
 
+
 void Frame::cleanup() {
     X_AXIS.cleanUp();
     Y_AXIS.cleanUp();
     Z_AXIS.cleanUp();
 }
+
+
+void Frame::setModelMatrix(QMatrix4x4 const model) {
+    X_AXIS.setModelMatrix(model);
+    Y_AXIS.setModelMatrix(model);
+    Z_AXIS.setModelMatrix(model);
+}
+
+

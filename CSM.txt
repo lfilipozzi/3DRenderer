@@ -48,29 +48,28 @@ getLightProjectionMatrices(Camera camera) {
         float yf = m_cascadeEnd[i+1] * tanHalfVFOV;
         
         // Compute the eight corners of each cascade in the camera view space
-        QVector4D frustrumCorners[NUM_FRUSTRUM_CORNERS] = {
+        QVector4D frustumCorners[NUMBER_FRUSTUM_CORNERS] = {
             // Near face
-            QVector4D( xn,  yn, m_cascadeEnd[i], 1.0f),
-            QVector4D(-xn,  yn, m_cascadeEnd[i], 1.0f),
-            QVector4D( xn, -yn, m_cascadeEnd[i], 1.0f),
-            QVector4D(-xn, -yn, m_cascadeEnd[i], 1.0f),
+            QVector4D( xn,  yn, cascades.at(i), 1.0f),
+            QVector4D(-xn,  yn, cascades.at(i), 1.0f),
+            QVector4D( xn, -yn, cascades.at(i), 1.0f),
+            QVector4D(-xn, -yn, cascades.at(i), 1.0f),
             // Far face
-            
-            QVector4D( xn,  yn, m_cascadeEnd[i+1], 1.0f),
-            QVector4D(-xn,  yn, m_cascadeEnd[i+1], 1.0f),
-            QVector4D( xn, -yn, m_cascadeEnd[i+1], 1.0f),
-            QVector4D(-xn, -yn, m_cascadeEnd[i+1], 1.0f)
-        }
+            QVector4D( xf,  yf, cascades.at(i+1), 1.0f),
+            QVector4D(-xf,  yf, cascades.at(i+1), 1.0f),
+            QVector4D( xf, -yf, cascades.at(i+1), 1.0f),
+            QVector4D(-xf, -yf, cascades.at(i+1), 1.0f)
+        };
         
         // Corners of each cascade in the light view space
         QVector4D frustrumCornerLight[NUM_FRUSTRUM_CORNERS];
         QMatrix4x4 V2lightV = lightV * camera.getViewMatrix().inverted();
-        float left   = std::numeric_limits::max();
-        float right  = std::numeric_limits::min();
-        float bottom = std::numeric_limits::max();
-        float top    = std::numeric_limits::min();
-        float near   = std::numeric_limits::max();
-        float far    = std::numeric_limits::min();
+        float left   =  std::numeric_limits<float>::max();
+        float right  = -std::numeric_limits<float>::max();
+        float bottom =  std::numeric_limits<float>::max();
+        float top    = -std::numeric_limits<float>::max();
+        float near   =  std::numeric_limits<float>::max();
+        float far    = -std::numeric_limits<float>::max();
         
         // Compute the eight corners of each cascade in the light view space
         for (unsigned int j = 0; j < NUM_FRUSTRUM_CORNERS; j++) {

@@ -114,14 +114,11 @@ void Scene::update() {
     // Update the camera projection matrix
     m_projection = m_camera.getProjectionMatrix();
     
-//     m_view = m_light.getViewMatrix(vehiclePosition.getPoint());
-//     m_projection = m_light.getProjectionMatrix();
-    m_lightSpace = m_light.getLightSpaceMatrix(vehiclePosition.getPoint());
-    
     // Compute view and projection matrices of the light source
 //     m_view = m_light.getViewMatrix();
-//     m_projection = m_light.getProjectionMatrix(m_camera, {0.5f, 10.0f}).at(0);
-//     m_lightSpace = m_light.getLightSpaceMatrix(m_camera, {0.5f, 10.0f}).at(0);
+    std::vector<float> cascades = {-0.0f, -10.0f};
+//     m_projection = m_light.getProjectionMatrix(m_camera, cascades).at(0);
+    m_lightSpace = m_light.getLightSpaceMatrix(m_camera, cascades).at(0);
 }
 
 
@@ -132,8 +129,10 @@ void Scene::render() {
         p_surface->render(m_light, m_view, m_projection, m_lightSpace);
     if (p_vehicle != nullptr)
         p_vehicle->render(m_light, m_view, m_projection, m_lightSpace);
-    if (m_showGlobalFrame) 
+    if (m_showGlobalFrame) {
+        m_frame.setModelMatrix(QMatrix4x4());
         m_frame.update(m_light, m_view, m_projection, m_lightSpace);
+    }
 }
 
 

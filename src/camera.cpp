@@ -58,8 +58,6 @@ QMatrix4x4 Camera::getWorldToTargetMatrix() const {
 
 
 QMatrix4x4 Camera::getViewMatrix() const {
-    QMatrix4x4 viewMatrix;
-
     // Define the camera position from the target and its distance to the target
     /* The target is set to m_targetTrack to follow the target and an 
      * additional vector is used to position the camera as desired. To avoid 
@@ -73,7 +71,7 @@ QMatrix4x4 Camera::getViewMatrix() const {
     cameraPosition = target - m_frontAxis * m_distanceFromTarget;
 
     // Create the view matrix
-    viewMatrix.setToIdentity();
+    QMatrix4x4 viewMatrix;
     viewMatrix.lookAt(cameraPosition, target, m_upAxis);
     return viewMatrix;
 }

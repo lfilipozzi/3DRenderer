@@ -56,7 +56,7 @@ public:
      */
     std::pair<float, float> getFOV() const {
         return std::pair<float, float>(
-            c_FOV / m_aspect,   // Horizontal FOV
+            c_FOV * m_aspect,   // Horizontal FOV
             c_FOV               // Vertical FOV
         );
     };
