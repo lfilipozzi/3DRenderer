@@ -4,9 +4,9 @@
 
 attribute highp vec3 vertexPosition;
 
-uniform mat4 lightMVP;
+uniform mat4 lMVP;
 
 void main()
 {
-    gl_Position = lightMVP * vec4(vertexPosition, 1.0);
+    gl_Position = lMVP * vec4(vertexPosition, 1.0);
 }  

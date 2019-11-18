@@ -73,7 +73,7 @@ void ObjectShader::setMatrixUniforms(const QMatrix4x4 & M, const QMatrix4x4 & V,
     setUniformValue("M", M);
     setUniformValue("MV", MV);
     setUniformValue("MVP", MVP);
-    setUniformValue("lightMVP", lMVP);
+    setUniformValue("lMVP", lMVP);
     setUniformValue("N", N);
     
     QVector3D cameraPosition(V.inverted().column(3));
@@ -126,7 +126,7 @@ void ObjectShadowShader::setMatrixUniforms(const QMatrix4x4 & M,
                                            const QMatrix4x4 & lVP) {
     QMatrix4x4 lMVP = lVP * M;
     
-    setUniformValue("lightMVP", lMVP);
+    setUniformValue("lMVP", lMVP);
 }
 
 

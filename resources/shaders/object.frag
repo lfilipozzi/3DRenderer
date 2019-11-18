@@ -20,11 +20,11 @@ uniform sampler2D textureSampler;
 uniform sampler2D shadowMap;
 
 in vec2 texCoord;
-in vec3 normalViewSpace;
-in vec3 positionViewSpace;
-in vec4 fragPosLightProjectionSpace;
-in vec3 positionWorldSpace;
-in vec3 normalWorldSpace;
+in vec3 normal_V;
+in vec3 position_V;
+in vec4 fragPos_lP;
+in vec3 position_W;
+in vec3 normal_W;
 
 out vec4 fragColor;
 
@@ -71,33 +71,25 @@ vec3 adsModel(vec3 norm) {
     vec3 s = normalize(-lightDirection.xyz);
 
     // Calculate the vector from the fragment to eye position
-    vec3 v = normalize(-positionViewSpace.xyz);
+    vec3 v = normalize(-position_V.xyz);
     
     // Compute the halfway vector for the Blinn-Phong lighting model
     vec3 h = normalize(s + v);
     
-//     // Reflect the light using the normal
-//     vec3 r = reflect(-s, norm);
-    
     // Calculate the diffuse contribution
-    vec3 diffuseIntensity = vec3(max(dot(s, norm), 0.0));
+    vec3 diffuse = vec3(max(dot(s, norm), 0.0));
 
     // Calculate specular contribution (Blinn-Phong model)
-    vec3 specularIntensity = vec3(pow(max(dot(norm, h), 0.0), shininess));
-    
-//     // Calculate specular contribution (Phong model)
-//     vec3 specularIntensity = vec3(0.0);
-//     if (dot(s, norm) > 0.0)
-//         specularIntensity = vec3(pow(max(dot(r, v), 0.0), shininess));
+    vec3 specular = vec3(pow(max(dot(norm, h), 0.0), shininess));
 
     // Calculate final color
     vec3 color = lightIntensity * texture(textureSampler, texCoord).rgb;
-    float shadow = shadowCalculation(fragPosLightProjectionSpace, norm, s); 
+    float shadow = shadowCalculation(fragPos_lP, norm, s); 
     return color * (
             Ka +                            // Ambient
             (1.0 - shadow) * (
-                Kd * diffuseIntensity +     // Diffuse
-                Ks * specularIntensity)     // Specular
+                Kd * diffuse +     // Diffuse
+                Ks * specular)     // Specular
         );
 }
 
@@ -108,6 +100,5 @@ vec3 refraction(vec3 position, vec3 normal) {
 }
 
 void main() {
-    fragColor = vec4(adsModel(normalize(normalViewSpace)), alpha);
-//     fragColor = vec4(refraction(positionWorldSpace, normalWorldSpace).rgb, 1.0);
+    fragColor = vec4(adsModel(normalize(normal_V)), alpha);
 }
