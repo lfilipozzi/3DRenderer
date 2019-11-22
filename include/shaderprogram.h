@@ -6,6 +6,7 @@
 #include "material.h"
 #include "light.h"
 
+#include "constants.h"
 
 /// Shader program
 /**
@@ -59,7 +60,7 @@ public:
     virtual void setMatrixUniforms(const QMatrix4x4 & M, 
                                    const QMatrix4x4 & V, 
                                    const QMatrix4x4 & P, 
-                                   const QMatrix4x4 & lVP);
+                                   const QMatrix4x4 lVP[]);
     
     /**
      * @brief Set the light uniforms in OpenGL.
@@ -68,6 +69,12 @@ public:
      */
     virtual void setLightUniforms(const CasterLight & light, 
                                   const QMatrix4x4 & V);
+    
+    /**
+     * @brief Set uniforms about cascade shadow.
+     * @param cascades The end distance of each cascade shadow.
+     */
+    virtual void setCascadeUniforms(const float cascades[NUM_CASCADES]);
 };
 
 
@@ -110,7 +117,7 @@ public:
     virtual void setMatrixUniforms(const QMatrix4x4 & M, 
                                    const QMatrix4x4 & V, 
                                    const QMatrix4x4 & P, 
-                                   const QMatrix4x4 & lVP);
+                                   const QMatrix4x4 lVP[]);
     
     /**
      * @brief Set the light uniforms in OpenGL.
@@ -119,6 +126,12 @@ public:
      */
     virtual void setLightUniforms(const CasterLight & light, 
                                   const QMatrix4x4 & V);
+    
+    /**
+     * @brief Set uniforms about cascade shadow.
+     * @param cascades The end distance of each cascade shadow.
+     */
+    virtual void setCascadeUniforms(const float cascades[NUM_CASCADES]);
 };
 
 #endif // SHADERPROGRAM_H

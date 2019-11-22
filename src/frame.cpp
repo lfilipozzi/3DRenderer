@@ -21,13 +21,14 @@ void Frame::initialize() {
 }
 
 
-void Frame::update(
-    const CasterLight &light, const QMatrix4x4 view,
-    const QMatrix4x4 projection, const QMatrix4x4 lightSpaceMatrix
+void Frame::render(
+    const CasterLight & light, const QMatrix4x4 & view,
+    const QMatrix4x4 & projection, 
+    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
 ) {
-    X_AXIS.render(light, view, projection, lightSpaceMatrix);
-    Y_AXIS.render(light, view, projection, lightSpaceMatrix);
-    Z_AXIS.render(light, view, projection, lightSpaceMatrix);
+    X_AXIS.render(light, view, projection, lightSpace);
+    Y_AXIS.render(light, view, projection, lightSpace);
+    Z_AXIS.render(light, view, projection, lightSpace);
 }
 
 

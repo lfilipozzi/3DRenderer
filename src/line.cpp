@@ -24,7 +24,8 @@ void Line::initialize() {
 
 void Line::render(
     const CasterLight & /*light*/, const QMatrix4x4 & view, 
-    const QMatrix4x4 & projection, const QMatrix4x4 & /*lightSpace*/
+    const QMatrix4x4 & projection, 
+    const std::array<QMatrix4x4,NUM_CASCADES> & /*lightSpace*/
 ) {
     // Check if the object has been initialized
     if (!m_isInitialized) {

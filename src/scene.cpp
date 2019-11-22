@@ -115,14 +115,22 @@ void Scene::update() {
     m_projection = m_camera.getProjectionMatrix();
     
     // Compute view and projection matrices of the light source
+    m_cascades = {-0.3f, -10.0f, -30.0f, -1000.0f}; // TODO use near and far plane of camera projection
 //     m_view = m_light.getViewMatrix();
-    std::vector<float> cascades = {-0.0f, -10.0f};
-//     m_projection = m_light.getProjectionMatrix(m_camera, cascades).at(0);
-    m_lightSpace = m_light.getLightSpaceMatrix(m_camera, cascades).at(0);
+//     m_projection = m_light.getProjectionMatrix(m_camera, m_cascades).at(2);
+    m_lightSpace = m_light.getLightSpaceMatrix(m_camera, m_cascades);
 }
 
 
 void Scene::render() {
+    // Compute the end of each cascade in the clip space
+    std::vector<float> endCascadeClip;
+    for (unsigned int i = 0; i < m_cascades.size() - 1; i++) {
+        QVector4D v(0.0f, 0.0f, m_cascades[i+1], 1.0f);
+        v = m_projection * v;
+        endCascadeClip.push_back(v.z());
+    }
+    
     // Call the render method of object in the scene
     m_skybox.render(m_view, m_projection);
     if (p_surface != nullptr)
@@ -131,17 +139,17 @@ void Scene::render() {
         p_vehicle->render(m_light, m_view, m_projection, m_lightSpace);
     if (m_showGlobalFrame) {
         m_frame.setModelMatrix(QMatrix4x4());
-        m_frame.update(m_light, m_view, m_projection, m_lightSpace);
+        m_frame.render(m_light, m_view, m_projection, m_lightSpace);
     }
 }
 
 
-void Scene::renderShadow() {
+void Scene::renderShadow(unsigned int cascadeIdx) {
     // Render the shadow map
     if (p_surface != nullptr)
-        p_surface->renderShadow(m_lightSpace);
+        p_surface->renderShadow(m_lightSpace.at(cascadeIdx));
     if (p_vehicle != nullptr)
-        p_vehicle->renderShadow(m_lightSpace);
+        p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
 }
 
 

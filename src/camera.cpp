@@ -2,7 +2,7 @@
 #include "../include/inputmanager.h"
 #include <math.h>
 
-# define PI           3.14159265358979323846f
+#include "../include/constants.h"
 
 const float Camera::c_mouseSensitivity = 5.0f / 1920;
 const float Camera::c_velocity = 0.05f;

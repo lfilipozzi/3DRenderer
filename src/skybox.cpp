@@ -176,7 +176,7 @@ void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection) {
     m_shader->bind();
     
     // Bind the texture and draw the skybox
-    m_textures->bind(2);
+    m_textures->bind(SKYBOX_TEXTURE_UNIT);
     
     // Remove the translation of the view matrix
     QMatrix4x4 skyboxView = view;
@@ -201,7 +201,7 @@ void Skybox::render(const QMatrix4x4 & view, const QMatrix4x4 & projection) {
     
     // Set shader uniforms for transformation matrices
     m_shader->setUniformValue("VP", projection * skyboxView);
-    m_shader->setUniformValue("skybox", 2);
+    m_shader->setUniformValue("skybox", SKYBOX_TEXTURE_UNIT);
     
     // Bind VAO and the surface
     m_vao.bind();

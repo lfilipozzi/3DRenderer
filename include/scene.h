@@ -9,7 +9,7 @@
 #include <memory>
 #include "camera.h"
 #include "object.h"
-
+#include "constants.h"
 
 /// Scene class
 /**
@@ -48,9 +48,11 @@ public:
     void render();
     
     /**
-     * @brief Render the scene to generate the shadow map.
+     * @brief Render the scene to generate the shadow map associated to the 
+     * cascadeIdx-th cascade.
+     * @param cascadeIdx The cascade index.
      */
-    void renderShadow();
+    void renderShadow(unsigned int cascadeIdx);
 
     /**
      * @brief Cleanup the animation.
@@ -116,9 +118,9 @@ private:
     QMatrix4x4 m_projection;
     
     /**
-     * Light space matrix.
+     * Light space matrices used for shadow mapping.
      */
-    QMatrix4x4 m_lightSpace;
+    std::array<QMatrix4x4,NUM_CASCADES> m_lightSpace;
 
     /**
      * The lighting of the scene.
@@ -126,7 +128,7 @@ private:
     CasterLight m_light;
     
     /**
-     * @brief The camera of the scene.
+     * The camera of the scene.
      */
     Camera m_camera;
     
@@ -151,37 +153,37 @@ private:
     Frame m_frame;
 
     /**
-     * @brief The current timestep at which the frame is drawn.
+     * The current timestep at which the frame is drawn.
      */
     float m_timestep;
 
     /**
-     * @brief First timestep of the animation.
+     * First timestep of the animation.
      */
     float m_firstTimestep;
 
     /**
-     * @brief Last timestep of the animation
+     * Last timestep of the animation
      */
     float m_finalTimestep;
 
     /**
-     * @brief The refresh rate of the animation.
+     * The refresh rate of the animation.
      */
     unsigned int m_refreshRate;
 
     /**
-     * @brief Use to slow down the rate of the animation from the player.
+     * Use to slow down the rate of the animation from the player.
      */
     float m_timeRate;
 
     /**
-     * @brief The (desired) frame rate of the animation.
+     * The (desired) frame rate of the animation.
      */
     float m_frameRate;
 
     /**
-     * @brief Enable/disable the animation loop.
+     * Enable/disable the animation loop.
      */
     bool m_loop;
     
@@ -189,6 +191,11 @@ private:
      * Show the global frame of the scene.
      */
     bool m_showGlobalFrame;
+    
+    /**
+     * Define the different zone for cascade shadow mapping.
+     */
+    std::array<float,NUM_CASCADES+1> m_cascades;
 };
 
 #endif // SCENE_H

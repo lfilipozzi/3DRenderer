@@ -41,12 +41,13 @@ public:
      * @brief Draw the object.
      * @param view The view matrix.
      * @param projection The projection matrix.
-     * @param lightSpace The view and projection matrix of the light (used for 
+     * @param lightSpace The view and projection matrices of the light (used for 
      * shadow mapping).
      */
     virtual void render(
         const CasterLight & light, const QMatrix4x4 & view, 
-        const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
+        const QMatrix4x4 & projection, 
+        const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
     );
     
     /**

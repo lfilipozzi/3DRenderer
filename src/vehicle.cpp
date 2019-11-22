@@ -276,7 +276,8 @@ QMatrix4x4 VehicleGraphics::getForceModelMatrix(const QVector3D & force,
 
 void VehicleGraphics::render(
     const CasterLight & light, const QMatrix4x4 & view, 
-    const QMatrix4x4 & projection, const QMatrix4x4 & lightSpace
+    const QMatrix4x4 & projection, 
+    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
 ) {
     if (p_wheelModel != nullptr) {
         p_wheelModel->setModelMatrix(m_wheelFLMatrix);

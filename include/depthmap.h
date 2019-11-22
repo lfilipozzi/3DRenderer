@@ -1,20 +1,14 @@
 #ifndef DEPTHMAP_H
 #define DEPTHMAP_H
 
-// #define SHADOW_FBO_DEBUG    // Render the shadow FBO for debugging
-
 #include <QOpenGLFunctions_3_0>
-
-#ifdef SHADOW_FBO_DEBUG
-#include "shaderprogram.h"
-#include <memory>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
-#endif // SHADOW_FBO_DEBUG
+#include "constants.h"
 
 /// Depth map
 /**
- * @brief Create a framebuffer object for shadow mapping.
+ * @brief Create a framebuffer object (FBO) for cascades shadow mapping.
+ * @details Only one FBO is created and NUM_CASCADES textures are generated from
+ * this unique FBO.
  * @author Louis Filipozzi
  */
 class DepthMap {
@@ -24,10 +18,10 @@ public:
      * context before using. The width and height of the underlying framebuffer 
      * object has the supplied format.
      */
-    DepthMap(unsigned int width, unsigned int height);
+    DepthMap(unsigned int width = 1024, unsigned int height = 1024);
     
     /**
-     * @brief Destroys the framebuffer object and frees any allocated resources.
+     * @brief Destroy the framebuffer object and free any allocated resources.
      */
     ~DepthMap();
     
@@ -35,31 +29,36 @@ public:
      * @brief Switches rendering from the default, windowing system provided 
      * framebuffer to this framebuffer object. Returns true upon success, 
      * false otherwise.
+     * @param cascadeIdx The cascade index.
      */
-    void bind();
+    void bind(unsigned int cacadeIdx);
     
     /**
-     * @brief Switches rendering back to the default, windowing system provided
-     * framebuffer. This also restore the viewport and clear the color and depth
-     * buffer.
+     * @brief Switches rendering back to the default windowing system. This also
+     * clear the color and depth buffer.
      */
     void release();
     
     /**
      * @brief Bind the shadow map to supplied texture unit.
-     * @param GL_TEXTUREi The texture unit to bind the shadow map texture.
+     * @param unit Array texture unit to bind each shadow map texture.
      */
-    void bindTexture(GLenum GL_TEXTUREi);
+    void bindTexture(unsigned int unit[NUM_CASCADES]);
     
     /**
-     * @brief Returns the id of the underlying OpenGL framebuffer object.
+     * @brief Returns the id of the underlying OpenGL framebuffer objects.
      */
     unsigned int objectId() const {return m_FBOId;};
     
     /**
-     * @brief Returns the texture ID of the attached texture.
+     * @brief Returns the texture ID of the attached texture of each cascade.
      */
-    unsigned int texture() const {return m_textureId;};
+    std::array<unsigned int,NUM_CASCADES> texture() const {
+        std::array<unsigned int,NUM_CASCADES> id;
+        for (unsigned int i = 0; i < NUM_CASCADES; i++)
+            id[i] = m_textureId[i];
+        return id;
+    };
     
     /**
      * @brief Returns the size of the underlying framebuffer object in a pair
@@ -83,11 +82,6 @@ private:
      * Height of the framebuffer.
      */
     const unsigned int c_height;
-    
-    /**
-     * Dimension of the viewport before binding the underlying framebuffer.
-     */
-    GLint m_previousViewport[4];
 
     /**
      * OpenGL ID of the framebuffer.
@@ -97,21 +91,7 @@ private:
     /**
      * Texture ID storing the framebuffer depth buffer.
      */
-    unsigned int m_textureId;
-    
-#ifdef SHADOW_FBO_DEBUG
-public:
-    /**
-     * @brief Draw the FBO for debugging.
-     */
-    void render();
-    
-private:
-    std::unique_ptr<Shader> p_debugShader;
-    QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_vertexBuffer;
-    QOpenGLBuffer m_textureUVBuffer;
-#endif // SHADOW_FBO_DEBUG
+    unsigned int m_textureId[NUM_CASCADES];
 };
 
 

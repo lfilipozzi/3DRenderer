@@ -21,9 +21,10 @@ public:
     /**
      * @brief Update the animation.
      */
-    void update(
-        const CasterLight &light, const QMatrix4x4 view,
-        const QMatrix4x4 projection, const QMatrix4x4 lightSpaceMatrix
+    void render(
+        const CasterLight & light, const QMatrix4x4 & view,
+        const QMatrix4x4 & projection, 
+        const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
     );
 
     /**

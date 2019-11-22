@@ -1,5 +1,7 @@
 #version 330 core
 
+const int NUM_CASCADES = 3;     // Number of cascaded shadows
+
 // Light information
 uniform vec4 lightDirection;
 uniform vec3 lightIntensity;
@@ -17,39 +19,45 @@ uniform vec3 cameraPosition;
 // Texture sampler
 uniform samplerCube skybox;
 uniform sampler2D textureSampler;
-uniform sampler2D shadowMap;
+uniform sampler2D shadowMap[NUM_CASCADES];
+
+// Far plane distance of each shadow cascade
+uniform float endCascade[NUM_CASCADES];
 
 in vec2 texCoord;
 in vec3 normal_V;
 in vec3 position_V;
-in vec4 fragPos_lP;
+in vec4 position_lP[NUM_CASCADES];
 in vec3 position_W;
 in vec3 normal_W;
+in float zPosition_P;
 
 out vec4 fragColor;
 
-// Compute shadow with shadow mapping
+// Texel size for PCF
 #define PCF_TEXELSIZE_FILTER 2
-float shadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
-    // Perform perspective divide
+
+// Check if fragment is in shadow or not and return shadow coefficient
+float shadowCalculation(
+    int cascadeIndex, vec4 fragPosLightSpace, vec3 normal, vec3 lightDir
+) {
+    // Perform perspective divide and transform to [0,1] range
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // Transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-    // Get closest depth value from light's perspective (using [0,1] range 
-    // fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // Get closest depth value from light's perspective
+    float closestDepth = texture(shadowMap[cascadeIndex], projCoords.xy).r; 
     // Get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-    // Check whether current frag pos is in shadow
+    // Check if the current fragment is in the shadow
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
     // Use PCF
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    vec2 texelSize = 1.0 / textureSize(shadowMap[cascadeIndex], 0);
     for(int x = -PCF_TEXELSIZE_FILTER; x <= PCF_TEXELSIZE_FILTER; ++x)
     {
         for(int y = -PCF_TEXELSIZE_FILTER; y <= PCF_TEXELSIZE_FILTER; ++y)
         {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) 
+            float pcfDepth = texture(shadowMap[cascadeIndex], projCoords.xy + vec2(x, y) 
                 * texelSize).r; 
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
         }    
@@ -81,22 +89,28 @@ vec3 adsModel(vec3 norm) {
 
     // Calculate specular contribution (Blinn-Phong model)
     vec3 specular = vec3(pow(max(dot(norm, h), 0.0), shininess));
+    
+    // Compute shadow
+    float shadow;
+//     int shadowDebug;
+    for (int i = 0; i < NUM_CASCADES; i++) {
+        if (zPosition_P <= -endCascade[i]) { 
+            shadow = shadowCalculation(i, position_lP[i], norm, s); 
+//             shadowDebug = i;
+            break;
+        }
+    }
 
     // Calculate final color
     vec3 color = lightIntensity * texture(textureSampler, texCoord).rgb;
-    float shadow = shadowCalculation(fragPos_lP, norm, s); 
+//     color[shadowDebug] = 1;
     return color * (
-            Ka +                            // Ambient
+            Ka +                    // Ambient
             (1.0 - shadow) * (
-                Kd * diffuse +     // Diffuse
-                Ks * specular)     // Specular
+                Kd * diffuse +      // Diffuse
+                Ks * specular       // Specular
+                )
         );
-}
-
-vec3 refraction(vec3 position, vec3 normal) {
-    vec3 incidentRay = normalize(position - cameraPosition);
-    vec3 reflectionRay = reflect(incidentRay, -normalize(normal));
-    return texture(skybox, reflectionRay).rgb;
 }
 
 void main() {

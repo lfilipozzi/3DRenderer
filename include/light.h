@@ -6,6 +6,8 @@
 #include <QMatrix4x4>
 #include "camera.h"
 
+#include "constants.h"
+
 /// Abstract light
 /**
  * @brief Define a light source
@@ -28,9 +30,8 @@ public:
      * @param cascades Vector of float defining the different zone for cascaded
      * shadow mapping.
      */
-//     virtual QMatrix4x4 getLightSpaceMatrix(QVector3D lightTarget) const = 0;
-    virtual std::vector<QMatrix4x4> getLightSpaceMatrix(
-        const Camera & camera, std::vector<float> cascades
+    virtual std::array<QMatrix4x4,NUM_CASCADES> getLightSpaceMatrix(
+        const Camera & camera, std::array<float,NUM_CASCADES+1> cascades
     ) const = 0;
     
 private:
@@ -52,24 +53,6 @@ public:
     ) : ABCLight(intensity), m_direction(direction) {};
     ~CasterLight() {};
     
-    
-//     virtual QMatrix4x4 getLightSpaceMatrix(QVector3D lightTarget) const;
-//     QMatrix4x4 getViewMatrix(QVector3D lightTarget) const {
-//         QMatrix4x4 lightView;
-//         QVector3D lightDirection = m_direction.toVector3D();
-//         QVector3D lightPosition = lightTarget - 3*lightDirection;
-//         lightView.lookAt(lightPosition, lightTarget, QVector3D(0.0f, 0.0f, 1.0f));
-//         return lightView;
-//     };
-//     QMatrix4x4 getProjectionMatrix() const {
-//         QMatrix4x4 lightProjection;
-//         lightProjection.ortho(-4.0f, 4.0f, -4.0f, 4.0f, 1.0f, 10.0f);
-//         return lightProjection;
-//     };
-
-    virtual std::vector<QMatrix4x4> getLightSpaceMatrix(
-        const Camera & camera, std::vector<float> cascades
-    ) const;
     QMatrix4x4 getViewMatrix() const {
         // Compute the light view matrix
         QMatrix4x4 lightView;
@@ -80,8 +63,13 @@ public:
         );
         return lightView;
     }
-    std::vector<QMatrix4x4> getProjectionMatrix(
-        const Camera & camera, std::vector<float> cascades
+    
+    std::array<QMatrix4x4,NUM_CASCADES> getProjectionMatrix(
+        const Camera & camera, std::array<float,NUM_CASCADES+1> cascades
+    ) const;
+
+    virtual std::array<QMatrix4x4,NUM_CASCADES> getLightSpaceMatrix(
+        const Camera & camera, std::array<float,NUM_CASCADES+1> cascades
     ) const;
     
     QVector4D getDirection() const {return m_direction;};

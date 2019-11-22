@@ -1,5 +1,7 @@
 #include "../include/shaderprogram.h"
 
+#include <QOpenGLFunctions>
+
 
 /***
  *       _____  _                 _             
@@ -55,27 +57,51 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
     
     // Apply the texture
     if (material.getTexture() != nullptr)
-        material.getTexture()->bind(0);
-    setUniformValue("textureSampler", 0);
-    setUniformValue("shadowMap", 1);
-    setUniformValue("skybox", 2);
+        material.getTexture()->bind(COLOR_TEXTURE_UNIT);
+    setUniformValue("textureSampler", COLOR_TEXTURE_UNIT);
+    setUniformValue("shadowMap[0]", SHADOW_TEXTURE_UNIT_0); // TODO need to define map for each cascade
+    setUniformValue("shadowMap[1]", SHADOW_TEXTURE_UNIT_1); // TODO need to use a for loop
+    setUniformValue("shadowMap[2]", SHADOW_TEXTURE_UNIT_2);
+    setUniformValue("skybox", SKYBOX_TEXTURE_UNIT);
 }
 
 
-void ObjectShader::setMatrixUniforms(const QMatrix4x4 & M, const QMatrix4x4 & V, 
-                                     const QMatrix4x4 & P, 
-                                     const QMatrix4x4 & lVP) {
+void ObjectShader::setMatrixUniforms(
+    const QMatrix4x4 & M, const QMatrix4x4 & V, const QMatrix4x4 & P, 
+    const QMatrix4x4 lVP[]
+) {
     QMatrix4x4 MV = V*M;
     QMatrix4x4 MVP = P * MV;
-    QMatrix4x4 lMVP = lVP * M;
     QMatrix3x3 N = MV.normalMatrix();
 
+    // Set matrices uniform
     setUniformValue("M", M);
     setUniformValue("MV", MV);
     setUniformValue("MVP", MVP);
-    setUniformValue("lMVP", lMVP);
     setUniformValue("N", N);
     
+    // Set light transform uniform for shadow mapping for all cascades
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning() << __FILE__ << __LINE__ <<
+                      "Requires a valid current OpenGL context. \n" <<
+                      "Unable to draw the object.";
+        return;
+    }
+    QOpenGLFunctions * glFunctions = context->functions();
+    for(unsigned int i = 0; i < NUM_CASCADES; i++) {
+        // Find the location of the uniform
+        char Name[128] = {0};
+        snprintf(Name, sizeof(Name), "lMVP[%d]", i);
+        GLuint location = glFunctions->glGetUniformLocation(
+            programId(), Name
+        );
+        // Set uniform
+        QMatrix4x4 lMVP = lVP[i] * M;
+        glFunctions->glUniformMatrix4fv(location, 1, GL_FALSE, lMVP.constData());
+    }
+    
+    // Set camera position
     QVector3D cameraPosition(V.inverted().column(3));
     setUniformValue("cameraPosition", cameraPosition);
 }
@@ -86,6 +112,23 @@ void ObjectShader::setLightUniforms(
 ) {
     setUniformValue("lightIntensity", light.getIntensity());
     setUniformValue("lightDirection", V * light.getDirection());
+}
+
+
+void ObjectShader::setCascadeUniforms(const float cascades[NUM_CASCADES]) {
+    QOpenGLContext * context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning() << __FILE__ << __LINE__ <<
+                      "Requires a valid current OpenGL context. \n" <<
+                      "Unable to draw the object.";
+        return;
+    }
+    QOpenGLFunctions * glFunctions = context->functions();
+    
+    GLuint location = glFunctions->glGetUniformLocation(
+        programId(), "endCascade"
+    );
+    glFunctions->glUniform1fv(location, NUM_CASCADES, cascades);
 }
 
 
@@ -120,11 +163,11 @@ void ObjectShadowShader::setMaterialUniforms(const Material & /*material*/) {
 }
 
 
-void ObjectShadowShader::setMatrixUniforms(const QMatrix4x4 & M, 
-                                           const QMatrix4x4 & /*V*/, 
-                                           const QMatrix4x4 & /*P*/, 
-                                           const QMatrix4x4 & lVP) {
-    QMatrix4x4 lMVP = lVP * M;
+void ObjectShadowShader::setMatrixUniforms(
+    const QMatrix4x4 & M, const QMatrix4x4 & /*V*/, const QMatrix4x4 & /*P*/, 
+    const QMatrix4x4 lVP[]
+) {
+    QMatrix4x4 lMVP = lVP[0] * M;
     
     setUniformValue("lMVP", lMVP);
 }
@@ -136,7 +179,10 @@ void ObjectShadowShader::setLightUniforms(
     // Nothing to do
 }
 
-
+void ObjectShadowShader::setCascadeUniforms(const float cascades[NUM_CASCADES]) {
+    // Nothing to do
+    (void)cascades;
+}
 
 
 

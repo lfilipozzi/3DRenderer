@@ -20,25 +20,10 @@
  *                    |___/           
  */
 
-
-// QMatrix4x4 CasterLight::getLightSpaceMatrix(QVector3D lightTarget) const {
-//     // Compute light view matrix
-//     QMatrix4x4 lightView;
-//     QVector3D lightDirection = m_direction.toVector3D();
-//     QVector3D lightPosition = lightTarget - 3*lightDirection;
-//     lightView.lookAt(lightPosition, lightTarget, QVector3D(0.0f, 0.0f, 1.0f));
-//     // Compute light projection matrix
-//     QMatrix4x4 lightProjection;
-//     lightProjection.ortho(-4.0f, 4.0f, -4.0f, 4.0f, 1.0f, 10.0f);
-//     // Compute light projection view matrix
-//     QMatrix4x4 lightSpaceMatrix = lightProjection * lightView;
-//     return lightSpaceMatrix;
-// }
-
-std::vector<QMatrix4x4> CasterLight::getLightSpaceMatrix(
-    const Camera & camera, std::vector<float> cascades
+std::array<QMatrix4x4,NUM_CASCADES> CasterLight::getLightSpaceMatrix(
+    const Camera & camera, std::array<float,NUM_CASCADES+1> cascades
 ) const {
-    std::vector<QMatrix4x4> lightSpace;
+    std::array<QMatrix4x4,NUM_CASCADES> lightSpace;
     
     // Compute the light view matrix
     QMatrix4x4 lightView;
@@ -49,25 +34,22 @@ std::vector<QMatrix4x4> CasterLight::getLightSpaceMatrix(
     );
     
     // Compute the light projection matrices
-    std::vector<QMatrix4x4> lightProjection;
+    std::array<QMatrix4x4,NUM_CASCADES> lightProjection;
     lightProjection = getProjectionMatrix(camera, cascades);
-    for (
-        std::vector<QMatrix4x4>::iterator it = lightProjection.begin();
-        it != lightProjection.end(); it++
-    ) {
-        lightSpace.push_back(*it * lightView);
+    for (unsigned int i = 0; i < NUM_CASCADES; i++) {
+        lightSpace[i] = lightProjection[i] * lightView;
     }
     
     return lightSpace;
 }
 
-std::vector<QMatrix4x4> CasterLight::getProjectionMatrix(
-    const Camera& camera, std::vector<float> cascades
+std::array<QMatrix4x4,NUM_CASCADES> CasterLight::getProjectionMatrix(
+    const Camera& camera, std::array<float,NUM_CASCADES+1> cascades
 ) const {
     QMatrix4x4 lightView = getViewMatrix();
     
     // Compute the light projection matrices
-    std::vector<QMatrix4x4> lightProjection;
+    std::array<QMatrix4x4,NUM_CASCADES> lightProjection;
     /* Four steps are needed:
      *  1. Compute the eight corners of each cascade in the camera view space.
      *  2. Transform the coordinates from camera view space to world space (with
@@ -83,24 +65,24 @@ std::vector<QMatrix4x4> CasterLight::getProjectionMatrix(
     float tanHalfHFOV = std::tan(FOV.first  / 2 * PI / 180);
     float tanHalfVFOV = std::tan(FOV.second / 2 * PI / 180);
 
-    for (unsigned int i = 0; i < cascades.size()-1; i++) {
-        float xn = cascades.at(i)   * tanHalfHFOV;
-        float xf = cascades.at(i+1) * tanHalfHFOV;
-        float yn = cascades.at(i)   * tanHalfVFOV;
-        float yf = cascades.at(i+1) * tanHalfVFOV;
+    for (unsigned int i = 0; i < NUM_CASCADES; i++) {
+        float xn = cascades[i]   * tanHalfHFOV;
+        float xf = cascades[i+1] * tanHalfHFOV;
+        float yn = cascades[i]   * tanHalfVFOV;
+        float yf = cascades[i+1] * tanHalfVFOV;
         
         // Compute the eight corners of each cascade in the camera view space
         QVector4D frustumCorners[NUMBER_FRUSTUM_CORNERS] = {
             // Near face
-            QVector4D( xn,  yn, cascades.at(i), 1.0f),
-            QVector4D(-xn,  yn, cascades.at(i), 1.0f),
-            QVector4D( xn, -yn, cascades.at(i), 1.0f),
-            QVector4D(-xn, -yn, cascades.at(i), 1.0f),
+            QVector4D( xn,  yn, cascades[i], 1.0f),
+            QVector4D(-xn,  yn, cascades[i], 1.0f),
+            QVector4D( xn, -yn, cascades[i], 1.0f),
+            QVector4D(-xn, -yn, cascades[i], 1.0f),
             // Far face
-            QVector4D( xf,  yf, cascades.at(i+1), 1.0f),
-            QVector4D(-xf,  yf, cascades.at(i+1), 1.0f),
-            QVector4D( xf, -yf, cascades.at(i+1), 1.0f),
-            QVector4D(-xf, -yf, cascades.at(i+1), 1.0f)
+            QVector4D( xf,  yf, cascades[i+1], 1.0f),
+            QVector4D(-xf,  yf, cascades[i+1], 1.0f),
+            QVector4D( xf, -yf, cascades[i+1], 1.0f),
+            QVector4D(-xf, -yf, cascades[i+1], 1.0f)
         };
         
         // Corners of each cascade in the light view space
@@ -130,7 +112,7 @@ std::vector<QMatrix4x4> CasterLight::getProjectionMatrix(
         // Compute the projection matrix which contains the frustum corners
         QMatrix4x4 projection;
         projection.ortho(left, right, bottom, top, -far, -near);
-        lightProjection.push_back(projection);
+        lightProjection[i] = projection;
     }
     
     return lightProjection;

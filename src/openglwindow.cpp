@@ -6,6 +6,8 @@
 #include "../include/inputmanager.h"
 #include "../include/animationplayer.h"
 
+#include "../include/constants.h"
+
 OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
     : QWindow(screen), 
     m_wasCameraOffset(false) {
@@ -114,19 +116,21 @@ void OpenGLWindow::renderGL() {
     p_context->makeCurrent(this);
     p_scene->update();
     // Generate the shadow map
-    if (p_depthMap != nullptr)
-        p_depthMap->bind();
-    p_scene->renderShadow();
-    // Render the scene
-#ifndef SHADOW_FBO_DEBUG
-    if (p_depthMap != nullptr) {
-        p_depthMap->release();
-        p_depthMap->bindTexture(GL_TEXTURE1);
+    for (unsigned int i = 0; i < NUM_CASCADES; i++) {
+        if (p_depthMap != nullptr)
+            p_depthMap->bind(i);
+        p_scene->renderShadow(i);
     }
+    // Render the scene
+    if (p_depthMap != nullptr) {
+        unsigned int cascadeTextureUnits[NUM_CASCADES] = {
+            SHADOW_TEXTURE_UNIT_0, SHADOW_TEXTURE_UNIT_1, SHADOW_TEXTURE_UNIT_2
+        }; // TODO set up macro for different texture unit in constants.h
+        p_depthMap->release();
+        p_depthMap->bindTexture(cascadeTextureUnits);
+    }
+    p_glFunctions->glViewport(0, 0, width(), height());
     p_scene->render();
-#else
-    p_depthMap->render();
-#endif // SHADOW_FBO_DEBUG
     p_scene->updateTimestep();
     p_context->swapBuffers(this);
     
