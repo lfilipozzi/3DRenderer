@@ -158,7 +158,7 @@ void Object::render(
     shader->setLightUniforms(light, view);
     
     // Set cascade uniform
-    float cascade[NUM_CASCADES] = {-10.0f, -30.0f, -1000.0f}; // TODO need to update the cascade outside of object
+    float cascade[NUM_CASCADES] = {-10.0f, -30.0f, -60.0f}; // TODO need to update the cascade outside of object
     shader->setCascadeUniforms(cascade);
 
     // Bind VAO and draw everything

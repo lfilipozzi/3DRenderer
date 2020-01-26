@@ -59,9 +59,11 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
     if (material.getTexture() != nullptr)
         material.getTexture()->bind(COLOR_TEXTURE_UNIT);
     setUniformValue("textureSampler", COLOR_TEXTURE_UNIT);
-    setUniformValue("shadowMap[0]", SHADOW_TEXTURE_UNIT_0); // TODO need to define map for each cascade
-    setUniformValue("shadowMap[1]", SHADOW_TEXTURE_UNIT_1); // TODO need to use a for loop
-    setUniformValue("shadowMap[2]", SHADOW_TEXTURE_UNIT_2);
+    for (unsigned int i = 0; i < NUM_CASCADES; i++) {
+        char name[128] = {0};
+        snprintf(name, sizeof(name), "shadowMap[%d]", i);
+        setUniformValue(name, SHADOW_TEXTURE_UNITS[i]);
+    }
     setUniformValue("skybox", SKYBOX_TEXTURE_UNIT);
 }
 
@@ -91,10 +93,10 @@ void ObjectShader::setMatrixUniforms(
     QOpenGLFunctions * glFunctions = context->functions();
     for(unsigned int i = 0; i < NUM_CASCADES; i++) {
         // Find the location of the uniform
-        char Name[128] = {0};
-        snprintf(Name, sizeof(Name), "lMVP[%d]", i);
+        char name[128] = {0};
+        snprintf(name, sizeof(name), "lMVP[%d]", i);
         GLuint location = glFunctions->glGetUniformLocation(
-            programId(), Name
+            programId(), name
         );
         // Set uniform
         QMatrix4x4 lMVP = lVP[i] * M;

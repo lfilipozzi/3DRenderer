@@ -64,14 +64,20 @@ HEADERS += \
     include/texture.h \
     include/vehicle.h \
     include/line.h \
-    include/frame.h
+    include/frame.h \
+    include/constant.h
 
 unix: !macx {
-#     INCLUDEPATH += /usr/include/
+    # Use dynamic library
+    INCLUDEPATH += /usr/include/
     LIBS += /usr/lib/libassimp.so
-    INCLUDEPATH += lib/assimp/include
+    # Use static library
+#     QMAKE_LFLAGS += -lz
+#     INCLUDEPATH += \
+#         lib/assimp/include \
+#         lib/irrXML/include
 #     LIBS += \
-#         $$PWD/lib/assimp/lib/libIrrXML.a \
+#         $$PWD/lib/irrXML/lib/libIrrXML.a \
 #         $$PWD/lib/assimp/lib/libassimp.a
 }
 

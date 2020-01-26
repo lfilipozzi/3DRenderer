@@ -4,6 +4,7 @@
 #include <QVector4D>
 #include <QVector3D>
 #include <QMatrix4x4>
+#include <array>
 #include "camera.h"
 
 #include "constants.h"

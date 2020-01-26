@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-DepthMap::DepthMap(unsigned int width, unsigned int height) :
+DepthMap::DepthMap(const unsigned int width, const unsigned int height) :
 c_width(width),
 c_height(height) {
     // Get pointer to OpenGL functions
@@ -13,7 +13,7 @@ c_height(height) {
             "Unable to draw the object.";
         exit(1);
     }
-    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_0>();
+    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
     if (!p_glFunctions) {
         qCritical() << __FILE__ << __LINE__ <<
             "Could not obtain required OpenGL context version";
@@ -61,7 +61,7 @@ c_height(height) {
 DepthMap::~DepthMap() {}
 
 
-void DepthMap::bind(unsigned int cacadeIdx) {
+void DepthMap::bind(const unsigned int cacadeIdx) {
     if (p_glFunctions != nullptr) {
         p_glFunctions->glViewport(0, 0, c_width, c_height);
         p_glFunctions->glBindFramebuffer(GL_FRAMEBUFFER, m_FBOId);
@@ -82,7 +82,7 @@ void DepthMap::release() {
 }
 
 
-void DepthMap::bindTexture(unsigned int unit[NUM_CASCADES]) {
+void DepthMap::bindTexture(const unsigned int unit[NUM_CASCADES]) {
     if (p_glFunctions != nullptr) {
         for (unsigned int i = 0; i < NUM_CASCADES; i++) {
             p_glFunctions->glActiveTexture(GL_TEXTURE0 + unit[i]);

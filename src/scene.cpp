@@ -115,7 +115,7 @@ void Scene::update() {
     m_projection = m_camera.getProjectionMatrix();
     
     // Compute view and projection matrices of the light source
-    m_cascades = {-0.3f, -10.0f, -30.0f, -1000.0f}; // TODO use near and far plane of camera projection
+    m_cascades = {-0.3f, -10.0f, -30.0f, -60.0f};
 //     m_view = m_light.getViewMatrix();
 //     m_projection = m_light.getProjectionMatrix(m_camera, m_cascades).at(2);
     m_lightSpace = m_light.getLightSpaceMatrix(m_camera, m_cascades);

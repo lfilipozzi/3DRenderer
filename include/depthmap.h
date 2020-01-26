@@ -1,7 +1,8 @@
 #ifndef DEPTHMAP_H
 #define DEPTHMAP_H
 
-#include <QOpenGLFunctions_3_0>
+#include <QOpenGLFunctions_3_3_Core>
+#include <array>
 #include "constants.h"
 
 /// Depth map
@@ -17,8 +18,10 @@ public:
      * @brief Create a DepthMap. You must call create() with a valid OpenGL 
      * context before using. The width and height of the underlying framebuffer 
      * object has the supplied format.
+     * @param width The width of the underlying framebuffer.
+     * @param height The height of the underlying framebuffer.
      */
-    DepthMap(unsigned int width = 1024, unsigned int height = 1024);
+    DepthMap(const unsigned int width = 1024, const unsigned int height = 1024);
     
     /**
      * @brief Destroy the framebuffer object and free any allocated resources.
@@ -31,7 +34,7 @@ public:
      * false otherwise.
      * @param cascadeIdx The cascade index.
      */
-    void bind(unsigned int cacadeIdx);
+    void bind(const unsigned int cacadeIdx);
     
     /**
      * @brief Switches rendering back to the default windowing system. This also
@@ -43,7 +46,7 @@ public:
      * @brief Bind the shadow map to supplied texture unit.
      * @param unit Array texture unit to bind each shadow map texture.
      */
-    void bindTexture(unsigned int unit[NUM_CASCADES]);
+    void bindTexture(const unsigned int unit[NUM_CASCADES]);
     
     /**
      * @brief Returns the id of the underlying OpenGL framebuffer objects.
@@ -71,7 +74,7 @@ private:
     /**
      * Store the OpenGL functions.
      */
-    QOpenGLFunctions_3_0 * p_glFunctions;
+    QOpenGLFunctions_3_3_Core * p_glFunctions;
     
     /**
      * Width of the framebuffer.

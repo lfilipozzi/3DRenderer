@@ -161,33 +161,28 @@ VehiclePosition VehicleController::getVehiclePosition(const float time) {
     // Find the first element which occur before time-step
     Trajectory::iterator it = m_trajectory.lower_bound(time);
     
-    // No interpolation (only find the element happening just before time-step)
-    if (it != m_trajectory.end())
-        return it->second;
-    return VehiclePosition();
-    
-//     // Linear interpolation:: 
-//     // FIXME some glitches with the wheel when using this method (probably because the angles have been truncated between 0 and 2*PI)
-//     if (it != m_trajectory.end()) {
-//         // Can find the position in the trajectory
-//         float time0 = it->first;
-//         VehiclePosition position0 = it->second;
-//         if (++it != m_trajectory.end() && time0 != time) {
-//             // Can find a position at the next time-step
-//             float time1 = it->first;
-//             VehiclePosition position1 = it->second;
-//             float alpha = (time - time0) / (time1 - time0);
-//             return (position1 - position0) * alpha + position0;
-//         }
-//         else {
-//             // Cannot find a position at the next time-step
-//             return position0;
-//         }
-//     }
-//     else {
-//         // Cannot find the position
-//         return VehiclePosition();
-//     }
+    // Linear interpolation
+    // FIXME: Some glitches when interpolating with big sampling time.
+    if (it != m_trajectory.end()) {
+        // Can find the position in the trajectory
+        float time0 = it->first;
+        VehiclePosition position0 = it->second;
+        if (++it != m_trajectory.end() && time0 != time) {
+            // Can find a position at the next time-step
+            float time1 = it->first;
+            VehiclePosition position1 = it->second;
+            float alpha = (time - time0) / (time1 - time0);
+            return (position1 - position0) * alpha + position0;
+        }
+        else {
+            // Cannot find a position at the next time-step
+            return position0;
+        }
+    }
+    else {
+        // Cannot find the position
+        return VehiclePosition();
+    }
 }
 
 

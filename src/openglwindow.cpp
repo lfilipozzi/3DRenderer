@@ -123,11 +123,8 @@ void OpenGLWindow::renderGL() {
     }
     // Render the scene
     if (p_depthMap != nullptr) {
-        unsigned int cascadeTextureUnits[NUM_CASCADES] = {
-            SHADOW_TEXTURE_UNIT_0, SHADOW_TEXTURE_UNIT_1, SHADOW_TEXTURE_UNIT_2
-        }; // TODO set up macro for different texture unit in constants.h
         p_depthMap->release();
-        p_depthMap->bindTexture(cascadeTextureUnits);
+        p_depthMap->bindTexture(SHADOW_TEXTURE_UNITS);
     }
     p_glFunctions->glViewport(0, 0, width(), height());
     p_scene->render();

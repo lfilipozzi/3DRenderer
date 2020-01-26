@@ -5,14 +5,13 @@
  * Macro defining parameters used by several files.
  */
 
-#define NUM_CASCADES 3  // Number of cascaded shadow maps
 #define PI           3.14159265358979323846f
 
-#define COLOR_TEXTURE_UNIT 0
-#define SKYBOX_TEXTURE_UNIT 1
-#define SHADOW_TEXTURE_UNIT_0 2
-#define SHADOW_TEXTURE_UNIT_1 3
-#define SHADOW_TEXTURE_UNIT_2 4
+// Define texture units
+static constexpr unsigned int COLOR_TEXTURE_UNIT = 0;
+static constexpr unsigned int SKYBOX_TEXTURE_UNIT = 1;
+static constexpr unsigned int SHADOW_TEXTURE_UNITS[] = {2, 3, 4};
 
+static constexpr unsigned int NUM_CASCADES = (sizeof(SHADOW_TEXTURE_UNITS)/sizeof(*SHADOW_TEXTURE_UNITS));
 
 #endif // CONSTANTS_H
