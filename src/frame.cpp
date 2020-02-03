@@ -24,11 +24,12 @@ void Frame::initialize() {
 void Frame::render(
     const CasterLight & light, const QMatrix4x4 & view,
     const QMatrix4x4 & projection, 
-    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
+    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace,
+        const std::array<float,NUM_CASCADES+1> & cascades
 ) {
-    X_AXIS.render(light, view, projection, lightSpace);
-    Y_AXIS.render(light, view, projection, lightSpace);
-    Z_AXIS.render(light, view, projection, lightSpace);
+    X_AXIS.render(light, view, projection, lightSpace, cascades);
+    Y_AXIS.render(light, view, projection, lightSpace, cascades);
+    Z_AXIS.render(light, view, projection, lightSpace, cascades);
 }
 
 

@@ -138,7 +138,7 @@ void Object::createAttributes() {
 void Object::render(
     const CasterLight & light, const QMatrix4x4 & view, 
     const QMatrix4x4 & projection, const QMatrix4x4 lightSpace[], 
-    ObjectShader * shader
+    const std::array<float,NUM_CASCADES+1> * cascades, ObjectShader * shader
 )  {
     // If the model is not correctly loaded, do nothing
     if (m_error)
@@ -158,8 +158,8 @@ void Object::render(
     shader->setLightUniforms(light, view);
     
     // Set cascade uniform
-    float cascade[NUM_CASCADES] = {-10.0f, -30.0f, -60.0f}; // TODO need to update the cascade outside of object
-    shader->setCascadeUniforms(cascade);
+    if (cascades != nullptr)
+        shader->setCascadeUniforms(*cascades);
 
     // Bind VAO and draw everything
     m_vao.bind();
@@ -189,15 +189,19 @@ void Object::render(
 void Object::render(
     const CasterLight & light, const QMatrix4x4 & view, 
     const QMatrix4x4 & projection, 
-    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
+    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace, 
+    const std::array<float,NUM_CASCADES+1> & cascades
 ) {
-    render(light, view, projection, lightSpace.data(), p_objectShader.get());
+    render(
+        light, view, projection, lightSpace.data(), &cascades, 
+        p_objectShader.get()
+    );
 }
 
 
 void Object::renderShadow(const QMatrix4x4 & lightSpace) {
     render(
-        CasterLight(), QMatrix4x4(), QMatrix4x4(), &lightSpace, 
+        CasterLight(), QMatrix4x4(), QMatrix4x4(), &lightSpace, nullptr, 
         p_shadowShader.get()
     );
 }

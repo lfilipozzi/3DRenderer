@@ -272,31 +272,32 @@ QMatrix4x4 VehicleGraphics::getForceModelMatrix(const QVector3D & force,
 void VehicleGraphics::render(
     const CasterLight & light, const QMatrix4x4 & view, 
     const QMatrix4x4 & projection, 
-    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
+    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace,
+    const std::array<float,NUM_CASCADES+1> & cascades
 ) {
     if (p_wheelModel != nullptr) {
         p_wheelModel->setModelMatrix(m_wheelFLMatrix);
-        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->render(light, view, projection, lightSpace, cascades);
         p_wheelModel->setModelMatrix(m_wheelFRMatrix);
-        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->render(light, view, projection, lightSpace, cascades);
         p_wheelModel->setModelMatrix(m_wheelRLMatrix);
-        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->render(light, view, projection, lightSpace, cascades);
         p_wheelModel->setModelMatrix(m_wheelRRMatrix);
-        p_wheelModel->render(light, view, projection, lightSpace);
+        p_wheelModel->render(light, view, projection, lightSpace, cascades);
     }
     if (p_chassisModel != nullptr) {
         p_chassisModel->setModelMatrix(m_chassisMatrix);
-        p_chassisModel->render(light, view, projection, lightSpace);
+        p_chassisModel->render(light, view, projection, lightSpace, cascades);
     }
     if (p_forceLine != nullptr && m_showTireForce) {
         p_forceLine->setModelMatrix(m_forceFLMatrix);
-        p_forceLine->render(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace, cascades);
         p_forceLine->setModelMatrix(m_forceFRMatrix);
-        p_forceLine->render(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace, cascades);
         p_forceLine->setModelMatrix(m_forceRLMatrix);
-        p_forceLine->render(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace, cascades);
         p_forceLine->setModelMatrix(m_forceRRMatrix);
-        p_forceLine->render(light, view, projection, lightSpace);
+        p_forceLine->render(light, view, projection, lightSpace, cascades);
     }
 }
 

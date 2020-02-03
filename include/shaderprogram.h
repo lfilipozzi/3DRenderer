@@ -3,6 +3,7 @@
 
 #include <QOpenGLShaderProgram>
 #include <QString>
+#include <array>
 #include "material.h"
 #include "light.h"
 
@@ -74,7 +75,9 @@ public:
      * @brief Set uniforms about cascade shadow.
      * @param cascades The end distance of each cascade shadow.
      */
-    virtual void setCascadeUniforms(const float cascades[NUM_CASCADES]);
+    virtual void setCascadeUniforms(
+        const std::array<float,NUM_CASCADES+1> & cascades
+    );
 };
 
 
@@ -131,7 +134,9 @@ public:
      * @brief Set uniforms about cascade shadow.
      * @param cascades The end distance of each cascade shadow.
      */
-    virtual void setCascadeUniforms(const float cascades[NUM_CASCADES]);
+    virtual void setCascadeUniforms(
+        const std::array<float,NUM_CASCADES+1> & cascades
+    );
 };
 
 #endif // SHADERPROGRAM_H

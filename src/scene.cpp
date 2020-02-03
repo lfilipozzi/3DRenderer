@@ -134,12 +134,16 @@ void Scene::render() {
     // Call the render method of object in the scene
     m_skybox.render(m_view, m_projection);
     if (p_surface != nullptr)
-        p_surface->render(m_light, m_view, m_projection, m_lightSpace);
+        p_surface->render(
+            m_light, m_view, m_projection, m_lightSpace, m_cascades
+        );
     if (p_vehicle != nullptr)
-        p_vehicle->render(m_light, m_view, m_projection, m_lightSpace);
+        p_vehicle->render(
+            m_light, m_view, m_projection, m_lightSpace, m_cascades
+        );
     if (m_showGlobalFrame) {
         m_frame.setModelMatrix(QMatrix4x4());
-        m_frame.render(m_light, m_view, m_projection, m_lightSpace);
+        m_frame.render(m_light, m_view, m_projection, m_lightSpace, m_cascades);
     }
 }
 

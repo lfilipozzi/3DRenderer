@@ -19,8 +19,8 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     m_lcdClock = new QLCDNumber();
     m_timeSlider = new QSlider(Qt::Horizontal);
     m_rateSlider = new QSlider(Qt::Horizontal);
-    m_playPauseButton = new PlayerButton("media-playback-start",
-                                         QIcon(":/icons/play")
+    m_playPauseButton = new PlayerButton("media-playback-paused",
+                                         QIcon(":/icons/pause")
     );
     m_goBeginButton = new PlayerButton("media-seek-backward",
                                        QIcon(":/icons/playBackward")
@@ -131,12 +131,12 @@ void AnimationPlayer::updateTimestepValue(float timestep,
 
 void AnimationPlayer::updatePlayPauseButton(bool isAnimationPaused) {
     if (isAnimationPaused)
-        m_playPauseButton->setIcon(QIcon::fromTheme("media-playback-paused",
-                                                    QIcon(":/icons/pause")
-        ));
-    else
         m_playPauseButton->setIcon(QIcon::fromTheme("media-playback-start",
                                                     QIcon(":/icons/play")
+        ));
+    else
+        m_playPauseButton->setIcon(QIcon::fromTheme("media-playback-paused",
+                                                    QIcon(":/icons/pause")
         ));
 }
 

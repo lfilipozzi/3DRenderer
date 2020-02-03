@@ -43,11 +43,13 @@ public:
      * @param projection The projection matrix.
      * @param lightSpace The view and projection matrices of the light (used for 
      * shadow mapping).
+     * @param cascades Array containing the distance for cascade shadow mapping.
      */
     virtual void render(
         const CasterLight & light, const QMatrix4x4 & view, 
         const QMatrix4x4 & projection, 
-        const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace
+        const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace,
+        const std::array<float,NUM_CASCADES+1> & cascades
     );
     
     /**

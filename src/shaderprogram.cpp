@@ -117,7 +117,9 @@ void ObjectShader::setLightUniforms(
 }
 
 
-void ObjectShader::setCascadeUniforms(const float cascades[NUM_CASCADES]) {
+void ObjectShader::setCascadeUniforms(
+    const std::array<float,NUM_CASCADES+1> & cascades
+) {
     QOpenGLContext * context = QOpenGLContext::currentContext();
     if (!context) {
         qWarning() << __FILE__ << __LINE__ <<
@@ -130,7 +132,7 @@ void ObjectShader::setCascadeUniforms(const float cascades[NUM_CASCADES]) {
     GLuint location = glFunctions->glGetUniformLocation(
         programId(), "endCascade"
     );
-    glFunctions->glUniform1fv(location, NUM_CASCADES, cascades);
+    glFunctions->glUniform1fv(location, NUM_CASCADES, cascades.data()+1);
 }
 
 
@@ -181,7 +183,9 @@ void ObjectShadowShader::setLightUniforms(
     // Nothing to do
 }
 
-void ObjectShadowShader::setCascadeUniforms(const float cascades[NUM_CASCADES]) {
+void ObjectShadowShader::setCascadeUniforms(
+    const std::array<float,NUM_CASCADES+1> & cascades
+) {
     // Nothing to do
     (void)cascades;
 }
