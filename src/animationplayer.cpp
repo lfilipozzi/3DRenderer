@@ -5,8 +5,7 @@
 #include <QTime>
 
 AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
-    QWidget(parent), 
-    m_clockSecondTotal(0) {
+    QWidget(parent) {
     // Set the pointer of OpenGLWindow's player to the player
     openGLWindow->setPlayer(this);
     
@@ -16,7 +15,7 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     m_controlHLayout = new QHBoxLayout();
     // Horizontal layout for time control
     m_timeHLayout = new QHBoxLayout();
-    m_lcdClock = new QLCDNumber();
+    m_lcdClock = new QLCDNumber(9);
     m_timeSlider = new QSlider(Qt::Horizontal);
     m_rateSlider = new QSlider(Qt::Horizontal);
     m_playPauseButton = new PlayerButton("media-playback-paused",
@@ -103,21 +102,26 @@ void AnimationPlayer::updateTimestepValue(float timestep,
                                           float initialTimestep, 
                                           float finalTimestep) {
     // Update the clock
-    int second = static_cast<int>(timestep);
-    if (m_clockSecondTotal != second) {
-        m_clockSecondTotal = second;
-        int minute = second / 60;
-        second = second % 60;
-        QString clockText = "";
-        if (minute/10 == 0)
-            clockText.append('0');
-        clockText.append(QString::number(minute));
-        clockText.append(":");
-        if (second/10 == 0)
-            clockText.append('0');
-        clockText.append(QString::number(second));
-        m_lcdClock->display(clockText);
-    }
+    int millisecond = static_cast<int>(timestep*1000);
+    int second = millisecond / 1000;
+    millisecond %= 1000;
+    int minute = second / 60;
+    second %= 60;
+    QString clockText = "";
+    if (minute/10 == 0)
+        clockText.append('0');
+    clockText.append(QString::number(minute));
+    clockText.append(":");
+    if (second/10 == 0)
+        clockText.append('0');
+    clockText.append(QString::number(second));
+    clockText.append(":");
+    if (millisecond/10 == 0)
+        clockText.append('0');
+    if (millisecond/100 == 0)
+        clockText.append('0');
+    clockText.append(QString::number(millisecond));
+    m_lcdClock->display(clockText);
 
     // Update the position of the slider
     int sliderMin = m_timeSlider->minimum();

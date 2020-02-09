@@ -58,12 +58,6 @@ private:
     QLCDNumber *m_lcdClock;
 
     /**
-     * The time display on the clock in second (used to update the clock only 
-     * when necessary).
-     */
-    int m_clockSecondTotal;
-
-    /**
      * Player slider to control time.
      */
     QSlider *m_timeSlider;
