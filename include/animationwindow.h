@@ -1,8 +1,46 @@
 #ifndef ANIMATIONWINDOW_H
 #define ANIMATIONWINDOW_H
 
-#include <QMainWindow>
+
+#include <QWidget>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QComboBox>
 #include "openglwindow.h"
+
+/// Recorder dialog window
+/**
+ * @brief GUI class for the recorder dialog
+ */
+class RecordDialog : public QWidget {
+    Q_OBJECT
+    
+public:
+    RecordDialog(OpenGLWindow * window, QWidget * parent = nullptr);
+    ~RecordDialog();
+    
+public slots:
+    /**
+     * @brief Change the filename using a file browser.
+     */
+    void setFileName();
+    
+    /**
+     * @brief Record the animation given the current settings and exit the 
+     * RecorderDialog window.
+     */
+    void record();
+    
+private:
+    QLineEdit * p_fileNameLineEdit;
+    QSpinBox * p_fpsSpinBox;
+    QComboBox * p_resolutionComboBox;
+    OpenGLWindow * const p_openGLWindow;
+};
+
+
+
+#include <QMainWindow>
 #include "animationplayer.h"
 #include <memory>
 
@@ -27,6 +65,7 @@ public slots:
 private:
     std::unique_ptr<OpenGLWindow> p_openGLWindow;
     AnimationPlayer * p_player;
+    std::unique_ptr<RecordDialog> p_recordDialog;
 };
 
 #endif // ANIMATIONWINDOW_H

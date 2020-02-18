@@ -1,4 +1,4 @@
-QT       += core widgets
+QT       += core widgets opengl
 
 CONFIG += c++14
 CONFIG -= app_bundle
@@ -35,7 +35,8 @@ SOURCES += \
     src/texture.cpp \
     src/vehicle.cpp \
     src/line.cpp \
-    src/frame.cpp
+    src/frame.cpp \ 
+    src/videorecorder.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -65,7 +66,8 @@ HEADERS += \
     include/vehicle.h \
     include/line.h \
     include/frame.h \
-    include/constant.h
+    include/constant.h \
+    include/videorecorder.h
 
 unix: !macx {
     # Use dynamic library

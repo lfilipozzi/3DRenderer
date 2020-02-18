@@ -79,7 +79,7 @@ void Scene::initialize() {
     
     // Create the vehicle
     p_vehicle = std::make_unique<Vehicle>(
-        chassis, wheel, line, "asset/SimulationData/14DoF.txt"
+        chassis, wheel, line, "asset/SimulationData/data.txt"
     );
     
     // Get the simulation duration from the vehicle trajectory

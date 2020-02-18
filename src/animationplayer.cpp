@@ -60,7 +60,7 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     // Grid layout
     animationVLayout->addLayout(m_timeHLayout);
     animationVLayout->addLayout(m_controlHLayout);
-    this->setLayout(animationVLayout);
+    setLayout(animationVLayout);
 
     // Connect signals to slot (buttons)
     QObject::connect(m_playPauseButton, SIGNAL(clicked()), 

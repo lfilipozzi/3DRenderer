@@ -19,5 +19,8 @@
         <file alias="repeat">icons/media-playlist-repeat.svg</file>
         <file alias="playBackward">icons/media-seek-backward.svg</file>
         <file alias="playForward">icons/media-seek-forward.svg</file>
+        <file alias="saveFolder">icons/folder-saved-search.svg</file>
+        <file alias="cancel">icons/cancel.svg</file>
+        <file alias="validate">icons/validate.svg</file>
     </qresource>
 </RCC>

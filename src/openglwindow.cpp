@@ -5,7 +5,8 @@
 #include <QDebug>
 #include "../include/inputmanager.h"
 #include "../include/animationplayer.h"
-
+#include <QSignalBlocker>
+#include "../include/videorecorder.h"
 #include "../include/constants.h"
 
 OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
@@ -62,7 +63,7 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
 
     p_timer = new QTimer(this);
     p_timer->setInterval(refreshRate);
-    connect(p_timer, &QTimer::timeout, this, &OpenGLWindow::renderGL);
+    connect(p_timer, &QTimer::timeout, this, &OpenGLWindow::updateGL);
     p_timer->start();
 }
 
@@ -106,12 +107,6 @@ void OpenGLWindow::initializeGL() {
 
 
 void OpenGLWindow::renderGL() {
-    if(!isExposed())
-        return;
-
-    // Update the input
-    InputManager::update();
-
     // Draw the scene
     p_context->makeCurrent(this);
     p_scene->update();
@@ -139,6 +134,18 @@ void OpenGLWindow::renderGL() {
     float timeMax = p_scene->getFinalTimestep();
     float time = p_scene->getTimestep();
     p_player->updateTimestepValue(time, timeMin, timeMax);
+}
+
+
+void OpenGLWindow::updateGL() {
+    if(!isExposed())
+        return;
+
+    // Update the input
+    InputManager::update();
+
+    // Update and render the scene
+    renderGL();
     
     // Emit a signal if the camera has been offset 
     bool isCameraOffset = p_scene->isCameraOffset();
@@ -152,11 +159,47 @@ void OpenGLWindow::renderGL() {
 }
 
 
+void OpenGLWindow::record(
+    const int fps, const int width, const int height, const QString fileName
+) {
+    const int initWidth = this->width();
+    const int initHeight = this->height();
+    
+    // Setup record mode (disable 
+    VideoRecorder recorder = VideoRecorder(fps, width, height, fileName);
+    
+    // Disconnect signals to prevent from resizing the window and to 
+    // disconnect the timer
+    QSignalBlocker windowBlocker = QSignalBlocker(this);
+    QSignalBlocker timerBlocker = QSignalBlocker(p_timer);
+    
+    // Resize
+    setWidth(width);
+    setHeight(height);
+    resizeGL();
+    
+    // Update and render the scene
+    float timeMin = p_scene->getFirstTimestep();
+    float timeMax = p_scene->getFinalTimestep();
+    float time = timeMin;
+    while (time <= timeMax) {
+        p_scene->setTimestep(time);
+        renderGL();
+        recorder.recordFrame();
+        time += 1/static_cast<float>(fps);
+    }
+    
+    // Resize to the original size
+    setWidth(initWidth);
+    setHeight(initHeight);
+    resizeGL();
+}
+
+
 void OpenGLWindow::resizeGL() {
     p_context->makeCurrent(this);
     p_glFunctions->glViewport(0, 0, width(), height());
     p_scene->resize(width(), height());
-    renderGL();
 }
 
 

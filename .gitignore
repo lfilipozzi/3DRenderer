@@ -90,5 +90,6 @@ Thumbs.db
 *.svg
 *.png
 
-
+# Videos
+*.mp4
 

@@ -15,7 +15,7 @@ class AnimationPlayer;
  * @author Louis Filipozzi
  * @details This class creates a window with OpenGL rendering capabilities. It 
  * try to open an OpenGL 3.3 context. If the context can be created, it starts 
- * to execute the rendering loop through the methods initializeGL(), renderGL(), 
+ * to execute the rendering loop through the methods initializeGL(), updateGL(), 
  * resizeGL(), and cleanUpGL(). If the context cannot be created, it executes 
  * the program with error code 1.
  */
@@ -35,20 +35,40 @@ public:
      * @brief Print OpenGL errors (if any) of the current OpenGL context.
      */
     static void printOpenGLError();
+    
 protected:
     /**
-     * @brief This function is called once before the first call to renderGL() 
+     * @brief This function is called once before the first call to updateGL() 
      * or resizeGL().
      */
     void initializeGL();
-
-protected slots:
+    
     /**
-     * @brief This function is called whenever the window contents needs to be 
-     * painted. It corresponds to the main graphics loop. The function execute
-     * the update() method of the scene.
+     * @brief This function updates the position of all objects and renders the 
+     * scene.
      */
     void renderGL();
+    
+public:
+    /**
+     * @brief This function records the animation to a video file. It 
+     * temporarily disable user's inputs and restart the animation.
+     * @param fps The frame rate of the video.
+     * @param width The width of the video.
+     * @param height The height of the video.
+     * @param filename The name of the video file to create
+     */
+    void record(
+        const int fps, const int width, const int height, const QString fileName
+    );
+    
+protected slots:
+    /**
+     * @brief This function corresponds to the main graphics loop. It is called 
+     * whenever the window contents needs to be painted. It processes the user 
+     * inputs and renders the scene.
+     */
+    void updateGL();
 
     /**
      * @brief This function is called whenever the widget has been resized. The 
@@ -192,7 +212,7 @@ private:
     AnimationPlayer * p_player;
     
     /**
-     * Boolean to indicate if the camera was offset at the last update
+     * Boolean to indicate if the camera was offset at the last update.
      */
     bool m_wasCameraOffset;
 };

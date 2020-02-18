@@ -50,6 +50,7 @@ Texture * TextureManager::getTexture(QString name, Texture::Type type) {
 
 void TextureManager::cleanUp() {
     // Delete all textures
+    // FIXME error message: Texture has not been destroyed. QOpenGLTexturePrivate::destroy() called without a current context.
     for (
         TexturesMapsContainer::iterator itType = m_textures.begin();
         itType != m_textures.end(); itType++

@@ -64,6 +64,14 @@ public:
      */
     void updateTimestep();
     
+    /**
+     * @brief Manually set the timestep of the animation.
+     */
+    void setTimestep(float timestep) {
+        m_timestep = std::max(m_firstTimestep, 
+                              std::min(timestep, m_finalTimestep));
+    }
+    
 public:
     void playPauseAnimation() {
         if (m_frameRate == 0.0f)
