@@ -25,7 +25,7 @@ AnimationWindow::AnimationWindow() {
     QMenu * fileMenu = menuBar()->addMenu("&File");
     QMenu * viewMenu = menuBar()->addMenu("&View");
     QMenu * helpMenu = menuBar()->addMenu("&Help");
-    QAction * recordAction = fileMenu->addAction("&Record");
+    QAction * recordAction = fileMenu->addAction("Export to video");
     QAction * exitAction = fileMenu->addAction("&Exit");
     QAction * toggleGlobFrAction = viewMenu->addAction("Toggle &global frame");
     QAction * toggleTireForceAction = viewMenu->addAction("Toggle &tire forces");
@@ -115,7 +115,7 @@ RecordDialog::RecordDialog(OpenGLWindow * window, QWidget * parent)
     fileNameButton->setIcon(
         QIcon::fromTheme("folder-saved-search", QIcon(":/icons/saveFolder"))
     );
-    p_fileNameLineEdit->setText("output.mp4");
+    p_fileNameLineEdit->setText("output/video.mp4");
     p_fpsSpinBox->setValue(30);
     p_resolutionComboBox->addItem("480p");
     p_resolutionComboBox->addItem("540p");

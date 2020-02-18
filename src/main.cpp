@@ -1,10 +1,40 @@
 #include <QApplication>
 #include "../include/animationwindow.h"
+#include <iostream>
+
+
+void helpPrinter() {
+    std::cout << "Usage: VirtualModel [options]\n"
+    << " Create a 3D animation of a vehicle from a text file\n\n"
+    << "Options:\n"
+    << "  -h, --help    Displays help on command line options.\n"
+    << "  -v <file>     Load vehicle trajectory data file." << std::endl;
+}
 
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+    // Parse arguments
+    QString dataFile;
+    for (int i = 1; i < argc; i++) {
+        if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) {
+            helpPrinter();
+            return 0;
+        }
+        if (strcmp(argv[i],"-v") == 0) {
+            if (i+1 >= argc) {
+                std::cout << "Invalid arguments." << std::endl;
+                return -1;
+            }
+            dataFile = QString(argv[++i]);
+        }
+        else {
+            std::cout << "Invalid argument: " << argv[i] << "." << std::endl;
+            return -1;
+        }
+    }
     
+    // Start application
+    QApplication app(argc, argv);
     app.setApplicationName("3D viewer");
     
     AnimationWindow animationWindow;
