@@ -26,7 +26,7 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
     p_context->create();
     
     // Try to open an OpenGL context with the requested version
-    if(p_context->format().version() != requestedFormat.version()) {
+    if (p_context->format().version() != requestedFormat.version()) {
         qDebug() << "Unable to open a supported OpenGL context." <<
             "The most recent OpenGL context that can be open is" <<
             p_context->format().version().first << "." << 
@@ -70,8 +70,6 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
 
 OpenGLWindow::~OpenGLWindow() {
     p_context->deleteLater();
-    delete(p_context);
-    delete(p_timer);
 }
 
 

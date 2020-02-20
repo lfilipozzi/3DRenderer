@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QTime>
+#include <QShortcut>
 
 AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     QWidget(parent) {
@@ -33,6 +34,9 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     m_lockCameraButton = new PlayerButton("lock", 
                                           QIcon(":/icons/lock")
     );
+    
+    // Create shortcut
+    QShortcut * playPauseShortcut = new QShortcut(QKeySequence("Space"), this);
 
     // Create the slider and buttons
     m_timeSlider->setRange(0, 1000);
@@ -64,6 +68,8 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
 
     // Connect signals to slot (buttons)
     QObject::connect(m_playPauseButton, SIGNAL(clicked()), 
+                     openGLWindow, SLOT(playPauseAnimation()));
+    QObject::connect(playPauseShortcut, SIGNAL(activated()), 
                      openGLWindow, SLOT(playPauseAnimation()));
     QObject::connect(m_goBeginButton, SIGNAL(clicked()), 
                      openGLWindow, SLOT(restartAnimation()));
