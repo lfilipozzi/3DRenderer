@@ -60,6 +60,9 @@ public:
     ~AnimationWindow();
     
 public slots:
+    /**
+     * @brief Show information on the application.
+     */
     void openAboutWindow();
     
 private:
@@ -67,5 +70,9 @@ private:
     AnimationPlayer * p_player;
     std::unique_ptr<RecordDialog> p_recordDialog;
 };
+
+
+
+
 
 #endif // ANIMATIONWINDOW_H

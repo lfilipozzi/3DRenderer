@@ -56,7 +56,7 @@ public:
      * @param fps The frame rate of the video.
      * @param width The width of the video.
      * @param height The height of the video.
-     * @param filename The name of the video file to create
+     * @param filename The name of the video file to create.
      */
     void record(
         const int fps, const int width, const int height, const QString fileName

@@ -141,24 +141,24 @@ void AnimationPlayer::updateTimestepValue(float timestep,
 
 void AnimationPlayer::updatePlayPauseButton(bool isAnimationPaused) {
     if (isAnimationPaused)
-        m_playPauseButton->setIcon(QIcon::fromTheme("media-playback-start",
-                                                    QIcon(":/icons/play")
-        ));
+        m_playPauseButton->setIcon(
+            QIcon::fromTheme("media-playback-start", QIcon(":/icons/play"))
+        );
     else
-        m_playPauseButton->setIcon(QIcon::fromTheme("media-playback-paused",
-                                                    QIcon(":/icons/pause")
-        ));
+        m_playPauseButton->setIcon(
+            QIcon::fromTheme("media-playback-paused", QIcon(":/icons/pause"))
+        );
 }
 
 void AnimationPlayer::unlockCameraButton() {
-    m_lockCameraButton->setIcon(QIcon::fromTheme("unlock",
-                                                 QIcon(":/icons/unlock")
-    ));
+    m_lockCameraButton->setIcon(
+        QIcon::fromTheme("unlock", QIcon(":/icons/unlock"))
+    );
 }
 
 void AnimationPlayer::lockCameraButton() {
-    m_lockCameraButton->setIcon(QIcon::fromTheme("lock",
-                                                 QIcon(":/icons/lock")
-    ));
+    m_lockCameraButton->setIcon(
+        QIcon::fromTheme("lock", QIcon(":/icons/lock"))
+    );
 }
 

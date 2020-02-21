@@ -22,5 +22,8 @@
         <file alias="saveFolder">icons/folder-saved-search.svg</file>
         <file alias="cancel">icons/cancel.svg</file>
         <file alias="validate">icons/validate.svg</file>
+        <file alias="help-about">icons/help-about.svg</file>
+        <file alias="record">icons/record.svg</file>
+        <file alias="exit">icons/exit.svg</file>
     </qresource>
 </RCC>

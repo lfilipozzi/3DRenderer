@@ -30,6 +30,21 @@ AnimationWindow::AnimationWindow() {
     QAction * toggleGlobFrAction = viewMenu->addAction("Toggle &global frame");
     QAction * toggleTireForceAction = viewMenu->addAction("Toggle &tire forces");
     QAction * aboutAction = helpMenu->addAction("&About");
+    
+    // Set menu and action options
+    fileMenu->insertSeparator(exitAction);
+    toggleGlobFrAction->setCheckable(true);
+    toggleTireForceAction->setCheckable(true);
+    toggleTireForceAction->setChecked(true);
+    recordAction->setIcon(
+        QIcon::fromTheme("record", QIcon(":/icons/record"))
+    );
+    exitAction->setIcon(
+        QIcon::fromTheme("exit", QIcon(":/icons/exit"))
+    );
+    aboutAction->setIcon(
+        QIcon::fromTheme("help-about", QIcon(":/icons/help-about"))
+    );
 
     // Animation window
     unsigned int refreshRate(30);
@@ -53,13 +68,16 @@ AnimationWindow::AnimationWindow() {
     // Create record dialog window
     p_recordDialog = std::make_unique<RecordDialog>(p_openGLWindow.get());
     
-    connect(recordAction, SIGNAL(triggered()), p_recordDialog.get(), SLOT(show()));
-    connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    connect(toggleGlobFrAction, SIGNAL(triggered()), p_openGLWindow.get(),
-        SLOT(toggleGlobalFrame()));
-    connect(toggleTireForceAction, SIGNAL(triggered()), p_openGLWindow.get(), 
-        SLOT(toggleTireForce()));
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(openAboutWindow()));
+    connect(recordAction, SIGNAL(triggered()), 
+            p_recordDialog.get(), SLOT(show()));
+    connect(exitAction, SIGNAL(triggered()), 
+            qApp, SLOT(quit()));
+    connect(toggleGlobFrAction, SIGNAL(triggered()), 
+            p_openGLWindow.get(), SLOT(toggleGlobalFrame()));
+    connect(toggleTireForceAction, SIGNAL(triggered()), 
+            p_openGLWindow.get(), SLOT(toggleTireForce()));
+    connect(aboutAction, SIGNAL(triggered()), 
+            this, SLOT(openAboutWindow()));
 }
 
 
@@ -75,6 +93,7 @@ void AnimationWindow::openAboutWindow() {
         "Dependencies: Assimp, Qt, OpenGL, ffmpeg"
     );
 }
+
 
 /***
  *      _____                        _            
@@ -159,11 +178,14 @@ RecordDialog::~RecordDialog() {
 void RecordDialog::setFileName() {
     // Open browser
     QString fileName = QFileDialog::getSaveFileName(
-        this, tr("Save video"), QDir::currentPath(), tr("Video Files (*.mp4")
+        this, tr("Save Video File"), 
+        QDir::currentPath(), tr("Video Files (*.mp4)")
     );
     
     // Change the filename
-    p_fileNameLineEdit->setText(fileName);
+    if (!fileName.isEmpty()) {
+        p_fileNameLineEdit->setText(fileName);
+    }
 }
 
 

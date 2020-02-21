@@ -28,8 +28,12 @@ VideoRecorder::VideoRecorder(
 
 VideoRecorder::~VideoRecorder() {
     // Close the stream
-    pclose(p_ffmpeg);
-    delete[] p_buffer;
+    #ifdef __linux
+        pclose(p_ffmpeg);
+    #elif _WIN32
+        _pclose(p_ffmpeg);
+    #endif
+    delete[](p_buffer);
 }
 
 void VideoRecorder::recordFrame() {
