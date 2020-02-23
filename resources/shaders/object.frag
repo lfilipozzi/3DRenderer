@@ -32,6 +32,13 @@ in vec3 position_W;
 in vec3 normal_W;
 in float zPosition_P;
 
+in vec3 TangentLightDir;
+in vec3 TangentViewPos;
+in vec3 TangentFragPos;
+in vec3 test;
+
+in mat3 TBN;
+
 out vec4 fragColor;
 
 // Texel size for PCF
@@ -76,10 +83,12 @@ float shadowCalculation(
 // Phong shading model
 vec3 adsModel(vec3 norm) {
     // Calculate light direction
-    vec3 s = normalize(-lightDirection.xyz);
+//     vec3 s = normalize(-lightDirection.xyz);
+    vec3 s = normalize(-TangentLightDir);
 
     // Calculate the vector from the fragment to eye position
-    vec3 v = normalize(-position_V.xyz);
+//     vec3 v = normalize(-position_V.xyz);
+    vec3 v = normalize(-TangentViewPos);
     
     // Compute the halfway vector for the Blinn-Phong lighting model
     vec3 h = normalize(s + v);
@@ -114,5 +123,47 @@ vec3 adsModel(vec3 norm) {
 }
 
 void main() {
-    fragColor = vec4(adsModel(normalize(normal_V)), alpha);
+//     fragColor = vec4(adsModel(normalize(normal_V)), alpha);
+    
+//     vec3 normal = vec3(0.5, 0.5, 1.0); // TODO use texture sampler from normal map
+//     normal = normalize(normal * 2.0 - 1.0);   
+//     normal = normalize(TBN * normal); 
+//     fragColor = vec4(adsModel(normalize(normal)), alpha);
+
+    vec3 normal = vec3(0.5, 0.5, 1.0);
+    normal = normalize(normal * 2.0 - 1.0);
+// vec3 normal = normalize(normal_V);
+    fragColor = vec4(adsModel(normal), alpha);
+
+
+//     fragColor = vec4(normalize(test)-test, 1.0);
+//     fragColor = vec4(test, 1.0);
+
+
+
+// // obtain normal from normal map in range [0,1]
+//     vec3 normal = vec3(0.0, 0.0, 1.0);//texture(normalMap, fs_in.TexCoords).rgb;
+//     // transform normal vector to range [-1,1]
+//     normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+//    
+//     // get diffuse color
+//     //vec3 color = texture(diffuseMap, fs_in.TexCoords).rgb;
+//     vec3 color = lightIntensity * texture(textureSampler, texCoord).rgb;
+//     // ambient
+//     //vec3 ambient = 0.1 * color;
+//     vec3 ambient = Ka * color;
+//     // diffuse
+//     vec3 lightDir = -TangentLightDir;//normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
+//     float diff = max(dot(lightDir, normal), 0.0);
+//     vec3 diffuse = diff * color;
+//     // specular
+//     vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
+//     vec3 reflectDir = reflect(-lightDir, normal);
+//     vec3 halfwayDir = normalize(lightDir + viewDir);  
+//     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+//     vec3 specular = vec3(0.2) * spec;
+// 
+//     fragColor = vec4(ambient + diffuse + specular, 1.0);
+// //     fragColor = vec4(ambient + specular, 1.0);
+// //     fragColor = vec4(-lightDirection.xyz, 1.0);
 }

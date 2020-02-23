@@ -39,19 +39,27 @@ public:
         std::unique_ptr<QVector<float>> vertices,
         std::unique_ptr<QVector<float>> normals,
         std::unique_ptr<QVector<QVector<float>>> textureUV,
-        std::unique_ptr<QVector<unsigned int>> indices
+        std::unique_ptr<QVector<unsigned int>> indices, 
+        std::unique_ptr<QVector<float>> tangents, 
+        std::unique_ptr<QVector<float>> bitangents
     ) : 
-    m_error(!rootNode || !vertices || !normals || !textureUV || !indices),
+    m_error(
+        !rootNode || !vertices || !normals || !textureUV || !indices ||
+        !tangents || !bitangents
+    ),
     m_isInitialized(false),
     p_rootNode(std::move(rootNode)), 
     m_vertexBuffer(QOpenGLBuffer::VertexBuffer), 
     m_normalBuffer(QOpenGLBuffer::VertexBuffer), 
     m_textureUVBuffer(QOpenGLBuffer::VertexBuffer), 
     m_indexBuffer(QOpenGLBuffer::IndexBuffer), 
+    m_tangentBuffer(QOpenGLBuffer::VertexBuffer), 
+    m_bitangentBuffer(QOpenGLBuffer::VertexBuffer), 
     p_objectShader(nullptr), 
     p_shadowShader(nullptr), 
     p_vertices(std::move(vertices)), p_normals(std::move(normals)),
-    p_textureUV(std::move(textureUV)), p_indices(std::move(indices)) {};
+    p_textureUV(std::move(textureUV)), p_indices(std::move(indices)),
+    p_tangents(std::move(tangents)), p_bitangents(std::move(bitangents)) {};
     ~Object() {};
     
     /**
@@ -169,6 +177,16 @@ private:
      * Buffer of indices.
      */
     QOpenGLBuffer m_indexBuffer;
+    
+    /**
+     * Buffer of tangents.
+     */
+    QOpenGLBuffer m_tangentBuffer;
+    
+    /**
+     * Buffer of bitangents.
+     */
+    QOpenGLBuffer m_bitangentBuffer;
 
     /**
      * The shader used to render the scene.
@@ -213,6 +231,18 @@ private:
      * initialization. This pointer is reset after initialization.
      */
     std::unique_ptr<QVector<unsigned int>> p_indices;
+    
+    /**
+     * Pointer to the tangents data used to fill the tangents buffer at 
+     * initialization. This pointer is reset after initialization.
+     */
+    std::unique_ptr<QVector<float>> p_tangents;
+    
+    /**
+     * Pointer to the bitangents data used to fill the bitangents buffer at
+     * initialization. This pointer is reset after initialization.
+     */
+    std::unique_ptr<QVector<float>> p_bitangents;
 };
 
 
@@ -427,6 +457,8 @@ private:
      * @param[out] textureUV The data used to fill the texture coordinates 
      * buffer.
      * @param[out] indices The data used to fill the index buffer.
+     * @param[out] tangents The data used to fill the tangent buffer.
+     * @param[out] bitangents The data used to fill the bitangent buffer.
      * @remark The std::unique_ptr vertices, normals, textureUV, and indices are
      * passed by reference as we don't want to give ownership of the pointer to 
      * the function, but only perform some action to change its content
@@ -437,7 +469,9 @@ private:
             std::unique_ptr<QVector<float>> & vertices,
             std::unique_ptr<QVector<float>> & normals,
             std::unique_ptr<QVector<QVector<float>>> & textureUV,
-            std::unique_ptr<QVector<unsigned int>> & indices
+            std::unique_ptr<QVector<unsigned int>> & indices,
+            std::unique_ptr<QVector<float>> & tangents,
+            std::unique_ptr<QVector<float>> & bitangents
     );
     
     /**
