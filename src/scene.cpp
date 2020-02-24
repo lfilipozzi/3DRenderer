@@ -52,7 +52,7 @@ void Scene::initialize() {
     // Load the surface 
     ABCObject * surface = nullptr;
     Object::FlatSurfaceBuilder surfaceBuilder(
-        6000.0f, 6000.0f, QVector3D(0.0f, 0.0f, 0.0f), 
+        600.0f, 600.0f, QVector3D(0.0f, 0.0f, 0.0f), 
         QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f), 10.0f
     );
     if (surfaceBuilder.build()) {

@@ -508,13 +508,18 @@ std::shared_ptr<const Material> Object::Loader::processMaterial(
         material->Get(AI_MATKEY_OPACITY, alpha);
         
         // Load the texture of the material
-        // TODO: For now only one diffuse texture is supported
-        std::vector<Texture *> textures = loadMaterialTextures(
+        std::vector<Texture *> diffuseTextures = loadMaterialTextures(
             material, Texture::Type::Diffuse, textureDir
         );
-        if (textures.size() == 0)
-            textures.push_back(nullptr);
-        mater = std::make_shared<Material>(name, textures.at(0));
+        if (diffuseTextures.size() == 0)
+            diffuseTextures.push_back(nullptr);
+        std::vector<Texture *> normalTextures = loadMaterialTextures(
+            material, Texture::Type::Normal, textureDir
+        );
+        if (normalTextures.size() == 0)
+            normalTextures.push_back(nullptr);
+        mater = std::make_shared<Material>(
+            name, diffuseTextures.at(0), normalTextures.at(0));
         mater->setAmbientColor(QVector3D(amb.r, amb.g, amb.b));
         mater->setDiffuseColor(QVector3D(dif.r, dif.g, dif.b));
         mater->setSpecularColor(QVector3D(spec.r, spec.g, spec.b));
@@ -825,19 +830,32 @@ bool Object::FlatSurfaceBuilder::build() {
     );
     
     // Set up material the surface material
-    QString path("asset/Texture/RoadMaterials/MyRoad/Road_texture.png");
-    if (!QFile::exists(path))
+//     QString path("asset/Texture/RoadMaterials/MyRoad/Road_texture.png");
+    QString diPath("asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_COLOR.jpg");
+    if (!QFile::exists(diPath))
         qCritical() << __FILE__ << __LINE__ << 
-            "The path" << path 
+            "The path" << diPath 
             << "to the texture file is not valid";
-    QImage image(path);
-    if (image.isNull())
+    QImage diImage(diPath);
+    if (diImage.isNull())
         qCritical() << __FILE__ << __LINE__ << 
             "The image file does not exist.";
+    
+    QString nmPath("asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_NRM.jpg");
+    if (!QFile::exists(nmPath))
+        qCritical() << __FILE__ << __LINE__ << 
+            "The path" << diPath 
+            << "to the texture file is not valid";
+    QImage nmImage(nmPath);
+    if (nmImage.isNull())
+        qCritical() << __FILE__ << __LINE__ << 
+            "The image file does not exist.";
+            
     std::shared_ptr<Material> material;
     material = std::make_shared<Material>(
         "surface", 
-        TextureManager::loadTexture(path, Texture::Type::Diffuse, image)
+        TextureManager::loadTexture(diPath, Texture::Type::Diffuse, diImage),
+        TextureManager::loadTexture(nmPath, Texture::Type::Normal, nmImage)
     );
     material->setAmbientColor(QVector3D(0.5f, 0.5f, 0.5f));
     material->setDiffuseColor(QVector3D(.6f, .6f, .6f));

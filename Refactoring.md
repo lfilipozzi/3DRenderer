@@ -76,9 +76,6 @@ To-do list
  * Instead of sending the cascade information by redefining the prototype of the render function create a public function that is used to set the uniform related to cascade distance. Maybe using something like <? extends class> like in java (https://stackoverflow.com/questions/30687305/c-equivalent-of-using-t-extends-class-for-a-java-parameter-return-type) to avoid defining this function to class that does not need it. Problem: this method is not really similar to the other: it would be the only public method of the class to set some OpenGL uniform. + most object does not require information about CSM to be rendered.
  * Other solution (not preferred option): when rendering, we only information from the scene. Maybe add a field to each object to be render to have access to the scene (add a const Scene *) and use INLINE methods to access whatever we need (light, view, projection, light transform matrices, cascade information...). Problem: does not show as easily what are the information we pass + some circle dependencies when defining headers. Is it a good idea to change the interface? Advantages: This is the only method which uses only parameters it needs (though it has access to all public parameters of the scene)
  
- TODO Set uniform for endCascade in object shader
- TODO create several FBO (one for each cascade)
- 
  Remark: need to use vector for cascade information or to give how many cascades are needed for the shadow program since we need to know how many transformations are needed and the number of transformation is not the same depending if we use the object or shadow shader. No we can still use table and access the number of element from constants.h
  
  Things to improve about CSM:

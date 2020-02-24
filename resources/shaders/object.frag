@@ -13,7 +13,8 @@ uniform float shininess;
 uniform float alpha;
 
 // Texture sampler
-uniform sampler2D textureSampler;
+uniform sampler2D diffuseSampler;
+uniform sampler2D normalSampler;
 uniform sampler2D shadowMap[NUM_CASCADES];
 
 // Far plane distance of each shadow cascade
@@ -118,7 +119,7 @@ vec3 adsModel(vec3 norm) {
     }
 
     // Calculate final color
-    vec3 color = lightIntensity * texture(textureSampler, texCoord).rgb;
+    vec3 color = lightIntensity * texture(diffuseSampler, texCoord).rgb;
     #ifdef CSM_DEBUG
         color[shadowDebug] = 1;
     #endif
@@ -134,7 +135,7 @@ vec3 adsModel(vec3 norm) {
 
 
 void main() {
-    vec3 normal = vec3(0.5, 0.5, 1.0);
+    vec3 normal = texture(normalSampler, texCoord).rgb;
     normal = normalize(normal * 2.0 - 1.0);
     fragColor = vec4(adsModel(normal), alpha);
 }

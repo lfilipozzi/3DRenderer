@@ -15,8 +15,13 @@ public:
     /**
      * @brief Constructor of the material.
      * @remark If the texture is not provided, a default texture is set.
+     * @param name The name of the material.
+     * @param diffuse The diffuse texture.
+     * @param normal The normal texture.
      */
-    Material(QString name, Texture * texture = nullptr);
+    Material(
+        QString name, Texture * diffuse = nullptr, Texture * normal = nullptr
+    );
     ~Material() {};
     
     void setAmbientColor(QVector3D color) {m_ambient = color;};
@@ -24,7 +29,8 @@ public:
     void setSpecularColor(QVector3D color) {m_specular = color;};
     void setShininess(float shininess) {m_shininess = shininess;};
     void setAlpha(float alpha) {m_alpha = alpha;};
-    void setTexture(Texture * texture);
+    void setDiffuseTexture(Texture * diffuse);
+    void setNormalTexture(Texture * normal);
     
     QString getName() const {return m_name;};
     QVector3D getAmbientColor() const {return m_ambient;};
@@ -32,7 +38,8 @@ public:
     QVector3D getSpecularColor() const {return m_specular;};
     float getShininess() const {return m_shininess;};
     float getAlpha() const {return m_alpha;};
-    Texture * getTexture() const {return m_texture;};
+    Texture * getDiffuseTexture() const {return m_diffuseTexture;};
+    Texture * getNormalTexture() const {return m_normalTexture;};
     
 private:
     /**
@@ -47,7 +54,8 @@ private:
     QVector3D m_specular;
     float m_shininess;
     float m_alpha;
-    Texture * m_texture;
+    Texture * m_diffuseTexture;
+    Texture * m_normalTexture;
 };
 
 #endif // MATERIAL_H

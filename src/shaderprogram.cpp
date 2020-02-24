@@ -56,9 +56,12 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
     setUniformValue("alpha", material.getAlpha());
     
     // Apply the texture
-    if (material.getTexture() != nullptr)
-        material.getTexture()->bind(COLOR_TEXTURE_UNIT);
-    setUniformValue("textureSampler", COLOR_TEXTURE_UNIT);
+    if (material.getDiffuseTexture() != nullptr)
+        material.getDiffuseTexture()->bind(COLOR_TEXTURE_UNIT);
+    if (material.getNormalTexture() != nullptr)
+        material.getNormalTexture()->bind(NORMAL_TEXTURE_UNIT);
+    setUniformValue("diffuseSampler", COLOR_TEXTURE_UNIT);
+    setUniformValue("normalSampler",  NORMAL_TEXTURE_UNIT);
     for (unsigned int i = 0; i < NUM_CASCADES; i++) {
         char name[128] = {0};
         snprintf(name, sizeof(name), "shadowMap[%d]", i);
