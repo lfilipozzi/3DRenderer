@@ -535,6 +535,24 @@ public:
     
 private:
     /**
+     * @brief Compute the tangents and bitangents from the vertices and texture
+     * coordinates.
+     * @param[in] vertices The vertex data.
+     * @param[in] textureUV The texture coordinate data.
+     * @param[in] indices The index data.
+     * @param[out] tangents The tangent data.
+     * @param[out] bitangents The bitangent data.
+     */
+    void getTangentsAndBitangents(
+        const std::unique_ptr<QVector<float>> & vertices, 
+        const std::unique_ptr<QVector<QVector<float>>> & textureUV,
+        const std::unique_ptr<QVector<unsigned int>> & indices, 
+        std::unique_ptr<QVector<float>> & tangents,
+        std::unique_ptr<QVector<float>> & bitangents
+    );
+    
+private:
+    /**
      * Define the size of the texture pattern.
      */
     float m_textureSize;

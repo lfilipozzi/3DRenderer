@@ -1,7 +1,5 @@
 #include "../include/object.h"
 
-#include <iostream>
-
 /***
  *       ____   _      _              _   
  *      / __ \ | |    (_)            | |  
@@ -102,12 +100,6 @@ void Object::createBuffers() {
         &(*p_bitangents)[0],
         p_bitangents->size() * sizeof(float)
     );
-    
-//     for (int i = 0; i < p_tangents->size()/3; i++) {
-//     QVector3D tangent = QVector3D(p_tangents->at(3*i),p_tangents->at(3*i+1),p_tangents->at(3*i+2));
-//     QVector3D bitangent = QVector3D(p_bitangents->at(3*i),p_bitangents->at(3*i+1),p_bitangents->at(3*i+2));
-//     std::cout << "Tangent:   x=" << tangent.x() << ", y=" << tangent.y() << ", z=" << tangent.z() << std::endl << "Bitangent: x=" << bitangent.x() <<", y=" << bitangent.y() << ", z=" << bitangent.z() << std::endl;
-//     }
     
     // Free the buffer data
     p_vertices.reset();
@@ -682,32 +674,12 @@ std::shared_ptr<const Object::Mesh> Object::Loader::processMesh(
     }
     unsigned int count = static_cast<unsigned int>(indices->size()) - offset;
     
-    // Retrieve tangents and bitangenst
+    // Retrieve tangents and bitangents
     if (mesh->HasTangentsAndBitangents()) {
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
             // Check orientation
             aiVector3D & tan   = mesh->mTangents[i];
             aiVector3D & bitan = mesh->mBitangents[i];
-            aiVector3D & nor   = mesh->mNormals[i];
-            QVector3D qT(tan.x, tan.y, tan.z);
-            QVector3D qB(bitan.x, bitan.y, bitan.z);
-            QVector3D qN(nor.x, nor.y, nor.z);
-            if (QVector3D::dotProduct(qN, QVector3D::crossProduct(qT, qB)) < 0) {
-                //std::cout << "ASSIMP ERROR: Change direction" << std::endl;
-//                 aiVector3D tmp = tan;
-//                 tan   = bitan;
-//                 bitan = tmp;
-                //tan = -tan;
-//                 bitan = -bitan;
-//                 qT = QVector3D(tan.x, tan.y, tan.z);
-//                 if (QVector3D::dotProduct(qN, QVector3D::crossProduct(qT, qB)) < 0) {
-//                     std::cout << "ERROR" << std::endl;
-//                 }
-            }
-//             else {
-//                 std::cout << "ASSIMP TBN direction OK" << std::endl;
-//             }
-            
             tangents->push_back(tan.x);
             tangents->push_back(tan.y);
             tangents->push_back(tan.z);
@@ -804,6 +776,8 @@ bool Object::FlatSurfaceBuilder::build() {
     std::unique_ptr<QVector<float>> normals;
     std::unique_ptr<QVector<QVector<float>>> textureUV;
     std::unique_ptr<QVector<unsigned int>> indices;
+    std::unique_ptr<QVector<float>> tangents;
+    std::unique_ptr<QVector<float>> bitangents;
     vertices   = std::make_unique<QVector<float>>();
     normals    = std::make_unique<QVector<float>>();
     textureUV  = std::make_unique<QVector<QVector<float>>>();
@@ -843,108 +817,12 @@ bool Object::FlatSurfaceBuilder::build() {
         }));
     }
     indices->append(QVector<unsigned int>({0, 1, 2})); // RL, RR, and FL
-    indices->append(QVector<unsigned int>({2, 1, 3}));//2, 1, 3 // FL, RR, and FR
+    indices->append(QVector<unsigned int>({2, 1, 3})); // FL, RR, and FR
     unsigned int count = static_cast<unsigned int>(indices->size());
     // Fill tangent and bitangent buffer data
-    unsigned int numTriangles = indices->size() / 3;
-    unsigned int numVertices = vertices->size() / 3;
-    std::unique_ptr<QVector<float>> tangents;
-    std::unique_ptr<QVector<float>> bitangents;
-    tangents   = std::make_unique<QVector<float>>(3 * numVertices);
-    bitangents = std::make_unique<QVector<float>>(3 * numVertices);
-    for (unsigned int i = 0; i < numTriangles; i++) {
-        // Indices of the triangle vertices
-        unsigned int i0 = indices->at(3*i);
-        unsigned int i1 = indices->at(3*i+1);
-        unsigned int i2 = indices->at(3*i+2);
-        std::cout << "i0=" << i0 << ", i1=" << i1 << ", i2=" << i2 << std::endl;
-        // Position of the triangle vertices
-        QVector<float> pos0 = vertices->mid(3*i0,3);
-        QVector<float> pos1 = vertices->mid(3*i1,3);
-        QVector<float> pos2 = vertices->mid(3*i2,3);
-        // Texture coordinates of the triangle vertices
-        QVector<float> tex0 = textureUV->at(0).mid(2*i0,2);
-        QVector<float> tex1 = textureUV->at(0).mid(2*i1,2);
-        QVector<float> tex2 = textureUV->at(0).mid(2*i2,2);
-        // Compute edges
-        QVector3D edge1 = QVector3D(
-            pos1[0] - pos0[0], pos1[1] - pos0[1], pos1[2] - pos0[2]
-        );
-        QVector3D edge2 = QVector3D(
-            pos2[0] - pos0[0], pos2[1] - pos0[1], pos2[2] - pos0[2]
-        );
-        QVector2D uv1 = QVector2D(tex1[0] - tex0[0], tex1[1] - tex0[1]);
-        QVector2D uv2 = QVector2D(tex2[0] - tex0[0], tex2[1] - tex0[1]);
-        // Compute the tangent and bitangent of the triangle
-        float r = 1.0f / (uv1.x() * uv2.y() - uv2.x() * uv1.y());
-        QVector3D tangent = r * QVector3D(
-            edge1.x() * uv2.y() - edge2.x() * uv1.y(),
-            edge1.y() * uv2.y() - edge2.y() * uv1.y(),
-            edge1.z() * uv2.y() - edge2.z() * uv1.y()
-        );
-//         std::cout << "Tangent: x=" << tangent.x() << ", y=" << tangent.y() << ", z=" << tangent.z() << std::endl;
-        tangent.normalize();
-//         tangent = -tangent;
-//         std::cout << "Tangent: x=" << tangent.x() << ", y=" << tangent.y() << ", z=" << tangent.z() << std::endl;
-        QVector3D bitangent = r * QVector3D(
-            -edge1.x() * uv2.x() + edge2.x() * uv1.x(),
-            -edge1.y() * uv2.x() + edge2.y() * uv1.x(),
-            -edge1.z() * uv2.x() + edge2.z() * uv1.x()
-        );
-        bitangent.normalize();
-//         QVector3D tmp = tangent;
-//         tangent = bitangent;
-//         bitangent = tmp;
-        // 
-        //
-        // Make sure (T,B,N) is positively oriented
-        QVector3D normal(normals->at(3*i0), normals->at(3*i0+1), normals->at(3*i0+2));
-        if (QVector3D::dotProduct(normal, QVector3D::crossProduct(tangent, bitangent)) < 0) {
-            std::cout << "Change direction" << std::endl;
-//             tangent = -tangent;
-//             QVector3D tmp = tangent;
-//             tangent = bitangent;
-//             bitangent = tmp;
-        }
-        //
-        //
-        // Add tangent and bitangent to the buffer data
-        tangents->insert(3*i0,   tangent.x());
-        tangents->insert(3*i0+1, tangent.y());
-        tangents->insert(3*i0+2, tangent.z());
-        tangents->insert(3*i1,   tangent.x());
-        tangents->insert(3*i1+1, tangent.y());
-        tangents->insert(3*i1+2, tangent.z());
-        tangents->insert(3*i2,   tangent.x());
-        tangents->insert(3*i2+1, tangent.y());
-        tangents->insert(3*i2+2, tangent.z());
-        bitangents->insert(3*i0,   bitangent.x());
-        bitangents->insert(3*i0+1, bitangent.y());
-        bitangents->insert(3*i0+2, bitangent.z());
-        bitangents->insert(3*i1,   bitangent.x());
-        bitangents->insert(3*i1+1, bitangent.y());
-        bitangents->insert(3*i1+2, bitangent.z());
-        bitangents->insert(3*i2,   bitangent.x());
-        bitangents->insert(3*i2+1, bitangent.y());
-        bitangents->insert(3*i2+2, bitangent.z());
-        std::cout << "Tangent:   x=" << tangent.x() << ", y=" << tangent.y() << ", z=" << tangent.z() << std::endl << "Bitangent: x=" << bitangent.x() <<", y=" << bitangent.y() << ", z=" << bitangent.z() << std::endl;
-    }
-//     for (size_t i = 0; i < numVertices; i++) {
-//         Vec3f n = vertices[i].normal;
-//         Vec3f t0 = tanA[i];
-//         Vec3f t1 = tanB[i];
-// 
-//         Vec3f t = t0 - (n * dot(n, t0));
-//         t = normalize(t);
-//         
-//         Vec3f c = cross(c, n, t0);
-//         float w = (dot(c, t1) < 0) ? -1.0f : 1.0f;
-//         vertices[i].tangent = Vec4f(t.x, t.y, t.z, w));
-//     }
-    std::cout << "-------------------" << std::endl;
-    for (int i = 0; i < numVertices; i++) {
-        std::cout << "Tangent:   x=" << tangents->at(3*i) << ", y=" << tangents->at(3*i+1) << ", z=" << tangents->at(3*i+2) << std::endl << "Bitangent: x=" << bitangents->at(3*i) <<", y=" << bitangents->at(3*i+1) << ", z=" << bitangents->at(3*i+2) << std::endl;
-    }
+    getTangentsAndBitangents(
+        vertices, textureUV, indices, tangents, bitangents
+    );
     
     // Set up material the surface material
     QString path("asset/Texture/RoadMaterials/MyRoad/Road_texture.png");
@@ -988,6 +866,76 @@ bool Object::FlatSurfaceBuilder::build() {
     );
     
     return true;
+}
+
+
+void Object::FlatSurfaceBuilder::getTangentsAndBitangents(
+    const std::unique_ptr<QVector<float>> & vertices, 
+    const std::unique_ptr<QVector<QVector<float>>> & textureUV,
+    const std::unique_ptr<QVector<unsigned int>> & indices, 
+    std::unique_ptr<QVector<float>> & tangents,
+    std::unique_ptr<QVector<float>> & bitangents
+) {
+    unsigned int numTriangles = indices->size() / 3;
+    unsigned int numVertices = vertices->size() / 3;
+    tangents   = std::make_unique<QVector<float>>(3 * numVertices);
+    bitangents = std::make_unique<QVector<float>>(3 * numVertices);
+    for (unsigned int i = 0; i < numTriangles; i++) {
+        // Indices of the triangle vertices
+        unsigned int i0 = indices->at(3*i);
+        unsigned int i1 = indices->at(3*i+1);
+        unsigned int i2 = indices->at(3*i+2);
+        // Position of the triangle vertices
+        QVector<float> pos0 = vertices->mid(3*i0,3);
+        QVector<float> pos1 = vertices->mid(3*i1,3);
+        QVector<float> pos2 = vertices->mid(3*i2,3);
+        // Texture coordinates of the triangle vertices
+        QVector<float> tex0 = textureUV->at(0).mid(2*i0,2);
+        QVector<float> tex1 = textureUV->at(0).mid(2*i1,2);
+        QVector<float> tex2 = textureUV->at(0).mid(2*i2,2);
+        // Compute edges
+        QVector3D edge1 = QVector3D(
+            pos1[0] - pos0[0], pos1[1] - pos0[1], pos1[2] - pos0[2]
+        );
+        QVector3D edge2 = QVector3D(
+            pos2[0] - pos0[0], pos2[1] - pos0[1], pos2[2] - pos0[2]
+        );
+        QVector2D uv1 = QVector2D(tex1[0] - tex0[0], tex1[1] - tex0[1]);
+        QVector2D uv2 = QVector2D(tex2[0] - tex0[0], tex2[1] - tex0[1]);
+        // Compute the tangent and bitangent of the triangle
+        float r = 1.0f / (uv1.x() * uv2.y() - uv2.x() * uv1.y());
+        QVector3D tangent = r * QVector3D(
+            edge1.x() * uv2.y() - edge2.x() * uv1.y(),
+            edge1.y() * uv2.y() - edge2.y() * uv1.y(),
+            edge1.z() * uv2.y() - edge2.z() * uv1.y()
+        );
+        tangent.normalize();
+        QVector3D bitangent = r * QVector3D(
+            -edge1.x() * uv2.x() + edge2.x() * uv1.x(),
+            -edge1.y() * uv2.x() + edge2.y() * uv1.x(),
+            -edge1.z() * uv2.x() + edge2.z() * uv1.x()
+        );
+        bitangent.normalize();
+        // Add tangent and bitangent to the buffer data
+        tangents->insert(3*i0,   tangent.x());
+        tangents->insert(3*i0+1, tangent.y());
+        tangents->insert(3*i0+2, tangent.z());
+        tangents->insert(3*i1,   tangent.x());
+        tangents->insert(3*i1+1, tangent.y());
+        tangents->insert(3*i1+2, tangent.z());
+        tangents->insert(3*i2,   tangent.x());
+        tangents->insert(3*i2+1, tangent.y());
+        tangents->insert(3*i2+2, tangent.z());
+        bitangents->insert(3*i0,   bitangent.x());
+        bitangents->insert(3*i0+1, bitangent.y());
+        bitangents->insert(3*i0+2, bitangent.z());
+        bitangents->insert(3*i1,   bitangent.x());
+        bitangents->insert(3*i1+1, bitangent.y());
+        bitangents->insert(3*i1+2, bitangent.z());
+        bitangents->insert(3*i2,   bitangent.x());
+        bitangents->insert(3*i2+1, bitangent.y());
+        bitangents->insert(3*i2+2, bitangent.z());
+    }
 }
 
 
