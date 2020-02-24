@@ -3,7 +3,6 @@
 const int NUM_CASCADES = 3;     // Number of cascaded shadows
 
 // Light information
-uniform vec4 lightDirection;
 uniform vec3 lightIntensity;
 
 // Material information
@@ -13,11 +12,7 @@ uniform vec3 Ks;
 uniform float shininess;
 uniform float alpha;
 
-// Camera information
-uniform vec3 cameraPosition;
-
 // Texture sampler
-uniform samplerCube skybox;
 uniform sampler2D textureSampler;
 uniform sampler2D shadowMap[NUM_CASCADES];
 
@@ -25,16 +20,14 @@ uniform sampler2D shadowMap[NUM_CASCADES];
 uniform float endCascade[NUM_CASCADES];
 
 in vec2 texCoord;
-in vec3 normal_V;
-in vec3 position_V;
-in vec4 position_lP[NUM_CASCADES];
-in vec3 position_W;
-in vec3 normal_W;
-in float zPosition_P;
 
-// in vec3 TangentLightDir;
-// in vec3 TangentViewPos;
-// in vec3 TangentFragPos;
+in Proj {
+    highp float z;
+} proj;
+
+in LightProj {
+    highp vec4 position[NUM_CASCADES];
+} lightProj;
 
 in Tangent {
     highp vec3 lightDir;
@@ -47,6 +40,8 @@ out vec4 fragColor;
 #define PCF_TEXELSIZE_FILTER 2
 // Show the area for each shadow map
 // #define CSM_DEBUG
+
+
 
 // Check if fragment is in shadow or not and return shadow coefficient
 float shadowCalculation(
@@ -68,8 +63,9 @@ float shadowCalculation(
     {
         for(int y = -PCF_TEXELSIZE_FILTER; y <= PCF_TEXELSIZE_FILTER; ++y)
         {
-            float pcfDepth = texture(shadowMap[cascadeIndex], projCoords.xy + vec2(x, y) 
-                * texelSize).r; 
+            float pcfDepth = texture(
+                shadowMap[cascadeIndex], projCoords.xy + vec2(x, y) * texelSize
+            ).r; 
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
         }    
     }
@@ -84,14 +80,17 @@ float shadowCalculation(
     return shadow;
 }
 
-// Phong shading model
+
+
+/**
+ * Compute the fragment color using Phong shading model. Computation are made
+ * in the tangent space.
+ */
 vec3 adsModel(vec3 norm) {
     // Calculate light direction
-//     vec3 s = normalize(-TangentLightDir);
     vec3 s = normalize(-tangent.lightDir);
 
     // Calculate the vector from the fragment to eye position
-//     vec3 v = normalize(-TangentViewPos);
     vec3 v = normalize(-tangent.viewPos);
     
     // Compute the halfway vector for the Blinn-Phong lighting model
@@ -109,8 +108,8 @@ vec3 adsModel(vec3 norm) {
         int shadowDebug;
     #endif
     for (int i = 0; i < NUM_CASCADES; i++) {
-        if (zPosition_P <= -endCascade[i]) { 
-            shadow = shadowCalculation(i, position_lP[i], norm, s); 
+        if (proj.z <= -endCascade[i]) {
+            shadow = shadowCalculation(i, lightProj.position[i], norm, s); 
             #ifdef CSM_DEBUG
                 shadowDebug = i;
             #endif
@@ -124,13 +123,15 @@ vec3 adsModel(vec3 norm) {
         color[shadowDebug] = 1;
     #endif
     return color * (
-            Ka +                    // Ambient
-            (1.0 - shadow) * (
-                Kd * diffuse +      // Diffuse
-                Ks * specular       // Specular
-                )
-        );
+        Ka +                    // Ambient
+        (1.0 - shadow) * (
+            Kd * diffuse +      // Diffuse
+            Ks * specular       // Specular
+        )
+    );
 }
+
+
 
 void main() {
     vec3 normal = vec3(0.5, 0.5, 1.0);

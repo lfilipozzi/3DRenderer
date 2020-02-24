@@ -64,7 +64,6 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
         snprintf(name, sizeof(name), "shadowMap[%d]", i);
         setUniformValue(name, SHADOW_TEXTURE_UNITS[i]);
     }
-    setUniformValue("skybox", SKYBOX_TEXTURE_UNIT);
 }
 
 
@@ -102,10 +101,6 @@ void ObjectShader::setMatrixUniforms(
         QMatrix4x4 lMVP = lVP[i] * M;
         glFunctions->glUniformMatrix4fv(location, 1, GL_FALSE, lMVP.constData());
     }
-    
-    // Set camera position
-    QVector3D cameraPosition(V.inverted().column(3));
-    setUniformValue("cameraPosition", cameraPosition);
 }
 
 
