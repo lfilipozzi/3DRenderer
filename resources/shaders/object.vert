@@ -32,22 +32,23 @@ out LightProj {
 
 out Tangent {
     highp vec3 lightDir;
-    highp vec3 viewPos;
+    highp vec3 fragPos;
 } tangent;
 
 
 
 void main(void) {    
-    // Transform to viewSpace
-    view.position = vec3(MV * highp vec4(vertexPosition, 1.0));
-    
-    // Transform to light coordinates (for shadow mapping)
-    for (int i = 0; i < NUM_CASCADES; i++)
-        lightProj.position[i] = lMVP[i] * highp vec4(vertexPosition, 1.0);
-    
     // Pass texture coordinates to the fragment shader
     texCoord = texCoord2D;
     
+    // Transform to the vertex position to view space
+    view.position = vec3(MV * highp vec4(vertexPosition, 1.0));
+    
+    // Transform to light space (for shadow mapping)
+    for (int i = 0; i < NUM_CASCADES; i++)
+        lightProj.position[i] = lMVP[i] * highp vec4(vertexPosition, 1.0);
+    
+    // Transform the vertex position to clip space
     gl_Position = MVP * highp vec4(vertexPosition, 1.0);
     
     // Give the z-coordinate in the clip space for cascaded shadow mapping
@@ -60,8 +61,9 @@ void main(void) {
     vec3 Bvec = cross(Nvec,Tvec);
     mat3 TBN = transpose(mat3(Tvec, Bvec, Nvec));
     
-    tangent.lightDir = TBN * lightDirection.xyz;
-    tangent.viewPos  = TBN * view.position.xyz;
+    // Transform from view space to tangent space
+    tangent.lightDir  = TBN * lightDirection.xyz;
+    tangent.fragPos   = TBN * view.position.xyz;
 }
 
 

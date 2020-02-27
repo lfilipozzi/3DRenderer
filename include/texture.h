@@ -14,7 +14,7 @@
 class Texture : public QOpenGLTexture {
 public:
     enum Type {
-        Diffuse, Reflection, Normal, Displacement, Cubemap
+        Diffuse, Reflection, Normal, Bump, Cubemap
     };
     
     Texture(Type type, QImage & image, 

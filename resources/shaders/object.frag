@@ -15,10 +15,14 @@ uniform float alpha;
 // Texture sampler
 uniform sampler2D diffuseSampler;
 uniform sampler2D normalSampler;
+uniform sampler2D depthSampler;
 uniform sampler2D shadowMap[NUM_CASCADES];
 
 // Far plane distance of each shadow cascade
 uniform float endCascade[NUM_CASCADES];
+
+// Amplitude of parallax effect in bump mapping
+uniform float heightScale;
 
 in vec2 texCoord;
 
@@ -32,7 +36,7 @@ in LightProj {
 
 in Tangent {
     highp vec3 lightDir;
-    highp vec3 viewPos;
+    highp vec3 fragPos;
 } tangent;
 
 out vec4 fragColor;
@@ -84,24 +88,74 @@ float shadowCalculation(
 
 
 /**
- * Compute the fragment color using Phong shading model. Computation are made
- * in the tangent space.
+ * Compute the displaced texture coordinates for bump mapping.
  */
-vec3 adsModel(vec3 norm) {
+vec2 parallaxMapping(vec2 texCoords, vec3 viewDir) { 
+    // Number of depth layers
+    const float minLayers = 8.0;
+    const float maxLayers = 32.0;
+    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    // Calculate the size of each layer
+    float layerDepth = 1.0 / numLayers;
+    // Depth of current layer
+    float currentLayerDepth = 0.0;
+    // The amount to shift the texture coordinates per layer (from vector P)
+    vec2 P = viewDir.xy * heightScale; 
+    vec2 deltaTexCoords = P / numLayers;
+    // Get initial values
+    vec2  currentTexCoords     = texCoords;
+    float currentDepthMapValue = texture(depthSampler, currentTexCoords).r;
+    
+    while(currentLayerDepth < currentDepthMapValue)
+    {
+        // Shift texture coordinates along direction of P
+        currentTexCoords -= deltaTexCoords;
+        // Get depthmap value at current texture coordinates
+        currentDepthMapValue = texture(depthSampler, currentTexCoords).r;  
+        // Get depth of next layer
+        currentLayerDepth += layerDepth;  
+    }
+    
+    // Get texture coordinates before collision (reverse operations)
+    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+    // Get depth after and before collision for linear interpolation
+    float afterDepth  = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = 
+        texture(depthSampler, prevTexCoords).r 
+        - currentLayerDepth + layerDepth;
+    
+    // Interpolation of texture coordinates
+    float weight = afterDepth / (afterDepth - beforeDepth);
+    vec2 finalTexCoords = mix(currentTexCoords, prevTexCoords, weight);
+
+    return finalTexCoords;
+}
+
+
+
+void main() {
     // Calculate light direction
     vec3 s = normalize(-tangent.lightDir);
 
-    // Calculate the vector from the fragment to eye position
-    vec3 v = normalize(-tangent.viewPos);
+    // Calculate the vector from the fragment to eye position (view direction)
+    vec3 v = normalize(-tangent.fragPos);
     
     // Compute the halfway vector for the Blinn-Phong lighting model
     vec3 h = normalize(s + v);
     
+    // Offset texture coordinates with bump mapping
+    vec2 texCoordOffset = parallaxMapping(texCoord, v);
+    
+    vec3 normal = texture(normalSampler, texCoordOffset).rgb;
+    normal = normalize(normal * 2.0 - 1.0);
+    //normal = vec3(0.0, 0.0, 1.0);
+    
     // Calculate the diffuse contribution
-    vec3 diffuse = vec3(max(dot(s, norm), 0.0));
+    vec3 diffuse = vec3(max(dot(s, normal), 0.0));
 
     // Calculate specular contribution (Blinn-Phong model)
-    vec3 specular = vec3(pow(max(dot(norm, h), 0.0), shininess));
+    vec3 specular = vec3(pow(max(dot(normal, h), 0.0), shininess));
     
     // Compute shadow
     float shadow;
@@ -110,7 +164,7 @@ vec3 adsModel(vec3 norm) {
     #endif
     for (int i = 0; i < NUM_CASCADES; i++) {
         if (proj.z <= -endCascade[i]) {
-            shadow = shadowCalculation(i, lightProj.position[i], norm, s); 
+            shadow = shadowCalculation(i, lightProj.position[i], normal, s); 
             #ifdef CSM_DEBUG
                 shadowDebug = i;
             #endif
@@ -119,23 +173,18 @@ vec3 adsModel(vec3 norm) {
     }
 
     // Calculate final color
-    vec3 color = lightIntensity * texture(diffuseSampler, texCoord).rgb;
+    vec3 color = lightIntensity * texture(diffuseSampler, texCoordOffset).rgb;
     #ifdef CSM_DEBUG
-        color[shadowDebug] = 1;
+        color[shadowDebug] = 1.0;
     #endif
-    return color * (
+    color = color * (
         Ka +                    // Ambient
         (1.0 - shadow) * (
             Kd * diffuse +      // Diffuse
             Ks * specular       // Specular
         )
     );
-}
-
-
-
-void main() {
-    vec3 normal = texture(normalSampler, texCoord).rgb;
-    normal = normalize(normal * 2.0 - 1.0);
-    fragColor = vec4(adsModel(normal), alpha);
+    
+    // Return the fragment color
+    fragColor = vec4(color, alpha);
 }

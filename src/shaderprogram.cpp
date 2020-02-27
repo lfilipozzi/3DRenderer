@@ -54,14 +54,18 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
     setUniformValue("Ks", material.getSpecularColor());
     setUniformValue("shininess", material.getShininess());
     setUniformValue("alpha", material.getAlpha());
+    setUniformValue("heightScale", material.getHeightScale());
     
     // Apply the texture
     if (material.getDiffuseTexture() != nullptr)
         material.getDiffuseTexture()->bind(COLOR_TEXTURE_UNIT);
     if (material.getNormalTexture() != nullptr)
         material.getNormalTexture()->bind(NORMAL_TEXTURE_UNIT);
+    if (material.getBumpTexture() != nullptr)    // TODO uncomment to apply bump mapping
+        material.getBumpTexture()->bind(BUMP_TEXTURE_UNIT);
     setUniformValue("diffuseSampler", COLOR_TEXTURE_UNIT);
     setUniformValue("normalSampler",  NORMAL_TEXTURE_UNIT);
+    setUniformValue("depthSampler",   BUMP_TEXTURE_UNIT);
     for (unsigned int i = 0; i < NUM_CASCADES; i++) {
         char name[128] = {0};
         snprintf(name, sizeof(name), "shadowMap[%d]", i);
@@ -83,6 +87,12 @@ void ObjectShader::setMatrixUniforms(
     setUniformValue("MV", MV);
     setUniformValue("MVP", MVP);
     setUniformValue("N", N);
+    
+    // Set camera position uniform
+    QVector3D cameraPosition(V.inverted().column(3));
+    setUniformValue("cameraPosition", 
+        QVector3D(V*QVector4D(cameraPosition))
+    );
     
     // Set light transform uniform for shadow mapping for all cascades
     QOpenGLContext * context = QOpenGLContext::currentContext();

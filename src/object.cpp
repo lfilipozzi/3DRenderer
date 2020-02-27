@@ -547,7 +547,7 @@ std::vector<Texture *> Object::Loader::loadMaterialTextures(
         case Texture::Type::Normal:
             aiType = aiTextureType::aiTextureType_NORMALS;
             break;
-        case Texture::Type::Displacement:
+        case Texture::Type::Bump:
             aiType = aiTextureType::aiTextureType_DISPLACEMENT;
             break;
         default:
@@ -844,10 +844,20 @@ bool Object::FlatSurfaceBuilder::build() {
     QString nmPath("asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_NRM.jpg");
     if (!QFile::exists(nmPath))
         qCritical() << __FILE__ << __LINE__ << 
-            "The path" << diPath 
+            "The path" << nmPath 
             << "to the texture file is not valid";
     QImage nmImage(nmPath);
     if (nmImage.isNull())
+        qCritical() << __FILE__ << __LINE__ << 
+            "The image file does not exist.";
+            
+    QString buPath("asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_DISP.png");
+    if (!QFile::exists(buPath))
+        qCritical() << __FILE__ << __LINE__ << 
+            "The path" << buPath 
+            << "to the texture file is not valid";
+    QImage buImage(buPath);
+    if (buImage.isNull())
         qCritical() << __FILE__ << __LINE__ << 
             "The image file does not exist.";
             
@@ -855,13 +865,15 @@ bool Object::FlatSurfaceBuilder::build() {
     material = std::make_shared<Material>(
         "surface", 
         TextureManager::loadTexture(diPath, Texture::Type::Diffuse, diImage),
-        TextureManager::loadTexture(nmPath, Texture::Type::Normal, nmImage)
+        TextureManager::loadTexture(nmPath, Texture::Type::Normal, nmImage),
+        TextureManager::loadTexture(buPath, Texture::Type::Bump, buImage)
     );
     material->setAmbientColor(QVector3D(0.5f, 0.5f, 0.5f));
     material->setDiffuseColor(QVector3D(.6f, .6f, .6f));
     material->setSpecularColor(QVector3D(.2f, .2f, .2f));
     material->setShininess(50.0f);
     material->setAlpha(1.0f);
+    material->setHeightScale(0.1f);
     
     // Build the mesh
     std::vector<std::shared_ptr<const Mesh>> meshes;
