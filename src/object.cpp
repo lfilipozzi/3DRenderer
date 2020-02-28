@@ -830,7 +830,6 @@ bool Object::FlatSurfaceBuilder::build() {
     );
     
     // Set up material the surface material
-//     QString path("asset/Texture/RoadMaterials/MyRoad/Road_texture.png");
     QString diPath("asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_COLOR.jpg");
     if (!QFile::exists(diPath))
         qCritical() << __FILE__ << __LINE__ << 
@@ -850,7 +849,7 @@ bool Object::FlatSurfaceBuilder::build() {
     if (nmImage.isNull())
         qCritical() << __FILE__ << __LINE__ << 
             "The image file does not exist.";
-            
+    
     QString buPath("asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_DISP.png");
     if (!QFile::exists(buPath))
         qCritical() << __FILE__ << __LINE__ << 

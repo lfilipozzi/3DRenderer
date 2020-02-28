@@ -61,7 +61,7 @@ void ObjectShader::setMaterialUniforms(const Material & material) {
         material.getDiffuseTexture()->bind(COLOR_TEXTURE_UNIT);
     if (material.getNormalTexture() != nullptr)
         material.getNormalTexture()->bind(NORMAL_TEXTURE_UNIT);
-    if (material.getBumpTexture() != nullptr)    // TODO uncomment to apply bump mapping
+    if (material.getBumpTexture() != nullptr)
         material.getBumpTexture()->bind(BUMP_TEXTURE_UNIT);
     setUniformValue("diffuseSampler", COLOR_TEXTURE_UNIT);
     setUniformValue("normalSampler",  NORMAL_TEXTURE_UNIT);
