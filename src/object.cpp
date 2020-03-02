@@ -379,6 +379,7 @@ void Object::Mesh::drawMesh(ObjectShader * objectShader) const {
  */
 
 #include <QFile>
+#include <QDir>
 
 std::unique_ptr<Object> Object::Loader::getObject() {
     return move(p_object);
@@ -388,10 +389,13 @@ std::unique_ptr<Object> Object::Loader::getObject() {
 bool Object::Loader::build() {
     // Check the file exists
     if (!QFile::exists(m_filePath)) {
-            qDebug() << __FILE__ << __LINE__
-                << "The path" << m_filePath 
-                << "to the model is not valid.";
-            return false;
+        qDebug() << __FILE__ << __LINE__
+            << "The path" << m_filePath << "to the model is not valid.";
+        return false;
+    }
+    if (!QDir(m_textureDir).exists()) {
+        qDebug() << __FILE__ << __LINE__
+            << "The directory" << m_textureDir << "does not exist.";
     }
     
     // Load the model with Assimp

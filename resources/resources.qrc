@@ -26,4 +26,7 @@
         <file alias="record">icons/record.svg</file>
         <file alias="exit">icons/exit.svg</file>
     </qresource>
+    <qresource prefix="/xml">
+        <file alias="defaultWorld">xml/defaultWorld.xml</file>
+    </qresource>
 </RCC>

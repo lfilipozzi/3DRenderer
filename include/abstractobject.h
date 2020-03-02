@@ -82,7 +82,7 @@ public:
     );
     
     /**
-     * @brief Get the texture.
+     * @brief Get the object.
      * @remark Return a null pointer if the texture has not been loaded yet.
      * @param name The name of the model to load.
      * @return A pointer to the object.

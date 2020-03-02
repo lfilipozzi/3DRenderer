@@ -23,7 +23,15 @@ class OpenGLWindow : public QWindow {
     Q_OBJECT    // Prepare the compiler to create slots and signals
 
 public:
-    OpenGLWindow(unsigned int refreshRate, QScreen * screen = nullptr);
+    /**
+     * @brief Constructor of the OpenGLWindow.
+     * @param refreshRate The refresh rate of the application.
+     * @param envFile The path to the XML file describing the environment.
+     * @param screen Pointer to QWindow.
+     */
+    OpenGLWindow(
+        unsigned int refreshRate, QString envFile, QScreen * screen = nullptr
+    );
     ~OpenGLWindow();
 
     /**

@@ -1,4 +1,4 @@
-QT       += core widgets opengl
+QT       += core widgets opengl xml
 
 CONFIG += c++14
 CONFIG -= app_bundle
@@ -66,7 +66,7 @@ HEADERS += \
     include/vehicle.h \
     include/line.h \
     include/frame.h \
-    include/constant.h \
+    include/constants.h \
     include/videorecorder.h
 
 unix: !macx {

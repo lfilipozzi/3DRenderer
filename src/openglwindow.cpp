@@ -9,8 +9,9 @@
 #include "../include/videorecorder.h"
 #include "../include/constants.h"
 
-OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
-    : QWindow(screen), 
+OpenGLWindow::OpenGLWindow(
+    unsigned int refreshRate, QString envFile, QScreen * screen
+) : QWindow(screen), 
     m_wasCameraOffset(false) {
     // Request OpenGL context
     QSurfaceFormat requestedFormat;
@@ -35,7 +36,7 @@ OpenGLWindow::OpenGLWindow(unsigned int refreshRate, QScreen * screen)
             exit(1);
     }
     else {
-        p_scene = std::make_unique<Scene>(refreshRate);
+        p_scene = std::make_unique<Scene>(refreshRate, envFile);
         QString openGLAPI;
         if (p_context->isOpenGLES()) 
             openGLAPI = QString("OpenGL ES");

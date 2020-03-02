@@ -56,7 +56,11 @@ class AnimationWindow : public QMainWindow {
     Q_OBJECT    // Prepare the compiler to create slots
     
 public:
-    AnimationWindow();
+    /**
+     * @brief Constructor of the animation window.
+     * @param envFile Path to the XML file describing the scene.
+     */
+    AnimationWindow(QString envFile);
     ~AnimationWindow();
     
 public slots:

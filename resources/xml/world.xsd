@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:simpleType name="Vec3f">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <xsd:attribute name="defaultValue" type="Vec3f" default="0.0 0.0 0.0"/>
+                Vec3f is a triplet of float values.
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:restriction base="xs:string">
+            <xsd:whiteSpace value="collapse"/>
+            <xsd:pattern value="\s*(([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s+){2}([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="Vec4f">
+        <xsd:annotation>
+            <xsd:appinfo>
+                <xsd:attribute name="defaultValue" type="Vec4f" default="0.0 0.0 0.0 0.0"/>
+                Vec4f is a vector of four float values.
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:restriction base="xs:string">
+            <xsd:whiteSpace value="collapse"/>
+            <xsd:pattern value="\s*(([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s+){3}([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:element name="transform">
+        <xsd:complexType>
+            <xsd:attribute name="translation" type="Vec3f" default="0.0 0.0 0.0"/>
+            <xsd:attribute name="rotation"    type="Vec4f" default="0.0 0.0 0.0 0.0"/>
+            <xsd:attribute name="scale"       type="Vec3f" default="1.0 1.0 1.0"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="texture">
+        <xsd:complexType>
+            <xsd:attribute name="type"  type="" use="required"/> <!-- TODO defined type -->
+            <xsd:attribute name="url"   type="" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="node">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="material">
+                    <xsd:complexType>
+                        
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="mesh">
+                    <xsd:complexType>
+                        
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="name"   type="xsd:ID"    use="required"/>
+            <xsd:attribute name="parent" type="xsd:IDREF" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="plane">
+        <xsd:complexType>
+            
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="model">
+        <xsd:complexType>
+            
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="shape">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice>
+                    <xsd:element ref="node"/>
+                    <xsd:element ref="plane"/>
+                    <xsd:element ref="model"/>
+                </xsd:choice>
+                <xsd:element ref="transform"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

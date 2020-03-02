@@ -521,7 +521,7 @@ public:
     FlatSurfaceBuilder(
         float length, float width, QVector3D origin, QVector3D longitudinalAxis,
         QVector3D lateralAxis, float textureGridSize
-    ) :
+    ) : //TODO change constructor to use only origin and axes (and texture scaling)
     m_textureSize(textureGridSize), 
     m_surfaceLength(length),
     m_surfaceWidth(width),

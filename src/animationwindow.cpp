@@ -20,7 +20,7 @@
  *                                                          
  */
 
-AnimationWindow::AnimationWindow() {
+AnimationWindow::AnimationWindow(QString envFile) {
     // Menu bar
     QMenu * fileMenu = menuBar()->addMenu("&File");
     QMenu * viewMenu = menuBar()->addMenu("&View");
@@ -48,7 +48,7 @@ AnimationWindow::AnimationWindow() {
 
     // Animation window
     unsigned int refreshRate(30);
-    p_openGLWindow = std::make_unique<OpenGLWindow>(refreshRate);
+    p_openGLWindow = std::make_unique<OpenGLWindow>(refreshRate, envFile);
     QWidget * windowContainer = 
         QWidget::createWindowContainer(p_openGLWindow.get());
     windowContainer->setMinimumSize(800, 600);

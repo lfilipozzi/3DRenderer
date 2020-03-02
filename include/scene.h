@@ -18,8 +18,11 @@
  * @author Louis Filipozzi
  */
 class Scene {
+private:
+    class Loader;
+    
 public:
-    Scene(unsigned int refreshRate);
+    Scene(unsigned int refreshRate, QString envFile);
 
     ~Scene();
 
@@ -144,11 +147,11 @@ private:
      * The skybox of the scene.
      */
     Skybox m_skybox;
-
+    
     /**
-     * The surface of the scene.
+     * The elements of the scene.
      */
-    ABCObject * p_surface;
+    std::vector<ABCObject *> m_elements;
 
     /**
      * The vehicle.
@@ -204,6 +207,87 @@ private:
      * Define the different zone for cascade shadow mapping.
      */
     std::array<float,NUM_CASCADES+1> m_cascades;
+    
+    /**
+     * XML file describing the scene.
+     */
+    QString m_envFile;
+};
+
+
+
+#include <QDomElement>
+
+/// Scene loader
+/**
+ * @brief Load scene from XML file.
+ */
+class Scene::Loader {
+public:
+    Loader();
+    ~Loader();
+    
+    /**
+     * @brief Parse the file.
+     * @param fileName The name of the XML file to parse.
+     */
+    void parse(QString const fileName);
+    
+    /**
+     * @brief Return the object container.
+     */
+    std::vector<ABCObject *> getObjects() const {return p_objects;};
+    
+private:
+    /**
+     * @brief Convert a QString with format "# # #" to a QVector3D.
+     * @param[in] string The string to convert.
+     * @param[out] vec The vector.
+     * @return Return true if the string is converted to a QVector3D 
+     * successfully.
+     */
+    static bool qStringToQVector3D(const QString & string, QVector3D & vec);
+    
+    /**
+     * @brief Convert a QString with format "# # # #" to a QVector4D.
+     * @param[in] string The string to convert.
+     * @param[out] vec The vector.
+     * @return Return true if the string is converted to a QVector4D 
+     * successfully.
+     */
+    static bool qStringToQVector4D(const QString & string, QVector4D & vec);
+    
+    /**
+     * @brief Process all shape elements among the node's children.
+     * @param elmt The DOM element.
+     * @return Pointer to the object, nullptr if an error happened.
+     */
+    ABCObject * processObject(const QDomElement & elmt);
+    
+    /**
+     * @brief Process all model elements among the node's children.
+     * @param elmt The DOM element.
+     * @return Pointer to the object, nullptr if an error happened.
+     */
+    ABCObject * processModel(const QDomElement & elmt);
+    
+    /**
+     * @brief Process all plane elements among the node's children.
+     * @param elmt The DOM element.
+     * @return Pointer to the object, nullptr if an error happened.
+     */
+    ABCObject * processPlane(const QDomElement & elmt);
+    
+    /**
+     * @brief Process a transform element among the node's children.
+     * @param[in] elmt The DOM element.
+     * @param[out] matrix The model matrix
+     * @return Boolean to check for error.
+     */
+    bool processTransform(const QDomElement & elmt, QMatrix4x4 & matrix);
+    
+private:
+    std::vector<ABCObject *> p_objects;
 };
 
 #endif // SCENE_H
