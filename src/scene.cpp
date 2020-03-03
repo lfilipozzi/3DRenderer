@@ -210,6 +210,8 @@ void Scene::updateTimestep() {
 #include <QtXml>
 #include <QFile>
 #include <QDebug>
+#include <QXmlSchema>
+#include <QXmlSchemaValidator>
 
 Scene::Loader::Loader() {}
 
@@ -231,16 +233,38 @@ void Scene::Loader::parse(QString const fileNameIn) {
     
     QDomDocument domDoc;
     // Load XML file as raw data
-    QFile f(fileName);
-    if (!f.open(QIODevice::ReadOnly)) {
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
         // Error while loading file
         qWarning() << "Error while loading file" << fileName;
     }
-    // Set data into the QDomDocument before processing
-    domDoc.setContent(&f);
-    f.close();
     
-    // TODO Check XML file DTD (https://doc.qt.io/qt-5/qdomdocumenttype.html#details or https://doc.qt.io/qt-5/qxmlschema.html#isValid using XML schema instead)
+    // Retrieve the XML schema
+    QXmlSchema schema;
+    QUrl schemaUrl = QUrl::fromLocalFile("resources/xml/world.xsd");
+    if (!schema.load(schemaUrl)) {
+        qDebug() << "Cannot load XSD schema. The XML file will not be parsed.";
+        return;
+    }
+    // The XSD resource file cannot be invalid
+    if (!schema.isValid()) {
+        qCritical() << "The  XML schema (.xsd) is invalid. The XML file will"
+            "not be parsed.";
+        return;
+    }
+
+    // Validate the user file
+    QXmlSchemaValidator validator{schema};
+    if (!validator.validate(&file, QUrl::fromLocalFile(file.fileName()))) {
+        qCritical() << "The file" << fileName << "does not meet the XML "
+        "schema definition. The XML will not be parsed.";
+        return;
+    }
+    
+    // Set data into the QDomDocument before processing
+    file.reset();
+    domDoc.setContent(&file);
+    file.close();
     
     // Extract the root
     QDomElement world = domDoc.documentElement();

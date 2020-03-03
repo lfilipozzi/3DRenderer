@@ -7,7 +7,7 @@
                 Vec3f is a triplet of float values.
             </xsd:appinfo>
         </xsd:annotation>
-        <xsd:restriction base="xs:string">
+        <xsd:restriction base="xsd:string">
             <xsd:whiteSpace value="collapse"/>
             <xsd:pattern value="\s*(([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s+){2}([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s*"/>
         </xsd:restriction>
@@ -20,9 +20,39 @@
                 Vec4f is a vector of four float values.
             </xsd:appinfo>
         </xsd:annotation>
-        <xsd:restriction base="xs:string">
+        <xsd:restriction base="xsd:string">
             <xsd:whiteSpace value="collapse"/>
             <xsd:pattern value="\s*(([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s+){3}([+-]?((0|[1-9][0-9]*)(\.[0-9]*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?)\s*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="FilePath">
+        <xsd:restriction base="xsd:token">
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="TexType">
+        <xsd:restriction base="xsd:NMTOKEN">
+            <xsd:enumeration value="diffuse"/>
+            <xsd:enumeration value="normal"/>
+            <xsd:enumeration value="bump"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="BufferData">
+        <xsd:restriction base="xsd:NMTOKENS">
+<!--        TODO add pattern for array of float      -->
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="BufferType">
+        <xsd:restriction base="xsd:NMTOKEN">
+            <xsd:enumeration value="vertex"/>
+            <xsd:enumeration value="normal"/>
+            <xsd:enumeration value="texture"/>
+            <xsd:enumeration value="index"/>
+            <xsd:enumeration value="tangent"/>
+            <xsd:enumeration value="bitangent"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -36,39 +66,75 @@
 
     <xsd:element name="texture">
         <xsd:complexType>
-            <xsd:attribute name="type"  type="" use="required"/> <!-- TODO defined type -->
-            <xsd:attribute name="url"   type="" use="required"/>
+            <xsd:attribute name="type"  type="TexType" use="required"/>
+            <xsd:attribute name="url"   type="FilePath" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="material">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="texture" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="name"  type="xsd:ID" use="required"/>
+            <xsd:attribute name="ambienColor" type="xsd:float" default="0.2"/>
+            <xsd:attribute name="diffuseColor" type="Vec3f" default="0.8 0.8 0.8"/>
+            <xsd:attribute name="specularColor" type="xsd:float" default="0.2"/>
+            <xsd:attribute name="shininess" type="xsd:float" default="0.2"/>
+            <xsd:attribute name="alpha" type="xsd:float" default="1.0"/>
+            <xsd:attribute name="heightScale" type="xsd:float" default="0.1"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="buffer">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="BufferData">
+                    <xsd:attribute name="type" type="BufferType"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="mesh">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="buffer" minOccurs="6" maxOccurs="6"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:ID" use="required"/>
+            <xsd:attribute name="material" type="xsd:IDREF"/>
         </xsd:complexType>
     </xsd:element>
 
     <xsd:element name="node">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="material">
-                    <xsd:complexType>
-                        
-                    </xsd:complexType>
-                </xsd:element>
-                <xsd:element name="mesh">
-                    <xsd:complexType>
-                        
-                    </xsd:complexType>
-                </xsd:element>
+                <xsd:element ref="material" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="mesh" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
             <xsd:attribute name="name"   type="xsd:ID"    use="required"/>
-            <xsd:attribute name="parent" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="parent" type="xsd:IDREF"/>
         </xsd:complexType>
     </xsd:element>
     
     <xsd:element name="plane">
         <xsd:complexType>
-            
+            <xsd:attribute name="name" type="xsd:ID" use="required"/>
+            <xsd:attribute name="length" type="xsd:float" default="100"/>
+            <xsd:attribute name="width" type="xsd:float" default="100"/>
+            <xsd:attribute name="origin" type="Vec3f" default="0 0 0"/>
+            <xsd:attribute name="longAxis" type="Vec3f" default="1 0 0"/>
+            <xsd:attribute name="latAxis" type="Vec3f" default="0 1 0"/>
+            <xsd:attribute name="textureSize" type="xsd:float" default="5"/>
+            <xsd:attribute name="material" type="xsd:IDREF"/>
         </xsd:complexType>
     </xsd:element>
     
     <xsd:element name="model">
         <xsd:complexType>
-            
+            <xsd:attribute name="name" type="xsd:ID" use="required"/>
+            <xsd:attribute name="url" type="FilePath" use="required"/>
+            <xsd:attribute name="textureFolder" type="FilePath" use="required"/>
         </xsd:complexType>
     </xsd:element>
 
@@ -80,7 +146,15 @@
                     <xsd:element ref="plane"/>
                     <xsd:element ref="model"/>
                 </xsd:choice>
-                <xsd:element ref="transform"/>
+                <xsd:element ref="transform" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="world">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="shape" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>

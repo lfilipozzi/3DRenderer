@@ -1,4 +1,4 @@
-QT       += core widgets opengl xml
+QT       += core widgets opengl xml xmlpatterns
 
 CONFIG += c++14
 CONFIG -= app_bundle
