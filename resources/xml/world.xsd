@@ -120,11 +120,9 @@
     <xsd:element name="plane">
         <xsd:complexType>
             <xsd:attribute name="name" type="xsd:ID" use="required"/>
-            <xsd:attribute name="length" type="xsd:float" default="100"/>
-            <xsd:attribute name="width" type="xsd:float" default="100"/>
             <xsd:attribute name="origin" type="Vec3f" default="0 0 0"/>
-            <xsd:attribute name="longAxis" type="Vec3f" default="1 0 0"/>
-            <xsd:attribute name="latAxis" type="Vec3f" default="0 1 0"/>
+            <xsd:attribute name="longAxis" type="Vec3f" default="50 0 0"/>
+            <xsd:attribute name="latAxis" type="Vec3f" default="0 50 0"/>
             <xsd:attribute name="textureSize" type="xsd:float" default="5"/>
             <xsd:attribute name="material" type="xsd:IDREF"/>
         </xsd:complexType>

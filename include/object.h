@@ -519,12 +519,10 @@ public:
      * @param textureDir The path to the directory containing the textures to load.
      */
     FlatSurfaceBuilder(
-        float length, float width, QVector3D origin, QVector3D longitudinalAxis,
-        QVector3D lateralAxis, float textureGridSize
-    ) : //TODO change constructor to use only origin and axes (and texture scaling)
+        QVector3D origin, QVector3D longitudinalAxis, QVector3D lateralAxis, 
+        float textureGridSize
+    ) : 
     m_textureSize(textureGridSize), 
-    m_surfaceLength(length),
-    m_surfaceWidth(width),
     m_origin(origin),
     m_longitudinalSurface(longitudinalAxis),
     m_lateralSurface(lateralAxis),
@@ -556,16 +554,6 @@ private:
      * Define the size of the texture pattern.
      */
     float m_textureSize;
-
-    /**
-     * The length of the surface.
-     */
-    float m_surfaceLength;
-
-    /**
-     * The width of the surface.
-     */
-    float m_surfaceWidth;
     
     /**
      * Origin of the plane

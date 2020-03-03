@@ -392,27 +392,25 @@ ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
     }
     
     // Retrieve attributes
-    float length = elmt.attribute("length","100").toFloat();
-    float width = elmt.attribute("width","100").toFloat();
     QString originString = elmt.attribute("origin","0 0 0");
-    QString longAxisString = elmt.attribute("longAxis","1 0 0");
-    QString latAxisString = elmt.attribute("latAxis","0 1 0");
+    QString longAxisString = elmt.attribute("longAxis","50 0 0");
+    QString latAxisString = elmt.attribute("latAxis","0 50 0");
     QVector3D origin, longAxis, latAxis;
     if (!qStringToQVector3D(originString, origin)) {
         origin = QVector3D(0, 0, 0);
     }
     if (!qStringToQVector3D(longAxisString, longAxis)) {
-        longAxis = QVector3D(1, 0, 0);
+        longAxis = QVector3D(50, 0, 0);
     }
     if (!qStringToQVector3D(latAxisString, latAxis)) {
-        latAxis = QVector3D(0, 1, 0);
+        latAxis = QVector3D(0, 50, 0);
     };
     float textureGridSize = elmt.attribute("textureSize","5.0").toFloat();
     
     // Build object and add it to the container
     ABCObject * plane = nullptr;
     Object::FlatSurfaceBuilder planeBuilder(
-        length, width, origin, longAxis, latAxis, textureGridSize
+        origin, longAxis, latAxis, textureGridSize
     );
     if (planeBuilder.build()) {
         plane = ObjectManager::loadObject(name, planeBuilder.getObject());

@@ -772,14 +772,10 @@ std::unique_ptr<const Object::Node> Object::Loader::processNode(
 
 bool Object::FlatSurfaceBuilder::build() {
     // Define vertices
-    QVector3D cornerRL = m_origin-m_surfaceWidth/2*m_lateralSurface +
-            -m_surfaceLength/2*m_longitudinalSurface;
-    QVector3D cornerRR = m_origin+m_surfaceWidth/2*m_lateralSurface +
-            -m_surfaceLength/2*m_longitudinalSurface;
-    QVector3D cornerFL = m_origin-m_surfaceWidth/2*m_lateralSurface +
-             m_surfaceLength/2*m_longitudinalSurface;
-    QVector3D cornerFR = m_origin+m_surfaceWidth/2*m_lateralSurface +
-             m_surfaceLength/2*m_longitudinalSurface;
+    QVector3D cornerRL = m_origin - m_lateralSurface - m_longitudinalSurface;
+    QVector3D cornerRR = m_origin + m_lateralSurface - m_longitudinalSurface;
+    QVector3D cornerFL = m_origin - m_lateralSurface + m_longitudinalSurface;
+    QVector3D cornerFR = m_origin + m_lateralSurface + m_longitudinalSurface;
     
     std::unique_ptr<QVector<float>> vertices;
     std::unique_ptr<QVector<float>> normals;
@@ -805,16 +801,18 @@ bool Object::FlatSurfaceBuilder::build() {
         })
     );
     // Fill texture coordinates buffer data
+    float length = m_longitudinalSurface.length() * 2;
+    float width = m_lateralSurface.length() * 2;
     textureUV->append(   // x channel
             QVector<float>({
             // RL corner
             0.0f, 0.0f,
             // RR corner
-            m_surfaceWidth/m_textureSize, 0.0f,
+            width/m_textureSize, 0.0f,
             // FL corner
-            0.0f, m_surfaceLength/m_textureSize,
+            0.0f, length/m_textureSize,
             // RR corner
-            m_surfaceWidth/m_textureSize, m_surfaceLength/m_textureSize
+            width/m_textureSize, length/m_textureSize
         })
     );
     // Fill normal buffer data
