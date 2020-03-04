@@ -142,6 +142,16 @@
             </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
+    
+    <xsd:element name="shape">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="abstractShape">
+                    <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
 
     <xsd:element name="transform">
         <xsd:complexType>
@@ -149,6 +159,7 @@
                 <xsd:element ref="node"  minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="plane" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="model" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="shape" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
             <xsd:attribute name="translation" type="Vec3f" default="0.0 0.0 0.0"/>

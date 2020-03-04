@@ -364,12 +364,15 @@ std::unique_ptr<Scene::Node>  Scene::Loader::processTransform(
         else if (elmt.tagName().compare("plane") == 0) {
             node->addObject(processPlane(elmt));
         }
-        else if (elmt.toElement().tagName().compare("model") == 0) {
+        else if (elmt.tagName().compare("model") == 0) {
             node->addObject(processModel(elmt));
         }
-//         else if (elmt.toElement().tagName().compare("node") == 0) {
+//         else if (elmt.tagName().compare("node") == 0) {
 //             node->addObject(processNode(elmt));
     //     }
+        else if (elmt.tagName().compare("shape") == 0) {
+            node->addObject(processShape(elmt));
+        }
     }
     
     // Return transformed node
@@ -462,6 +465,19 @@ ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
     }
     return nullptr;
 }
+
+
+ABCObject * Scene::Loader::processShape(const QDomElement& elmt) {
+    if (elmt.tagName().compare("shape") != 0)
+        return nullptr;
+    
+    QString ref = elmt.attribute("ref", "");
+    ABCObject * object = ObjectManager::getObject(ref);
+    return object;
+}
+
+
+
 
 /***
  *       _____                         

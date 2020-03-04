@@ -292,6 +292,13 @@ private:
      */
     ABCObject * processPlane(const QDomElement & elmt);
     
+    /**
+     * @brief Process all shape elements among the node's children.
+     * @param elmt The DOM element.
+     * @return Pointer to the object, nullptr if an error happened.
+     */
+    ABCObject * processShape(const QDomElement & elmt);
+    
 private:
     std::unique_ptr<Node> p_rootNode;
 };
