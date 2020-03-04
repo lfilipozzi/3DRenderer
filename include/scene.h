@@ -20,6 +20,7 @@
 class Scene {
 private:
     class Loader;
+    class Node;
     
 public:
     Scene(unsigned int refreshRate, QString envFile);
@@ -149,9 +150,9 @@ private:
     Skybox m_skybox;
     
     /**
-     * The elements of the scene.
+     * The scene graph.
      */
-    std::vector<ABCObject *> m_elements;
+    std::unique_ptr<Node> p_graph;
 
     /**
      * The vehicle.
@@ -236,7 +237,7 @@ public:
     /**
      * @brief Return the object container.
      */
-    std::vector<ABCObject *> getObjects() const {return p_objects;};
+    std::unique_ptr<Node> getSceneGraph();
     
 private:
     /**
@@ -258,11 +259,24 @@ private:
     static bool qStringToQVector4D(const QString & string, QVector4D & vec);
     
     /**
-     * @brief Process all shape elements among the node's children.
-     * @param elmt The DOM element.
-     * @return Pointer to the object, nullptr if an error happened.
+     * @brief Process a group element.
+     * @param[in] group The DOM element.
+     * @param[out] matrix The model matrix.
+     * @return Pointer to a scene node.
      */
-    ABCObject * processObject(const QDomElement & elmt);
+    void processGroup(
+        const QDomElement & group, std::unique_ptr<Node> & node
+    );
+    
+    /**
+     * @brief Process a transform element among the node's children.
+     * @param transform The DOM element.
+     * @param parentMatrix The world matrix of the parent node.
+     * @return Pointer to a scene node.
+     */
+    std::unique_ptr<Node> processTransform(
+        const QDomElement & transform, const QMatrix4x4 parentMatrix = QMatrix()
+    );
     
     /**
      * @brief Process all model elements among the node's children.
@@ -278,16 +292,76 @@ private:
      */
     ABCObject * processPlane(const QDomElement & elmt);
     
+private:
+    std::unique_ptr<Node> p_rootNode;
+};
+
+
+
+/// Node to represent a scene graph
+/**
+ * @brief This class defines a node to represent a scene graph.
+ */
+class Scene::Node {
+public:
     /**
-     * @brief Process a transform element among the node's children.
-     * @param[in] elmt The DOM element.
-     * @param[out] matrix The model matrix
-     * @return Boolean to check for error.
+     * @brief Node constructor
+     * @param parentWorldMatrix The world matrix of the parentWorldMatrix.
+     * @param localMatrix The matrix to transform from the parent to this node.
      */
-    bool processTransform(const QDomElement & elmt, QMatrix4x4 & matrix);
+    Node(
+        const QMatrix4x4 & localMatrix = QMatrix4x4(), 
+        const QMatrix4x4 & parentWorldMatrix = QMatrix4x4()
+    ) : m_worldMatrix(parentWorldMatrix * localMatrix) {};
+    ~Node() {};
+    
+    /**
+     * @brief Add a child to the list of children of the node.
+     * @param node The node to add.
+     */
+    void addChild(std::unique_ptr<Node> node) {
+        m_children.push_back(std::move(node));
+    };
+    
+    /**
+     * @brief Add object to load when drawing the node.
+     * @param object The object to add.
+     */
+    void addObject(ABCObject * object) {
+        m_objects.push_back(object);
+    };
+    
+    /**
+     * @brief Return the world matrix.
+     */
+    QMatrix4x4 getWorldMatrix() const {return m_worldMatrix;};
+    
+    /**
+     * @brief Render the node and all its descendants.
+     * @param view The view matrix.
+     * @param projection The projection matrix.
+     * @param lightSpace The view and projection matrix of the light (used for 
+     * shadow mapping).
+     * @param cascades Array containing the distance for cascade shadow mapping.
+     */
+    void render(
+        const CasterLight & light, const QMatrix4x4 & view, 
+        const QMatrix4x4 & projection, 
+        const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace,
+        const std::array<float,NUM_CASCADES+1> & cascades
+    );
+    
+    /**
+     * @brief Render the shadow of the node and of all its descendants.
+     * @param lightSpace The view and projection matrix of the light (used for 
+     * shadow mapping).
+     */
+    void renderShadow(const QMatrix4x4 & lightSpace);
     
 private:
-    std::vector<ABCObject *> p_objects;
+    QMatrix4x4 m_worldMatrix;
+    std::vector<std::unique_ptr<Node>> m_children;
+    std::vector<ABCObject *> m_objects;
 };
 
 #endif // SCENE_H

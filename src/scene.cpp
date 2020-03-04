@@ -40,7 +40,7 @@ void Scene::initialize() {
     // Load the objects of the environment
     Loader loader;
     loader.parse(m_envFile);
-    m_elements = loader.getObjects();
+    p_graph = loader.getSceneGraph();
     
     // Load the chassis model
     ABCObject * chassis = nullptr;
@@ -137,13 +137,8 @@ void Scene::render() {
     
     // Call the render method of object in the scene
     m_skybox.render(m_view, m_projection);
-    for (auto it = m_elements.begin(); it != m_elements.end(); it++) {
-        if (*it !=nullptr) {
-            (*it)->render(
-                m_light, m_view, m_projection, m_lightSpace, m_cascades
-            );
-        }
-    }
+    if (p_graph != nullptr)
+        p_graph->render(m_light, m_view, m_projection, m_lightSpace, m_cascades);
     if (p_vehicle != nullptr)
         p_vehicle->render(
             m_light, m_view, m_projection, m_lightSpace, m_cascades
@@ -157,11 +152,8 @@ void Scene::render() {
 
 void Scene::renderShadow(unsigned int cascadeIdx) {
     // Render the shadow map
-    for (auto it = m_elements.begin(); it != m_elements.end(); it++) {
-        if (*it !=nullptr) {
-            (*it)->renderShadow(m_lightSpace.at(cascadeIdx));
-        }
-    }
+    if (p_graph != nullptr)
+        p_graph->renderShadow(m_lightSpace.at(cascadeIdx));
     if (p_vehicle != nullptr)
         p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
 }
@@ -217,6 +209,10 @@ Scene::Loader::Loader() {}
 
 Scene::Loader::~Loader() {}
 
+std::unique_ptr<Scene::Node> Scene::Loader::getSceneGraph() {
+    return std::move(p_rootNode);
+}
+
 void Scene::Loader::parse(QString const fileNameIn) {
     QString defaultFile(":/xml/defaultWorld");
     QString fileName = fileNameIn;
@@ -241,7 +237,7 @@ void Scene::Loader::parse(QString const fileNameIn) {
     
     // Retrieve the XML schema
     QXmlSchema schema;
-    QUrl schemaUrl = QUrl::fromLocalFile("resources/xml/world.xsd");
+    QUrl schemaUrl = QUrl::fromLocalFile(":/xml/world.xsd");
     if (!schema.load(schemaUrl)) {
         qDebug() << "Cannot load XSD schema. The XML file will not be parsed.";
         return;
@@ -269,27 +265,10 @@ void Scene::Loader::parse(QString const fileNameIn) {
     // Extract the root
     QDomElement world = domDoc.documentElement();
     
-    for (
-        QDomElement shape = world.firstChildElement(); 
-        !shape.isNull();
-        shape = shape.nextSiblingElement()
-    ) {
-        // Process object (first element according to the DTD)
-        QDomElement elmt = shape.firstChildElement();
-        ABCObject * model = processObject(elmt);
-        if (model == nullptr) 
-            continue;
-        p_objects.push_back(model);
-        
-        // Process transform
-        elmt = elmt.nextSiblingElement();
-        if (!elmt.isNull()) {
-            QMatrix4x4 matrix;
-            if (processTransform(elmt, matrix)) {
-                model->setModelMatrix(matrix);
-            }
-        }
-    }
+    // Process the world element
+    QDomElement group = world.firstChildElement();
+    p_rootNode = std::make_unique<Node>();
+    processGroup(group, p_rootNode);
 }
 
 bool Scene::Loader::qStringToQVector3D(const QString & string, QVector3D & vec) {
@@ -318,18 +297,83 @@ bool Scene::Loader::qStringToQVector4D(const QString & string, QVector4D & vec) 
     return true;
 }
 
+void Scene::Loader::processGroup(
+    const QDomElement & group, std::unique_ptr<Node> & node
+) {
+    // Make sure this is a group element
+    if (group.tagName().compare("group") != 0)
+        return;
+    
+    // Process children elements
+    for (
+        QDomElement elmt = group.firstChildElement(); 
+        !elmt.isNull();
+        elmt = elmt.nextSiblingElement()
+    ) {
+        // Process transform
+        if (elmt.tagName().compare("transform") == 0) {
+            QMatrix4x4 parentMatrix = node->getWorldMatrix();
+            node->addChild(processTransform(elmt, parentMatrix));
+        }
+    }
+}
 
-ABCObject *  Scene::Loader::processObject(const QDomElement& elmt) {
-    if (elmt.tagName().compare("plane") == 0) {
-        return processPlane(elmt);
+
+std::unique_ptr<Scene::Node>  Scene::Loader::processTransform(
+    const QDomElement & transform, const QMatrix4x4 parentMatrix
+) {
+    // Make sure this is a transform element
+    if (transform.tagName().compare("transform") != 0)
+        return std::unique_ptr<Scene::Node>();
+    
+    // Compute the local transformation matrix
+    QString transString = transform.attribute("translation","0.0 0.0 0.0");
+    QVector3D trans;
+    if (!qStringToQVector3D(transString, trans))
+        trans = QVector3D(0, 0, 0);
+    
+    QString rotString = transform.attribute("rotation", "0.0 0.0 0.0 0.0");
+    QVector4D rot;
+    if (!qStringToQVector4D(rotString, rot))
+        rot = QVector4D(1, 0, 0, 0);
+    
+    QString scaleString = transform.attribute("scale", "1.0 1.0 1.0");
+    QVector3D scale;
+    if (!qStringToQVector3D(scaleString, scale))
+        scale = QVector3D(1, 1, 1);
+    
+    QMatrix4x4 localMatrix;
+    localMatrix.setToIdentity();
+    localMatrix.translate(trans);
+    localMatrix.rotate(QQuaternion(rot));
+    localMatrix.scale(scale);
+    
+    // Create new node for transformed object
+    std::unique_ptr<Node> node;
+    node = std::make_unique<Node>(parentMatrix, localMatrix);
+    
+    // Process the object moved by the transformation
+    for (
+        QDomElement elmt = transform.firstChildElement(); 
+        !elmt.isNull();
+        elmt = elmt.nextSiblingElement()
+    ) {
+        if (elmt.tagName().compare("group") == 0) {
+            processGroup(elmt, node);
+        }
+        else if (elmt.tagName().compare("plane") == 0) {
+            node->addObject(processPlane(elmt));
+        }
+        else if (elmt.toElement().tagName().compare("model") == 0) {
+            node->addObject(processModel(elmt));
+        }
+//         else if (elmt.toElement().tagName().compare("node") == 0) {
+//             node->addObject(processNode(elmt));
+    //     }
     }
-    else if (elmt.toElement().tagName().compare("model") == 0) {
-        return processModel(elmt);
-    }
-//     else if (elmt.toElement().tagName().compare("node") == 0) {
-//         return processNode(elmt);
-//     }
-    return nullptr;
+    
+    // Return transformed node
+    return node;
 }
 
 
@@ -419,35 +463,65 @@ ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
     return nullptr;
 }
 
+/***
+ *       _____                         
+ *      / ____|                        
+ *     | (___   ___ ___ _ __   ___     
+ *      \___ \ / __/ _ \ '_ \ / _ \    
+ *      ____) | (_|  __/ | | |  __/    
+ *     |_____/_\___\___|_| |_|\___|    
+ *        / ____|               | |    
+ *       | |  __ _ __ __ _ _ __ | |__  
+ *       | | |_ | '__/ _` | '_ \| '_ \ 
+ *       | |__| | | | (_| | |_) | | | |
+ *        \_____|_|  \__,_| .__/|_| |_|
+ *                        | |          
+ *                        |_|          
+ */
 
-bool  Scene::Loader::processTransform(
-    const QDomElement & elmt, QMatrix4x4 & model
+void Scene::Node::render(
+    const CasterLight & light, const QMatrix4x4 & view, 
+    const QMatrix4x4 & projection, 
+    const std::array<QMatrix4x4,NUM_CASCADES> & lightSpace,
+    const std::array<float,NUM_CASCADES+1> & cascades
 ) {
-    if (elmt.tagName().compare("transform") != 0)
-        return false;
+    // Draw the node
+    for (auto it = m_objects.begin(); it != m_objects.end(); it++) {
+        if (*it != nullptr) {
+            // Set model matrix
+            (*it)->setModelMatrix(m_worldMatrix);
+            
+            // Draw
+            (*it)->render(
+                light, view, projection, lightSpace, cascades
+            );
+        }
+    }
     
-    QString transString = elmt.attribute("translation","0.0 0.0 0.0");
-    QVector3D trans;
-    if (!qStringToQVector3D(transString, trans))
-        trans = QVector3D(0, 0, 0);
-    
-    QString rotString = elmt.attribute("rotation", "0.0 0.0 0.0 0.0");
-    QVector4D rot;
-    if (!qStringToQVector4D(rotString, rot))
-        rot = QVector4D(1, 0, 0, 0);
-    
-    QString scaleString = elmt.attribute("scale", "1.0 1.0 1.0");
-    QVector3D scale;
-    if (!qStringToQVector3D(scaleString, scale))
-        scale = QVector3D(1, 1, 1);
-    
-    model.setToIdentity();
-    model.translate(trans);
-    model.rotate(QQuaternion(rot));
-    model.scale(scale);
-    return true;
+    // Draw its descendant
+    for (auto it = m_children.begin(); it != m_children.end(); it++) {
+        (*it)->render(light, view, projection, lightSpace, cascades);
+    }
 }
 
+
+void Scene::Node::renderShadow(const QMatrix4x4& lightSpace) {
+    // Draw the node
+    for (auto it = m_objects.begin(); it != m_objects.end(); it++) {
+        if (*it != nullptr) {
+            // Set model matrix
+            (*it)->setModelMatrix(m_worldMatrix);
+            
+            // Draw
+            (*it)->renderShadow(lightSpace);
+        }
+    }
+    
+    // Draw its descendant
+    for (auto it = m_children.begin(); it != m_children.end(); it++) {
+        (*it)->renderShadow(lightSpace);
+    }
+}
 
 
 

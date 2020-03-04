@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<!DOCTYPE world SYSTEM "world.dtd">
-
-<world>
-    <shape>
-        <plane name="surf" longAxis="250 0 0" latAxis="0 250 0"/>
-    </shape>
+<world xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="world.xsd">
+    <group>
+        <transform>
+                <plane name="surf" longAxis="250 0 0" latAxis="0 250 0"/>
+        </transform>
+    </group>
 </world>

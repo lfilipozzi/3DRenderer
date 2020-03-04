@@ -56,14 +56,6 @@
         </xsd:restriction>
     </xsd:simpleType>
 
-    <xsd:element name="transform">
-        <xsd:complexType>
-            <xsd:attribute name="translation" type="Vec3f" default="0.0 0.0 0.0"/>
-            <xsd:attribute name="rotation"    type="Vec4f" default="0.0 0.0 0.0 0.0"/>
-            <xsd:attribute name="scale"       type="Vec3f" default="1.0 1.0 1.0"/>
-        </xsd:complexType>
-    </xsd:element>
-
     <xsd:element name="texture">
         <xsd:complexType>
             <xsd:attribute name="type"  type="TexType" use="required"/>
@@ -85,6 +77,9 @@
             <xsd:attribute name="heightScale" type="xsd:float" default="0.1"/>
         </xsd:complexType>
     </xsd:element>
+    
+    <xsd:complexType name="abstractShape" abstract="true">
+    </xsd:complexType>
     
     <xsd:element name="buffer">
         <xsd:complexType>
@@ -108,43 +103,64 @@
 
     <xsd:element name="node">
         <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="material" minOccurs="0" maxOccurs="unbounded"/>
-                <xsd:element ref="mesh" minOccurs="0" maxOccurs="unbounded"/>
-            </xsd:sequence>
-            <xsd:attribute name="name"   type="xsd:ID"    use="required"/>
-            <xsd:attribute name="parent" type="xsd:IDREF"/>
+            <xsd:complexContent>
+                <xsd:extension base="abstractShape">
+                    <xsd:sequence>
+                        <xsd:element ref="material" minOccurs="0" maxOccurs="unbounded"/>
+                        <xsd:element ref="mesh" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="name"   type="xsd:ID"    use="required"/>
+                    <xsd:attribute name="parent" type="xsd:IDREF"/>
+                </xsd:extension>
+            </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
     
     <xsd:element name="plane">
         <xsd:complexType>
-            <xsd:attribute name="name" type="xsd:ID" use="required"/>
-            <xsd:attribute name="origin" type="Vec3f" default="0 0 0"/>
-            <xsd:attribute name="longAxis" type="Vec3f" default="50 0 0"/>
-            <xsd:attribute name="latAxis" type="Vec3f" default="0 50 0"/>
-            <xsd:attribute name="textureSize" type="xsd:float" default="5"/>
-            <xsd:attribute name="material" type="xsd:IDREF"/>
+            <xsd:complexContent>
+                <xsd:extension base="abstractShape">
+                    <xsd:attribute name="name" type="xsd:ID" use="required"/>
+                    <xsd:attribute name="origin" type="Vec3f" default="0 0 0"/>
+                    <xsd:attribute name="longAxis" type="Vec3f" default="50 0 0"/>
+                    <xsd:attribute name="latAxis" type="Vec3f" default="0 50 0"/>
+                    <xsd:attribute name="textureSize" type="xsd:float" default="5"/>
+                    <xsd:attribute name="material" type="xsd:IDREF"/>
+                </xsd:extension>
+            </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
     
     <xsd:element name="model">
         <xsd:complexType>
-            <xsd:attribute name="name" type="xsd:ID" use="required"/>
-            <xsd:attribute name="url" type="FilePath" use="required"/>
-            <xsd:attribute name="textureFolder" type="FilePath" use="required"/>
+            <xsd:complexContent>
+                <xsd:extension base="abstractShape">
+                    <xsd:attribute name="name" type="xsd:ID" use="required"/>
+                    <xsd:attribute name="url" type="FilePath" use="required"/>
+                    <xsd:attribute name="textureFolder" type="FilePath" use="required"/>
+                </xsd:extension>
+            </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="shape">
+    <xsd:element name="transform">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:choice>
-                    <xsd:element ref="node"/>
-                    <xsd:element ref="plane"/>
-                    <xsd:element ref="model"/>
-                </xsd:choice>
-                <xsd:element ref="transform" minOccurs="0" maxOccurs="1"/>
+                <xsd:element ref="node"  minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="plane" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="model" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="translation" type="Vec3f" default="0.0 0.0 0.0"/>
+            <xsd:attribute name="rotation"    type="Vec4f" default="0.0 0.0 0.0 0.0"/>
+            <xsd:attribute name="scale"       type="Vec3f" default="1.0 1.0 1.0"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="group">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="transform" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -152,7 +168,7 @@
     <xsd:element name="world">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element ref="shape" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="group" minOccurs="1" maxOccurs="1"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
