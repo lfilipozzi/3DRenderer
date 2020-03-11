@@ -361,17 +361,17 @@ std::unique_ptr<Scene::Node>  Scene::Loader::processTransform(
         if (elmt.tagName().compare("group") == 0) {
             processGroup(elmt, node);
         }
-        else if (elmt.tagName().compare("plane") == 0) {
+        else if (elmt.tagName().compare("plane") == 0) {// TODO delete
             node->addObject(processPlane(elmt));
         }
         else if (elmt.tagName().compare("model") == 0) {
             node->addObject(processModel(elmt));
         }
-//         else if (elmt.tagName().compare("node") == 0) {
-//             node->addObject(processNode(elmt));
-    //     }
         else if (elmt.tagName().compare("shape") == 0) {
             node->addObject(processShape(elmt));
+        }
+        else if (elmt.tagName().compare("reference") == 0) {
+            node->addObject(processReference(elmt));
         }
     }
     
@@ -411,12 +411,44 @@ ABCObject *  Scene::Loader::processModel(const QDomElement & elmt) {
     if (modelLoader.build()) {
         model = ObjectManager::loadObject(name, modelLoader.getObject());
         return model;
-        
     }
     return nullptr;
 }
 
 
+ABCObject * Scene::Loader::processShape(const QDomElement & elmt) {
+    if (elmt.tagName().compare("shape") != 0)
+        return nullptr;
+    
+    // Retrieve name
+    QString name = elmt.attribute("name","");
+    if (name.isEmpty()) {
+        qWarning() << 
+            "The attribute 'name' of the element 'plane' must be provided. "
+            "The object will not be rendered.";
+        return nullptr;
+    }
+    
+    // Check that the ID of the plan is unique
+    if (ObjectManager::getObject(name) != nullptr) {
+        qWarning() << 
+            "An object with name" << name << "already exists. The object will "
+            "not be rendered.";
+        return nullptr;
+    }
+    
+    // Build the object and add it to the container
+    ABCObject * model = nullptr;
+    Object::XmlLoader modelLoader(elmt);
+    if (modelLoader.build()) {
+        model = ObjectManager::loadObject(name, modelLoader.getObject());
+        return model;
+    }
+    return nullptr;
+}
+
+
+// TODO delete
 ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
     if (elmt.tagName().compare("plane") != 0)
         return nullptr;
@@ -456,7 +488,7 @@ ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
     
     // Build object and add it to the container
     ABCObject * plane = nullptr;
-    Object::FlatSurfaceBuilder planeBuilder(
+    Object::SurfaceBuilder planeBuilder(
         origin, longAxis, latAxis, textureGridSize
     );
     if (planeBuilder.build()) {
@@ -467,8 +499,8 @@ ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
 }
 
 
-ABCObject * Scene::Loader::processShape(const QDomElement& elmt) {
-    if (elmt.tagName().compare("shape") != 0)
+ABCObject * Scene::Loader::processReference(const QDomElement& elmt) {
+    if (elmt.tagName().compare("reference") != 0)
         return nullptr;
     
     QString ref = elmt.attribute("ref", "");

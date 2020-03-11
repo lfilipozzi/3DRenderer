@@ -285,6 +285,7 @@ private:
      */
     ABCObject * processModel(const QDomElement & elmt);
     
+    // TODO delete
     /**
      * @brief Process all plane elements among the node's children.
      * @param elmt The DOM element.
@@ -295,9 +296,16 @@ private:
     /**
      * @brief Process all shape elements among the node's children.
      * @param elmt The DOM element.
-     * @return Pointer to the object, nullptr if an error happened.
+     * @return Pointer to the object, nulptr if an error happened.
      */
     ABCObject * processShape(const QDomElement & elmt);
+    
+    /**
+     * @brief Process all shape elements among the node's children.
+     * @param elmt The DOM element.
+     * @return Pointer to the object, nullptr if an error happened.
+     */
+    ABCObject * processReference(const QDomElement & elmt);
     
 private:
     std::unique_ptr<Node> p_rootNode;

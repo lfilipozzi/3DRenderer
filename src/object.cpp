@@ -172,6 +172,76 @@ void Object::createAttributes() {
 }
 
 
+void Object::getTangentsAndBitangents(
+    const QVector<float> & vertices, 
+    const QVector<QVector<float>> & textureUV,
+    const QVector<unsigned int> & indices, 
+    QVector<float> & tangents,
+    QVector<float> & bitangents
+) {
+    unsigned int numTriangles = indices.size() / 3;
+    unsigned int numVertices = vertices.size() / 3;
+    tangents   = QVector<float>(3 * numVertices);
+    bitangents = QVector<float>(3 * numVertices);
+    for (unsigned int i = 0; i < numTriangles; i++) {
+        // Indices of the triangle vertices
+        unsigned int i0 = indices.at(3*i);
+        unsigned int i1 = indices.at(3*i+1);
+        unsigned int i2 = indices.at(3*i+2);
+        // Position of the triangle vertices
+        QVector<float> pos0 = vertices.mid(3*i0,3);
+        QVector<float> pos1 = vertices.mid(3*i1,3);
+        QVector<float> pos2 = vertices.mid(3*i2,3);
+        // Texture coordinates of the triangle vertices
+        QVector<float> tex0 = textureUV.at(0).mid(2*i0,2);
+        QVector<float> tex1 = textureUV.at(0).mid(2*i1,2);
+        QVector<float> tex2 = textureUV.at(0).mid(2*i2,2);
+        // Compute edges
+        QVector3D edge1 = QVector3D(
+            pos1[0] - pos0[0], pos1[1] - pos0[1], pos1[2] - pos0[2]
+        );
+        QVector3D edge2 = QVector3D(
+            pos2[0] - pos0[0], pos2[1] - pos0[1], pos2[2] - pos0[2]
+        );
+        QVector2D uv1 = QVector2D(tex1[0] - tex0[0], tex1[1] - tex0[1]);
+        QVector2D uv2 = QVector2D(tex2[0] - tex0[0], tex2[1] - tex0[1]);
+        // Compute the tangent and bitangent of the triangle
+        float r = 1.0f / (uv1.x() * uv2.y() - uv2.x() * uv1.y());
+        QVector3D tangent = r * QVector3D(
+            edge1.x() * uv2.y() - edge2.x() * uv1.y(),
+            edge1.y() * uv2.y() - edge2.y() * uv1.y(),
+            edge1.z() * uv2.y() - edge2.z() * uv1.y()
+        );
+        tangent.normalize();
+        QVector3D bitangent = r * QVector3D(
+            -edge1.x() * uv2.x() + edge2.x() * uv1.x(),
+            -edge1.y() * uv2.x() + edge2.y() * uv1.x(),
+            -edge1.z() * uv2.x() + edge2.z() * uv1.x()
+        );
+        bitangent.normalize();
+        // Add tangent and bitangent to the buffer data
+        tangents.insert(3*i0,   tangent.x());
+        tangents.insert(3*i0+1, tangent.y());
+        tangents.insert(3*i0+2, tangent.z());
+        tangents.insert(3*i1,   tangent.x());
+        tangents.insert(3*i1+1, tangent.y());
+        tangents.insert(3*i1+2, tangent.z());
+        tangents.insert(3*i2,   tangent.x());
+        tangents.insert(3*i2+1, tangent.y());
+        tangents.insert(3*i2+2, tangent.z());
+        bitangents.insert(3*i0,   bitangent.x());
+        bitangents.insert(3*i0+1, bitangent.y());
+        bitangents.insert(3*i0+2, bitangent.z());
+        bitangents.insert(3*i1,   bitangent.x());
+        bitangents.insert(3*i1+1, bitangent.y());
+        bitangents.insert(3*i1+2, bitangent.z());
+        bitangents.insert(3*i2,   bitangent.x());
+        bitangents.insert(3*i2+1, bitangent.y());
+        bitangents.insert(3*i2+2, bitangent.z());
+    }
+}
+
+
 void Object::render(
     const CasterLight & light, const QMatrix4x4 & view, 
     const QMatrix4x4 & projection, const QMatrix4x4 lightSpace[], 
@@ -749,13 +819,8 @@ std::unique_ptr<const Object::Node> Object::Loader::processNode(
 
 
 
-/***
- *               ______ _       _            
- *              |  ____| |     | |           
- *              | |__  | | __ _| |_          
- *              |  __| | |/ _` | __|         
- *              | |    | | (_| | |_          
- *       _____  |_|    |_|\__,_|\__|         
+/***       
+ *       _____             __   
  *      / ____|           / _|               
  *     | (___  _   _ _ __| |_ __ _  ___ ___  
  *      \___ \| | | | '__|  _/ _` |/ __/ _ \ 
@@ -770,7 +835,7 @@ std::unique_ptr<const Object::Node> Object::Loader::processNode(
  *                                           
  */
 
-bool Object::FlatSurfaceBuilder::build() {
+bool Object::SurfaceBuilder::build() {
     // Define vertices
     QVector3D cornerRL = m_origin - m_lateralSurface - m_longitudinalSurface;
     QVector3D cornerRR = m_origin + m_lateralSurface - m_longitudinalSurface;
@@ -827,8 +892,10 @@ bool Object::FlatSurfaceBuilder::build() {
     indices->append(QVector<unsigned int>({2, 1, 3})); // FL, RR, and FR
     unsigned int count = static_cast<unsigned int>(indices->size());
     // Fill tangent and bitangent buffer data
+    tangents = std::make_unique<QVector<float>>();
+    bitangents = std::make_unique<QVector<float>>();
     getTangentsAndBitangents(
-        vertices, textureUV, indices, tangents, bitangents
+        *vertices, *textureUV, *indices, *tangents, *bitangents
     );
     
     // Set up material the surface material
@@ -900,79 +967,497 @@ bool Object::FlatSurfaceBuilder::build() {
 }
 
 
-void Object::FlatSurfaceBuilder::getTangentsAndBitangents(
-    const std::unique_ptr<QVector<float>> & vertices, 
-    const std::unique_ptr<QVector<QVector<float>>> & textureUV,
-    const std::unique_ptr<QVector<unsigned int>> & indices, 
-    std::unique_ptr<QVector<float>> & tangents,
-    std::unique_ptr<QVector<float>> & bitangents
-) {
-    unsigned int numTriangles = indices->size() / 3;
-    unsigned int numVertices = vertices->size() / 3;
-    tangents   = std::make_unique<QVector<float>>(3 * numVertices);
-    bitangents = std::make_unique<QVector<float>>(3 * numVertices);
-    for (unsigned int i = 0; i < numTriangles; i++) {
-        // Indices of the triangle vertices
-        unsigned int i0 = indices->at(3*i);
-        unsigned int i1 = indices->at(3*i+1);
-        unsigned int i2 = indices->at(3*i+2);
-        // Position of the triangle vertices
-        QVector<float> pos0 = vertices->mid(3*i0,3);
-        QVector<float> pos1 = vertices->mid(3*i1,3);
-        QVector<float> pos2 = vertices->mid(3*i2,3);
-        // Texture coordinates of the triangle vertices
-        QVector<float> tex0 = textureUV->at(0).mid(2*i0,2);
-        QVector<float> tex1 = textureUV->at(0).mid(2*i1,2);
-        QVector<float> tex2 = textureUV->at(0).mid(2*i2,2);
-        // Compute edges
-        QVector3D edge1 = QVector3D(
-            pos1[0] - pos0[0], pos1[1] - pos0[1], pos1[2] - pos0[2]
-        );
-        QVector3D edge2 = QVector3D(
-            pos2[0] - pos0[0], pos2[1] - pos0[1], pos2[2] - pos0[2]
-        );
-        QVector2D uv1 = QVector2D(tex1[0] - tex0[0], tex1[1] - tex0[1]);
-        QVector2D uv2 = QVector2D(tex2[0] - tex0[0], tex2[1] - tex0[1]);
-        // Compute the tangent and bitangent of the triangle
-        float r = 1.0f / (uv1.x() * uv2.y() - uv2.x() * uv1.y());
-        QVector3D tangent = r * QVector3D(
-            edge1.x() * uv2.y() - edge2.x() * uv1.y(),
-            edge1.y() * uv2.y() - edge2.y() * uv1.y(),
-            edge1.z() * uv2.y() - edge2.z() * uv1.y()
-        );
-        tangent.normalize();
-        QVector3D bitangent = r * QVector3D(
-            -edge1.x() * uv2.x() + edge2.x() * uv1.x(),
-            -edge1.y() * uv2.x() + edge2.y() * uv1.x(),
-            -edge1.z() * uv2.x() + edge2.z() * uv1.x()
-        );
-        bitangent.normalize();
-        // Add tangent and bitangent to the buffer data
-        tangents->insert(3*i0,   tangent.x());
-        tangents->insert(3*i0+1, tangent.y());
-        tangents->insert(3*i0+2, tangent.z());
-        tangents->insert(3*i1,   tangent.x());
-        tangents->insert(3*i1+1, tangent.y());
-        tangents->insert(3*i1+2, tangent.z());
-        tangents->insert(3*i2,   tangent.x());
-        tangents->insert(3*i2+1, tangent.y());
-        tangents->insert(3*i2+2, tangent.z());
-        bitangents->insert(3*i0,   bitangent.x());
-        bitangents->insert(3*i0+1, bitangent.y());
-        bitangents->insert(3*i0+2, bitangent.z());
-        bitangents->insert(3*i1,   bitangent.x());
-        bitangents->insert(3*i1+1, bitangent.y());
-        bitangents->insert(3*i1+2, bitangent.z());
-        bitangents->insert(3*i2,   bitangent.x());
-        bitangents->insert(3*i2+1, bitangent.y());
-        bitangents->insert(3*i2+2, bitangent.z());
-    }
-}
-
-
-std::unique_ptr<Object> Object::FlatSurfaceBuilder::getObject() {
+std::unique_ptr<Object> Object::SurfaceBuilder::getObject() {
     return move(p_object);
 }
+
+
+/***
+ *           __   ____  __ _              
+ *           \ \ / /  \/  | |             
+ *            \ V /| \  / | |             
+ *             > < | |\/| | |             
+ *            / . \| |  | | |____         
+ *      _    /_/ \_\_|  |_|______|        
+ *     | |                   | |          
+ *     | |     ___   __ _  __| | ___ _ __ 
+ *     | |    / _ \ / _` |/ _` |/ _ \ '__|
+ *     | |___| (_) | (_| | (_| |  __/ |   
+ *     |______\___/ \__,_|\__,_|\___|_|   
+ *                                        
+ *                                        
+ */
+
+std::unique_ptr<Object> Object::XmlLoader::getObject() {
+    return move(p_object);
+}
+
+
+bool Object::XmlLoader::build() {
+    if (m_elmt.tagName().compare("shape") != 0)
+        return false;
+    
+    QDomElement child = m_elmt.firstChildElement();
+    
+    // Process the materials of the model
+    while (child.tagName().compare("material") == 0) {
+        std::shared_ptr<const Material> mat = processMaterial(child);
+        m_materials.emplace(mat->getName(), mat);
+        child = child.nextSiblingElement();
+    }
+    
+    // Process the nodes
+    if (child.tagName().compare("node") != 0)
+        return false;
+    std::unique_ptr<const Node> rootNode = processNode(child);
+    p_object = std::make_unique<Object>(
+        std::move(rootNode), std::move(p_vertices), std::move(p_normals), 
+        std::move(p_textureUV), std::move(p_indices), std::move(p_tangents), 
+        std::move(p_bitangents)
+    );
+    return true;
+}
+
+
+bool Object::XmlLoader::qStringToQVector3D(
+    const QString & string, QVector3D & vec
+) {
+    QStringList list = string.split(" ");
+    if (list.size() != 3)
+        return false;
+    bool ok;
+    float x = list[0].toFloat(&ok); if (!ok) return false;
+    float y = list[1].toFloat(&ok); if (!ok) return false;
+    float z = list[2].toFloat(&ok); if (!ok) return false;
+    vec = QVector3D(x, y, z);
+    return true;
+}
+
+
+bool Object::XmlLoader::qStringToQVector4D(
+    const QString & string, QVector4D & vec
+) {
+    QStringList list = string.split(" ");
+    if (list.size() != 4)
+        return false;
+    bool ok;
+    float x = list[0].toFloat(&ok); if (!ok) return false;
+    float y = list[1].toFloat(&ok); if (!ok) return false;
+    float z = list[2].toFloat(&ok); if (!ok) return false;
+    float w = list[3].toFloat(&ok); if (!ok) return false;
+    vec = QVector4D(x, y, z, w);
+    return true;
+}
+
+
+template<typename T> bool Object::XmlLoader::qStringToQVector(
+    const QString & string, QVector<T> & vec
+) {
+    QStringList list = string.simplified().split(" ");
+    QVector<T> vector;
+    for (auto it = list.begin(); it != list.end(); it++) {
+        QVariant variant(*it);
+        if (!variant.canConvert<T>())
+            return false;
+        vector.append(variant.value<T>());
+    }
+    vec.append(vector);
+    return true;
+}
+
+
+std::shared_ptr<const Material> Object::XmlLoader::processMaterial(
+    const QDomElement & elmt
+) {
+    if (elmt.tagName().compare("material") != 0) 
+        return nullptr;
+    
+    // Retrieve name
+    QString name = elmt.attribute("name", "");
+    if (name.isEmpty())
+        return nullptr;
+    
+    // Create material
+    Material material(name);
+    
+    // Process attributes
+    QString ambientString = elmt.attribute("ambientColor","0.5 0.5 0.5");
+    QVector3D ambient;
+    if (!qStringToQVector3D(ambientString, ambient))
+        ambient = QVector3D(0.8, 0.8, 0.8);
+    QString diffuseString = elmt.attribute("diffuseColor","0.8 0.8 0.8");
+    QVector3D diffuse;
+    if (!qStringToQVector3D(diffuseString, diffuse))
+        diffuse = QVector3D(0.8, 0.8, 0.8);
+    QString specularString = elmt.attribute("specularColor","0.2 0.2 0.2");
+    QVector3D specular;
+    if (!qStringToQVector3D(specularString, specular))
+        specular = QVector3D(0.2, 0.2, 0.2);
+    float shine = elmt.attribute("shininess","0.2").toFloat();
+    float alpha =  elmt.attribute("alpha","1.0").toFloat();
+    float height = elmt.attribute("heightScale","0.1").toFloat();
+    
+    material.setAmbientColor(ambient);
+    material.setDiffuseColor(diffuse);
+    material.setSpecularColor(specular);
+    material.setShininess(shine);
+    material.setAlpha(alpha);
+    material.setHeightScale(height);
+    
+    // Process textures
+    for (
+        QDomElement child = elmt.firstChildElement();
+        !child.isNull();
+        child = child.nextSiblingElement()
+    ) {
+        if (child.tagName().compare("texture") != 0)
+            continue;
+        
+        QString path = child.attribute("url","");
+        QString typeString = child.attribute("type","");
+        Texture::Type type = Texture::Type::Diffuse;
+        if (typeString.compare("diffuse") == 0)
+            type = Texture::Type::Diffuse;
+        else if (typeString.compare("normal") == 0)
+            type = Texture::Type::Normal;
+        else if (typeString.compare("bump") == 0)
+            type = Texture::Type::Bump;
+        else
+            qCritical() << __FILE__ << __LINE__ << "Invalid type";
+        
+        if (!QFile::exists(path))
+            qCritical() << __FILE__ << __LINE__ << 
+                "The path" << path << "to the texture file is not valid";
+        QImage image(path);
+        if (image.isNull())
+            qCritical() << __FILE__ << __LINE__ << 
+            "The image file does not exist.";
+        
+        // Load the texture
+        Texture * tex = TextureManager::loadTexture(path, type, image);
+        if (type == Texture::Type::Diffuse)
+            material.setDiffuseTexture(tex);
+        else if (type == Texture::Type::Normal)
+            material.setNormalTexture(tex);
+        else if (type == Texture::Type::Bump)
+            material.setBumpTexture(tex);
+    }
+    
+    return std::make_shared<Material>(material);
+}
+
+
+std::shared_ptr<const Object::Mesh> Object::XmlLoader::processMesh(
+    const QDomElement & elmt
+) {
+    if (elmt.tagName().compare("mesh") != 0)
+        return nullptr;
+    
+    // Retrieve name
+    QString name = elmt.attribute("name", "");
+    if (name.isEmpty())
+        return nullptr;
+    
+    // Mesh count and offset
+    unsigned int count;
+    unsigned int offset = static_cast<unsigned int>(p_indices->size());
+    
+    // Retrieve material
+    QString matString = elmt.attribute("material","");
+    std::shared_ptr<const Material> material;
+    auto it = m_materials.find(matString);
+    if (it != m_materials.end())
+        material = it->second;
+    else {
+        // Use default material
+        material = std::make_shared<Material>("default");
+    }
+    
+    // Load buffer data
+    QVector<float> vertices;
+    QVector<float> normals;
+    QVector<QVector<float>> textureUV;
+    QVector<unsigned int> indices;
+    QVector<float> tangents;
+    QVector<float> bitangents;
+    // Create first channel of textureUV
+    textureUV.push_back(QVector<float>());
+    for (
+        QDomElement buffer = elmt.firstChildElement();
+        !buffer.isNull();
+        buffer = buffer.nextSiblingElement()
+    ) {
+        QString type = buffer.attribute("type","");
+        if (type.compare("vertex") == 0) {
+            if (!qStringToQVector<float>(buffer.text(), vertices))
+                return nullptr;
+        }
+        else if (type.compare("normal") == 0) {
+            if (!qStringToQVector<float>(buffer.text(), normals))
+                return nullptr;
+        }
+        else if (type.compare("texture") == 0) {
+            if (!qStringToQVector<float>(buffer.text(), textureUV[0]))
+                return nullptr;
+        }
+        else if (type.compare("index") == 0) {
+            if (!qStringToQVector<unsigned int>(buffer.text(), indices))
+                return nullptr;
+        }
+        else if (type.compare("tangent") == 0) {
+            if (!qStringToQVector<float>(buffer.text(), tangents))
+                return nullptr;
+        }
+        else if (type.compare("bitangent") == 0) {
+            if (!qStringToQVector<float>(buffer.text(), bitangents))
+                return nullptr;
+        }
+        else {
+            return nullptr;
+        }
+    }
+    
+    // Update count
+    count = static_cast<unsigned int>(indices.size());
+    
+    // Check the buffer
+    if (vertices.isEmpty()) {
+        qDebug() << __FILE__ << __LINE__ <<
+            "Error: The mesh is empty.";
+        return nullptr;
+    }
+    if (vertices.count()/3 != normals.count()/3) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "The size of the normals buffer and the vertices buffer of the mesh"
+            << name << "are not compatible.";
+        return nullptr;
+    }
+    if (vertices.count()/3 != textureUV.at(0).count()/2) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "The size of the texture buffer and the vertices buffer of the mesh"
+            << name << "are not compatible." << vertices.count()/3 << textureUV.count() << textureUV.at(0).count()/2;
+        return nullptr;
+    }
+    if (indices.count() % 3 != 0) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "The size of the indices buffer of the mesh" << name << 
+            "is not valid. Only triangles are supported.";
+        return nullptr;
+    }
+    if (vertices.count()/3 != tangents.count()/3) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "The size of the normals tangent and the vertices buffer of the"
+            "mesh" << name << "are not compatible.";
+        return nullptr;
+    }
+    if (vertices.count()/3 != bitangents.count()/3) {
+        qCritical() << __FILE__ << __LINE__ <<
+            "The size of the bitangents buffer and the vertices buffer of the"
+            "mesh" << name << "are not compatible.";
+        return nullptr;
+    }
+    
+    // Append buffer data
+    p_vertices->append(vertices);
+    p_textureUV->append(textureUV);
+    p_normals->append(normals);
+    p_indices->append(indices);
+    p_tangents->append(tangents);
+    p_bitangents->append(bitangents);
+    
+    // Return the mesh
+    std::shared_ptr<const Mesh> newMesh = std::make_shared<Mesh>(
+        name, count, offset, material
+    );
+    return newMesh;
+}
+
+// FIXME does not work if we use several shape in the same node
+std::shared_ptr<const Object::Mesh> Object::XmlLoader::processShape(
+    const QDomElement & elmt
+) {
+    // Retrieve name
+    QString name = elmt.attribute("name", "");
+    if (name.isEmpty())
+        return nullptr;
+    
+    // Mesh count and offset
+    unsigned int count;
+    unsigned int offset = static_cast<unsigned int>(p_indices->size());
+    
+    // Retrieve material
+    QString matString = elmt.attribute("material","");
+    std::shared_ptr<const Material> material;
+    auto it = m_materials.find(matString);
+    if (it != m_materials.end())
+        material = it->second;
+    else {
+        // Use default material
+        material = std::make_shared<Material>("default");
+    }
+    
+    // Process the geometrical shapes
+    if (elmt.tagName().compare("plane") == 0) {
+        // Retrieve attributes
+        QString originString = elmt.attribute("origin","0 0 0");
+        QString longAxisString = elmt.attribute("longAxis","50 0 0");
+        QString latAxisString = elmt.attribute("latAxis","0 50 0");
+        QVector3D origin, longAxis, latAxis;
+        if (!qStringToQVector3D(originString, origin)) {
+            origin = QVector3D(0, 0, 0);
+        }
+        if (!qStringToQVector3D(longAxisString, longAxis)) {
+            longAxis = QVector3D(50, 0, 0);
+        }
+        if (!qStringToQVector3D(latAxisString, latAxis)) {
+            latAxis = QVector3D(0, 50, 0);
+        };
+        float textureSize = elmt.attribute("textureSize","5.0").toFloat();
+        
+        // Create mesh buffer data
+        QVector<float> vertices;
+        QVector<float> normals;
+        QVector<QVector<float>> textureUV;
+        QVector<unsigned int> indices;
+        QVector<float> tangents;
+        QVector<float> bitangents;
+        
+        QVector3D cornerRL = origin - latAxis - longAxis;
+        QVector3D cornerRR = origin + latAxis - longAxis;
+        QVector3D cornerFL = origin - latAxis + longAxis;
+        QVector3D cornerFR = origin + latAxis + longAxis;
+        
+        vertices.append(
+            QVector<float>({
+                cornerRL.x(), cornerRL.y(), cornerRL.z(),   // RL corner
+                cornerRR.x(), cornerRR.y(), cornerRR.z(),   // RR corner
+                cornerFL.x(), cornerFL.y(), cornerFL.z(),   // FL corner
+                cornerFR.x(), cornerFR.y(), cornerFR.z()    // FR corner
+            })
+        );
+        
+        float length = longAxis.length() * 2;
+        float width = latAxis.length() * 2;
+        textureUV.append(   // x channel
+                QVector<float>({
+                0.0f, 0.0f,                             // RL corner
+                width/textureSize, 0.0f,                // RR corner
+                0.0f, length/textureSize,               // FL corner
+                width/textureSize, length/textureSize   // RR corner
+            })
+        );
+        
+        QVector3D normalAxis = QVector3D::crossProduct(longAxis, latAxis);
+        for (int i = 0; i < 4; i++) {
+            normals.append(QVector<float>({
+                normalAxis.x(), normalAxis.y(), normalAxis.z()
+            }));
+        }
+        
+        indices.append(QVector<unsigned int>({0, 1, 2})); // RL, RR, and FL
+        indices.append(QVector<unsigned int>({2, 1, 3})); // FL, RR, and FR
+        
+        getTangentsAndBitangents(
+            vertices, textureUV, indices, tangents, bitangents
+        );
+        
+        // Update count and append buffer data
+        count = static_cast<unsigned int>(indices.size());
+        p_vertices->append(vertices);
+        p_textureUV->append(textureUV);
+        p_normals->append(normals);
+        p_indices->append(indices);
+        p_tangents->append(tangents);
+        p_bitangents->append(bitangents);
+    }
+    // Other geometrical shapes
+    else
+        return nullptr;
+    
+    // Return the mesh
+    std::shared_ptr<const Mesh> newMesh = std::make_shared<Mesh>(
+        name, count, offset, material
+    );
+    return newMesh;
+}
+
+
+std::unique_ptr<const Object::Node> Object::XmlLoader::processNode(
+    const QDomElement & elmt
+) {
+    if (elmt.tagName().compare("node") != 0) 
+        return nullptr;
+    
+    // Retrieve name
+    QString name = elmt.attribute("name", "");
+    if (name.isEmpty())
+        return nullptr;
+    
+    // Create buffer
+    p_vertices = std::make_unique<QVector<float>>();
+    p_normals = std::make_unique<QVector<float>>();
+    p_textureUV = std::make_unique<QVector<QVector<float>>>();
+    p_indices = std::make_unique<QVector<unsigned int>>();
+    p_tangents = std::make_unique<QVector<float>>();
+    p_bitangents = std::make_unique<QVector<float>>();
+    
+    // Define the transformation
+    QString transString = elmt.attribute("translation","0.0 0.0 0.0");
+    QVector3D trans;
+    if (!qStringToQVector3D(transString, trans))
+        trans = QVector3D(0, 0, 0);
+    QString rotString = elmt.attribute("rotation", "0.0 0.0 0.0 0.0");
+    QVector4D rot;
+    if (!qStringToQVector4D(rotString, rot))
+        rot = QVector4D(1, 0, 0, 0);
+    QString scaleString = elmt.attribute("scale", "1.0 1.0 1.0");
+    QVector3D scale;
+    if (!qStringToQVector3D(scaleString, scale))
+        scale = QVector3D(1, 1, 1);
+    
+    QMatrix4x4 transformation;
+    transformation.setToIdentity();
+    transformation.translate(trans);
+    transformation.rotate(QQuaternion(rot));
+    transformation.scale(scale);
+    
+    // Process child element
+    QDomElement child = elmt.firstChildElement();
+    
+    // Get the node meshes
+    std::vector<std::shared_ptr<const Mesh>> meshes;
+    while (child.tagName().compare("mesh") == 0) {
+        meshes.push_back(processMesh(child));
+        child = child.nextSiblingElement();
+    }
+    
+    // Get the geometrical shapes
+    while (child.tagName().compare("plane") == 0) {
+        meshes.push_back(processShape(child));
+        child = child.nextSiblingElement();
+    }
+    
+    // Create the children of the node
+    std::vector<std::unique_ptr<const Node>> children;
+    while (!child.isNull()) {
+        children.push_back(processNode(child));
+        child = child.nextSiblingElement();
+    }
+    
+    // Create the node
+    return std::make_unique<Node>(
+        name, transformation, meshes, std::move(children)
+    );
+}
+
+
+
+
+
+
+
+
+
 
 
 

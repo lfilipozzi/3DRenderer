@@ -41,6 +41,8 @@ Deleted files or renamed
 Other changes done
 ===============
  * Use pointer to OpenGL ES 2,0 in skybox instead of pointer to OpenGL 3.0 core
+ * Improve code for parsing XML file, this is a bit messy. FOr instance the code to transform string to qvector3D or 4D is copied several times. The XML schema is not well done too. Two type of transform are used for node or groups... Need to make sure that one of each buffer is provided (six buffer does not mean we provide one of each)
+ * Check if possible to share unique_ptr less often when building objects. Instead pass the unqieu_ptr to function using operator* and reference instead, check what is the consequence of doing that.
 
 
 Changing files (still work to do)

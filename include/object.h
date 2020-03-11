@@ -27,7 +27,8 @@ class Object : public ABCObject {
 public:
     class IBuilder;
     class Loader;
-    class FlatSurfaceBuilder;
+    class XmlLoader;
+    class SurfaceBuilder; // TODO delete
     
 private:
     class Node;
@@ -129,6 +130,24 @@ private:
      * @brief Create the vertex, normal, texture, and index buffers.
      */
     void createBuffers();
+    
+private:
+    /**
+     * @brief Compute the tangents and bitangents from the vertices and texture
+     * coordinates.
+     * @param[in] vertices The vertex data.
+     * @param[in] textureUV The texture coordinate data.
+     * @param[in] indices The index data.
+     * @param[out] tangents The tangent data.
+     * @param[out] bitangents The bitangent data.
+     */
+    static void getTangentsAndBitangents(
+        const QVector<float> & vertices, 
+        const QVector<QVector<float>> & textureUV,
+        const QVector<unsigned int> & indices, 
+        QVector<float> & tangents,
+        QVector<float> & bitangents
+    );
     
 private:
     /**
@@ -504,13 +523,13 @@ private:
 };
 
 
-
+// TODO delete
 /// Flat Surface Builder
 /**
  * @brief Create a flat surface
  * @author Louis Filipozzi
  */
-class Object::FlatSurfaceBuilder : public Object::IBuilder {
+class Object::SurfaceBuilder : public Object::IBuilder {
 public:
     /**
      * This function loads the 3D model from filePath and return a pointer to 
@@ -518,7 +537,7 @@ public:
      * @param filePath The path to the object to load.
      * @param textureDir The path to the directory containing the textures to load.
      */
-    FlatSurfaceBuilder(
+    SurfaceBuilder(
         QVector3D origin, QVector3D longitudinalAxis, QVector3D lateralAxis, 
         float textureGridSize
     ) : 
@@ -530,24 +549,6 @@ public:
     
     virtual bool build();
     virtual std::unique_ptr<Object>  getObject();
-    
-private:
-    /**
-     * @brief Compute the tangents and bitangents from the vertices and texture
-     * coordinates.
-     * @param[in] vertices The vertex data.
-     * @param[in] textureUV The texture coordinate data.
-     * @param[in] indices The index data.
-     * @param[out] tangents The tangent data.
-     * @param[out] bitangents The bitangent data.
-     */
-    void getTangentsAndBitangents(
-        const std::unique_ptr<QVector<float>> & vertices, 
-        const std::unique_ptr<QVector<QVector<float>>> & textureUV,
-        const std::unique_ptr<QVector<unsigned int>> & indices, 
-        std::unique_ptr<QVector<float>> & tangents,
-        std::unique_ptr<QVector<float>> & bitangents
-    );
     
 private:
     /**
@@ -579,6 +580,114 @@ private:
      * Pointer to the object.
      */
     std::unique_ptr<Object> p_object;
+};
+
+
+
+#include <QtXml>
+
+
+/// Flat Surface Builder
+/**
+ * @brief Create a flat surface
+ * @author Louis Filipozzi
+ */
+class Object::XmlLoader : public Object::IBuilder {
+public:
+    /**
+     * This function loads the 3D model from filePath and return a pointer to 
+     * the object.
+     * @param filePath The path to the object to load.
+     * @param textureDir The path to the directory containing the textures to load.
+     */
+    XmlLoader(const QDomElement & elmt) : m_elmt(elmt), p_object(nullptr) {};
+    
+    virtual bool build();
+    virtual std::unique_ptr<Object>  getObject();
+    
+private:
+    /**
+     * @brief Convert a QString with format "# # #" to a QVector3D.
+     * @param[in] string The string to convert.
+     * @param[out] vec The vector.
+     * @return Return true if the string is converted to a QVector3D 
+     * successfully.
+     */
+    static bool qStringToQVector3D(const QString & string, QVector3D & vec);
+    
+    /**
+     * @brief Convert a QString with format "# # # #" to a QVector4D.
+     * @param[in] string The string to convert.
+     * @param[out] vec The vector.
+     * @return Return true if the string is converted to a QVector4D 
+     * successfully.
+     */
+    static bool qStringToQVector4D(const QString & string, QVector4D & vec);
+    
+    template<class T>
+    /**
+     * @brief Convert a QString to a QVector
+     * @param[in] string The string to convert.
+     * @param[out] vec The vector.
+     * @return Return true if the string is converted to a QVector successfully.
+     */
+    static bool qStringToQVector(const QString & string, QVector<T> & vec);
+    
+    /**
+     * @brief Process material. 
+     * @param elmt The DOM element.
+     * @return The processed material.
+     */
+    std::shared_ptr<const Material> processMaterial(const QDomElement & elmt);
+    
+    /**
+     * @brief Process mesh.
+     * @param elmt The DOM element.
+     * @return The processed mesh.
+     */
+    std::shared_ptr<const Mesh> processMesh(const QDomElement & elmt);
+    
+    /**
+     * @brief Process geometrical shape (e.g. plane) to create a mesh.
+     * @param elmt The DOM element.
+     * @return The processed mesh.
+     */
+    std::shared_ptr<const Mesh> processShape(const QDomElement & elmt);
+    
+    /**
+     * @brief Process the node
+     * @param elmt The DOM element.
+     * @return The processed node.
+     */
+    std::unique_ptr<const Node> processNode(
+        const QDomElement & elmt
+    );
+    
+private:
+    /**
+     * The DOM element.
+     */
+    QDomElement m_elmt;
+    
+    /**
+     * Pointer to the object.
+     */
+    std::unique_ptr<Object> p_object;
+    
+    /**
+     * Container of materials.
+     */
+    std::map<QString, std::shared_ptr<const Material>> m_materials;
+    
+    /**
+     * Pointer to buffer data.
+     */
+    std::unique_ptr<QVector<float>> p_vertices;
+    std::unique_ptr<QVector<float>> p_normals;
+    std::unique_ptr<QVector<QVector<float>>> p_textureUV;
+    std::unique_ptr<QVector<unsigned int>> p_indices;
+    std::unique_ptr<QVector<float>> p_tangents;
+    std::unique_ptr<QVector<float>> p_bitangents;
 };
 
 
