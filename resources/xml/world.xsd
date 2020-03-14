@@ -38,23 +38,6 @@
             <xsd:enumeration value="bump"/>
         </xsd:restriction>
     </xsd:simpleType>
-    
-    <xsd:simpleType name="BufferData">
-        <xsd:restriction base="xsd:NMTOKENS">
-<!--        TODO add pattern for array of float      -->
-        </xsd:restriction>
-    </xsd:simpleType>
-    
-    <xsd:simpleType name="BufferType">
-        <xsd:restriction base="xsd:NMTOKEN">
-            <xsd:enumeration value="vertex"/>
-            <xsd:enumeration value="normal"/>
-            <xsd:enumeration value="texture"/>
-            <xsd:enumeration value="index"/>
-            <xsd:enumeration value="tangent"/>
-            <xsd:enumeration value="bitangent"/>
-        </xsd:restriction>
-    </xsd:simpleType>
 
     <xsd:element name="texture">
         <xsd:complexType>
@@ -81,26 +64,6 @@
     <xsd:complexType name="abstractShape" abstract="true">
     </xsd:complexType>
     
-    <xsd:element name="buffer">
-        <xsd:complexType>
-            <xsd:simpleContent>
-                <xsd:extension base="BufferData">
-                    <xsd:attribute name="type" type="BufferType"/>
-                </xsd:extension>
-            </xsd:simpleContent>
-        </xsd:complexType>
-    </xsd:element>
-    
-    <xsd:element name="mesh">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="buffer" minOccurs="6" maxOccurs="6"/>
-            </xsd:sequence>
-            <xsd:attribute name="name" type="xsd:ID" use="required"/>
-            <xsd:attribute name="material" type="xsd:IDREF"/>
-        </xsd:complexType>
-    </xsd:element>
-    
     <xsd:element name="plane">
         <xsd:complexType>
             <xsd:attribute name="name" type="xsd:ID" use="required"/>
@@ -115,7 +78,6 @@
     <xsd:element name="node">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element ref="mesh" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="plane" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="node" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
@@ -166,7 +128,6 @@
     <xsd:element name="transform">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element ref="plane" minOccurs="0" maxOccurs="unbounded"/> <!-- TODO remove this line -->
                 <xsd:element ref="model" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="reference" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="shape" minOccurs="0" maxOccurs="unbounded"/>

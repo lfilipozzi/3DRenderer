@@ -4,7 +4,25 @@
     xsi:noNamespaceSchemaLocation="world.xsd">
     <group>
         <transform>
-                <plane name="surf" longAxis="250 0 0" latAxis="0 250 0"/>
+            <shape name="surface">
+                <material name="asphalt" shininess="10.0" heightScale="0.1">
+                    <texture 
+                        type="diffuse" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_COLOR.jpg"/>
+                    <texture 
+                        type="normal" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_NRM.jpg"/>
+                    <texture 
+                        type="bump" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_DISP.png"/>
+                </material>
+                <node name="surfNode">
+                    <plane 
+                        name="surf"
+                        longAxis="250 0 0" latAxis="0 250 0"
+                        material="asphalt"/>
+                </node>
+            </shape>
         </transform>
     </group>
 </world>

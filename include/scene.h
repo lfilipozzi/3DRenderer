@@ -285,14 +285,6 @@ private:
      */
     ABCObject * processModel(const QDomElement & elmt);
     
-    // TODO delete
-    /**
-     * @brief Process all plane elements among the node's children.
-     * @param elmt The DOM element.
-     * @return Pointer to the object, nullptr if an error happened.
-     */
-    ABCObject * processPlane(const QDomElement & elmt);
-    
     /**
      * @brief Process all shape elements among the node's children.
      * @param elmt The DOM element.

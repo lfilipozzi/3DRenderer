@@ -28,7 +28,6 @@ public:
     class IBuilder;
     class Loader;
     class XmlLoader;
-    class SurfaceBuilder; // TODO delete
     
 private:
     class Node;
@@ -523,69 +522,8 @@ private:
 };
 
 
-// TODO delete
-/// Flat Surface Builder
-/**
- * @brief Create a flat surface
- * @author Louis Filipozzi
- */
-class Object::SurfaceBuilder : public Object::IBuilder {
-public:
-    /**
-     * This function loads the 3D model from filePath and return a pointer to 
-     * the object.
-     * @param filePath The path to the object to load.
-     * @param textureDir The path to the directory containing the textures to load.
-     */
-    SurfaceBuilder(
-        QVector3D origin, QVector3D longitudinalAxis, QVector3D lateralAxis, 
-        float textureGridSize
-    ) : 
-    m_textureSize(textureGridSize), 
-    m_origin(origin),
-    m_longitudinalSurface(longitudinalAxis),
-    m_lateralSurface(lateralAxis),
-    m_normalSurface(QVector3D::crossProduct(longitudinalAxis, lateralAxis)) {};
-    
-    virtual bool build();
-    virtual std::unique_ptr<Object>  getObject();
-    
-private:
-    /**
-     * Define the size of the texture pattern.
-     */
-    float m_textureSize;
-    
-    /**
-     * Origin of the plane
-     */
-    QVector3D m_origin;
-
-    /**
-     * Longitudinal axis of the surface plane.
-     */
-    QVector3D m_longitudinalSurface;
-
-    /**
-     * Lateral axis of the surface plane.
-     */
-    QVector3D m_lateralSurface;
-
-    /**
-     * The normal to the surface.
-     */
-    QVector3D m_normalSurface;
-    
-    /**
-     * Pointer to the object.
-     */
-    std::unique_ptr<Object> p_object;
-};
-
-
 
 #include <QtXml>
-
 
 /// Flat Surface Builder
 /**
@@ -639,13 +577,6 @@ private:
      * @return The processed material.
      */
     std::shared_ptr<const Material> processMaterial(const QDomElement & elmt);
-    
-    /**
-     * @brief Process mesh.
-     * @param elmt The DOM element.
-     * @return The processed mesh.
-     */
-    std::shared_ptr<const Mesh> processMesh(const QDomElement & elmt);
     
     /**
      * @brief Process geometrical shape (e.g. plane) to create a mesh.

@@ -361,9 +361,6 @@ std::unique_ptr<Scene::Node>  Scene::Loader::processTransform(
         if (elmt.tagName().compare("group") == 0) {
             processGroup(elmt, node);
         }
-        else if (elmt.tagName().compare("plane") == 0) {// TODO delete
-            node->addObject(processPlane(elmt));
-        }
         else if (elmt.tagName().compare("model") == 0) {
             node->addObject(processModel(elmt));
         }
@@ -443,57 +440,6 @@ ABCObject * Scene::Loader::processShape(const QDomElement & elmt) {
     if (modelLoader.build()) {
         model = ObjectManager::loadObject(name, modelLoader.getObject());
         return model;
-    }
-    return nullptr;
-}
-
-
-// TODO delete
-ABCObject *  Scene::Loader::processPlane(const QDomElement & elmt) {
-    if (elmt.tagName().compare("plane") != 0)
-        return nullptr;
-    
-    // Retrieve name
-    QString name = elmt.attribute("name","");
-    if (name.isEmpty()) {
-        qWarning() << 
-            "The attribute 'name' of the element 'plane' must be provided. "
-            "The object will not be rendered.";
-        return nullptr;
-    }
-    
-    // Check that the ID of the plan is unique
-    if (ObjectManager::getObject(name) != nullptr) {
-        qWarning() << 
-            "An object with name" << name << "already exists. The object will "
-            "not be rendered.";
-        return nullptr;
-    }
-    
-    // Retrieve attributes
-    QString originString = elmt.attribute("origin","0 0 0");
-    QString longAxisString = elmt.attribute("longAxis","50 0 0");
-    QString latAxisString = elmt.attribute("latAxis","0 50 0");
-    QVector3D origin, longAxis, latAxis;
-    if (!qStringToQVector3D(originString, origin)) {
-        origin = QVector3D(0, 0, 0);
-    }
-    if (!qStringToQVector3D(longAxisString, longAxis)) {
-        longAxis = QVector3D(50, 0, 0);
-    }
-    if (!qStringToQVector3D(latAxisString, latAxis)) {
-        latAxis = QVector3D(0, 50, 0);
-    };
-    float textureGridSize = elmt.attribute("textureSize","5.0").toFloat();
-    
-    // Build object and add it to the container
-    ABCObject * plane = nullptr;
-    Object::SurfaceBuilder planeBuilder(
-        origin, longAxis, latAxis, textureGridSize
-    );
-    if (planeBuilder.build()) {
-        plane = ObjectManager::loadObject(name, planeBuilder.getObject());
-        return plane;
     }
     return nullptr;
 }
