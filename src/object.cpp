@@ -179,8 +179,8 @@ void Object::getTangentsAndBitangents(
     QVector<float> & tangents,
     QVector<float> & bitangents
 ) {
-    unsigned int numTriangles = indices.size() / 3;
-    unsigned int numVertices = vertices.size() / 3;
+    const unsigned int numTriangles = indices.size() / 3;
+    const unsigned int numVertices = vertices.size() / 3;
     tangents   = QVector<float>(3 * numVertices);
     bitangents = QVector<float>(3 * numVertices);
     for (unsigned int i = 0; i < numTriangles; i++) {
@@ -220,24 +220,24 @@ void Object::getTangentsAndBitangents(
         );
         bitangent.normalize();
         // Add tangent and bitangent to the buffer data
-        tangents.insert(3*i0,   tangent.x());
-        tangents.insert(3*i0+1, tangent.y());
-        tangents.insert(3*i0+2, tangent.z());
-        tangents.insert(3*i1,   tangent.x());
-        tangents.insert(3*i1+1, tangent.y());
-        tangents.insert(3*i1+2, tangent.z());
-        tangents.insert(3*i2,   tangent.x());
-        tangents.insert(3*i2+1, tangent.y());
-        tangents.insert(3*i2+2, tangent.z());
-        bitangents.insert(3*i0,   bitangent.x());
-        bitangents.insert(3*i0+1, bitangent.y());
-        bitangents.insert(3*i0+2, bitangent.z());
-        bitangents.insert(3*i1,   bitangent.x());
-        bitangents.insert(3*i1+1, bitangent.y());
-        bitangents.insert(3*i1+2, bitangent.z());
-        bitangents.insert(3*i2,   bitangent.x());
-        bitangents.insert(3*i2+1, bitangent.y());
-        bitangents.insert(3*i2+2, bitangent.z());
+        tangents[3*i0  ] = tangent.x();
+        tangents[3*i0+1] = tangent.y();
+        tangents[3*i0+2] = tangent.z();
+        tangents[3*i1  ] = tangent.x();
+        tangents[3*i1+1] = tangent.y();
+        tangents[3*i1+2] = tangent.z();
+        tangents[3*i2  ] = tangent.x();
+        tangents[3*i2+1] = tangent.y();
+        tangents[3*i2+2] = tangent.z();
+        bitangents[3*i0  ] = bitangent.x();
+        bitangents[3*i0+1] = bitangent.y();
+        bitangents[3*i0+2] = bitangent.z();
+        bitangents[3*i1  ] = bitangent.x();
+        bitangents[3*i1+1] = bitangent.y();
+        bitangents[3*i1+2] = bitangent.z();
+        bitangents[3*i2  ] = bitangent.x();
+        bitangents[3*i2+1] = bitangent.y();
+        bitangents[3*i2+2] = bitangent.z();
     }
 }
 
@@ -994,7 +994,6 @@ std::shared_ptr<const Material> Object::XmlLoader::processMaterial(
 }
 
 
-// FIXME does not work if we use several shape in the same node
 std::shared_ptr<const Object::Mesh> Object::XmlLoader::processShape(
     const QDomElement & elmt
 ) {
@@ -1041,8 +1040,6 @@ std::shared_ptr<const Object::Mesh> Object::XmlLoader::processShape(
         QVector<float> normals;
         QVector<QVector<float>> textureUV;
         QVector<unsigned int> indices;
-        QVector<float> tangents;
-        QVector<float> bitangents;
         
         QVector3D cornerRL = origin - latAxis - longAxis;
         QVector3D cornerRR = origin + latAxis - longAxis;
@@ -1061,7 +1058,7 @@ std::shared_ptr<const Object::Mesh> Object::XmlLoader::processShape(
         float length = longAxis.length() * 2;
         float width = latAxis.length() * 2;
         textureUV.append(   // x channel
-                QVector<float>({
+            QVector<float>({
                 0.0f, 0.0f,                             // RL corner
                 width/textureSize, 0.0f,                // RR corner
                 0.0f, length/textureSize,               // FL corner
@@ -1076,21 +1073,25 @@ std::shared_ptr<const Object::Mesh> Object::XmlLoader::processShape(
             }));
         }
         
-        indices.append(QVector<unsigned int>({0, 1, 2})); // RL, RR, and FL
-        indices.append(QVector<unsigned int>({2, 1, 3})); // FL, RR, and FR
-        
-        getTangentsAndBitangents(
-            vertices, textureUV, indices, tangents, bitangents
+        unsigned int indexOffset = static_cast<unsigned int>(
+            p_vertices->size()/3
         );
+        indices.append(QVector<unsigned int>(
+            {indexOffset+0, indexOffset+1, indexOffset+2}   // RL, RR, and FL
+        ));
+        indices.append(QVector<unsigned int>(
+            {indexOffset+2, indexOffset+1, indexOffset+3}   // FL, RR, and FR
+        ));
+        
+        // Remark: The tangents and bitangents buffer are computed once the 
+        // vertices, textureUV, and indices buffer are filled.
         
         // Update count and append buffer data
         count = static_cast<unsigned int>(indices.size());
         p_vertices->append(vertices);
-        p_textureUV->append(textureUV);
+        p_textureUV->operator[](0).append(textureUV.at(0));
         p_normals->append(normals);
         p_indices->append(indices);
-        p_tangents->append(tangents);
-        p_bitangents->append(bitangents);
     }
     // Other geometrical shapes
     else
@@ -1123,6 +1124,9 @@ std::unique_ptr<const Object::Node> Object::XmlLoader::processNode(
     p_tangents = std::make_unique<QVector<float>>();
     p_bitangents = std::make_unique<QVector<float>>();
     
+    // Create channels
+    p_textureUV->push_back(QVector<float>());   // x channel
+    
     // Define the transformation
     QString transString = elmt.attribute("translation","0.0 0.0 0.0");
     QVector3D trans;
@@ -1153,6 +1157,11 @@ std::unique_ptr<const Object::Node> Object::XmlLoader::processNode(
         meshes.push_back(processShape(child));
         child = child.nextSiblingElement();
     }
+    // Compute the tangents and bitangents once the vertices, textures, and 
+    // indices buffers are filed
+    getTangentsAndBitangents(
+        *p_vertices, *p_textureUV, *p_indices, *p_tangents, *p_bitangents
+    );
     
     // Create the children of the node
     std::vector<std::unique_ptr<const Node>> children;
