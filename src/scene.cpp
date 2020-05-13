@@ -21,7 +21,8 @@ Scene::Scene(unsigned int refreshRate, QString envFile) :
     m_frameRate(1 / static_cast<float>(m_refreshRate)),
     m_loop(true),
     m_showGlobalFrame(false),
-    m_envFile(envFile) {}
+    m_envFile(envFile),
+    m_snapshotMode(false) {}
 
 
 Scene::~Scene() {}
@@ -139,10 +140,22 @@ void Scene::render() {
     m_skybox.render(m_view, m_projection);
     if (p_graph != nullptr)
         p_graph->render(m_light, m_view, m_projection, m_lightSpace, m_cascades);
-    if (p_vehicle != nullptr)
-        p_vehicle->render(
-            m_light, m_view, m_projection, m_lightSpace, m_cascades
-        );
+    if (p_vehicle != nullptr) {
+        if (m_snapshotMode) {
+            for (int i = 0; i < 5; i++) {
+                float timestep = m_firstTimestep + static_cast<float>(i)/4 * 
+                    (m_finalTimestep - m_firstTimestep);
+                p_vehicle->updatePosition(timestep);
+                p_vehicle->render(
+                    m_light, m_view, m_projection, m_lightSpace, m_cascades
+                );
+            }
+        } else {
+            p_vehicle->render(
+                m_light, m_view, m_projection, m_lightSpace, m_cascades
+            );
+        }
+    }
     if (m_showGlobalFrame) {
         m_frame.setModelMatrix(QMatrix4x4());
         m_frame.render(m_light, m_view, m_projection, m_lightSpace, m_cascades);
@@ -154,8 +167,18 @@ void Scene::renderShadow(unsigned int cascadeIdx) {
     // Render the shadow map
     if (p_graph != nullptr)
         p_graph->renderShadow(m_lightSpace.at(cascadeIdx));
-    if (p_vehicle != nullptr)
-        p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
+    if (p_vehicle != nullptr) {
+        if (m_snapshotMode) {
+            for (int i = 0; i < 5; i++) {
+                float timestep = m_firstTimestep + static_cast<float>(i)/4 * 
+                    (m_finalTimestep - m_firstTimestep);
+                p_vehicle->updatePosition(timestep);
+                p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
+            }
+        } else {
+            p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
+        }
+    }
 }
 
 

@@ -116,6 +116,8 @@ public:
     
     void toggleTireForce() {p_vehicle->toggleTireForce();}
     
+    void toggleSnapshotMode() {m_snapshotMode = !m_snapshotMode;}
+    
 private:
     /**
      * View matrix: transform from the world (scene) coordinates to the camera 
@@ -213,6 +215,11 @@ private:
      * XML file describing the scene.
      */
     QString m_envFile;
+    
+    /**
+     * Flag for snapshot mode.
+     */
+    bool m_snapshotMode;
 };
 
 

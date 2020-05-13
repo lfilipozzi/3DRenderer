@@ -177,6 +177,11 @@ public slots:
      */
     void toggleTireForce() {p_scene->toggleTireForce();}
     
+    /**
+     * Qt slot to toggle the snapshot mode.
+     */
+    void toggleSnapshotMode() {p_scene->toggleSnapshotMode();}
+    
 signals:
     /**
      * Indicate the camera has been offset.

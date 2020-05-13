@@ -27,12 +27,14 @@ AnimationWindow::AnimationWindow(QString envFile) {
     QMenu * helpMenu = menuBar()->addMenu("&Help");
     QAction * recordAction = fileMenu->addAction("Export to video");
     QAction * exitAction = fileMenu->addAction("&Exit");
+    QAction * toggleSnapshotAction = viewMenu->addAction("&Snapshot mode");
     QAction * toggleGlobFrAction = viewMenu->addAction("Toggle &global frame");
     QAction * toggleTireForceAction = viewMenu->addAction("Toggle &tire forces");
     QAction * aboutAction = helpMenu->addAction("&About");
     
     // Set menu and action options
     fileMenu->insertSeparator(exitAction);
+    toggleSnapshotAction->setCheckable(true);
     toggleGlobFrAction->setCheckable(true);
     toggleTireForceAction->setCheckable(true);
     toggleTireForceAction->setChecked(true);
@@ -68,6 +70,8 @@ AnimationWindow::AnimationWindow(QString envFile) {
     // Create record dialog window
     p_recordDialog = std::make_unique<RecordDialog>(p_openGLWindow.get());
     
+    connect(toggleSnapshotAction, SIGNAL(triggered()),
+            p_openGLWindow.get(), SLOT(toggleSnapshotMode()));
     connect(recordAction, SIGNAL(triggered()), 
             p_recordDialog.get(), SLOT(show()));
     connect(exitAction, SIGNAL(triggered()), 
