@@ -158,6 +158,11 @@ void VehicleController::setVehicleTrajectory(const QString filePath) {
 
 
 VehiclePosition VehicleController::getVehiclePosition(const float time) {
+    // If before first timestep
+    if (time <= m_trajectory.begin()->first) {
+        return m_trajectory.begin()->second;
+    }
+    
     // Find the first element which occur before time-step
     Trajectory::iterator it = m_trajectory.lower_bound(time);
     
@@ -180,8 +185,9 @@ VehiclePosition VehicleController::getVehiclePosition(const float time) {
         }
     }
     else {
-        // Cannot find the position
         return VehiclePosition();
+//         // Return position at last timestep
+//         return m_trajectory.end()->second;
     }
 }
 

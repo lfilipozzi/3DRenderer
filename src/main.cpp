@@ -15,7 +15,7 @@ void helpPrinter() {
 
 int main(int argc, char *argv[]) {
     // Parse arguments
-    QString vehicle;
+    std::vector<QString> vehicle;
     QString environment;
     for (int i = 1; i < argc; i++) {
         if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) {
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
                     << std::endl;
                 return -1;
             }
-            vehicle = QString(argv[++i]);
+            vehicle.push_back(QString(argv[++i]));
         }
         else if ((strcmp(argv[i],"-e") == 0)||(strcmp(argv[i],"--env") == 0)) {
             if (i+1 >= argc) {
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("3D viewer");
     
-    AnimationWindow animationWindow(environment);
+    AnimationWindow animationWindow(environment, vehicle);
     animationWindow.show();
 
     return app.exec();

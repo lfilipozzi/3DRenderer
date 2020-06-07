@@ -59,8 +59,9 @@ public:
     /**
      * @brief Constructor of the animation window.
      * @param envFile Path to the XML file describing the scene.
+     * @param vehList Vector of path to file containing vehicle trajectory.
      */
-    AnimationWindow(QString envFile);
+    AnimationWindow(QString envFile, std::vector<QString> vehList);
     ~AnimationWindow();
     
 public slots:

@@ -12,7 +12,7 @@
  *                                 
  */
 
-Scene::Scene(unsigned int refreshRate, QString envFile) : 
+Scene::Scene(unsigned int refreshRate, QString envFile, std::vector<QString> vehList) : 
     m_camera(0.0f, 0.0f,QVector3D(0.0f, 0.0f, 0.0f)),
     m_frame(QVector3D(0.0f, 0.0f, 1.0f)),
     m_timestep(0.0f),
@@ -22,6 +22,7 @@ Scene::Scene(unsigned int refreshRate, QString envFile) :
     m_loop(true),
     m_showGlobalFrame(false),
     m_envFile(envFile),
+    m_vehList(vehList), 
     m_snapshotMode(false) {}
 
 
@@ -83,14 +84,23 @@ void Scene::initialize() {
     ObjectManager::initialize();
     
     // Create the vehicle
-    p_vehicle = std::make_unique<Vehicle>(
-        chassis, wheel, line, "asset/SimulationData/data.txt"
-    );
+    for (auto it = m_vehList.begin(); it != m_vehList.end(); it++) {
+        std::unique_ptr<Vehicle> vehicle = std::make_unique<Vehicle>(
+            chassis, wheel, line, *it
+        );
+        m_vehicles.push_back(std::move(vehicle));
+    }
     
     // Get the simulation duration from the vehicle trajectory
-    if (p_vehicle != nullptr) {
-        m_firstTimestep = p_vehicle->getFirstTimeStep();
-        m_finalTimestep = p_vehicle->getFinalTimeStep();
+    m_firstTimestep = 0.0f;
+    m_finalTimestep = 1.0f;
+    for (int i = 0; i < m_vehicles.size(); i++) {
+        if (m_vehicles.at(i) != nullptr) {
+            m_firstTimestep = 
+                std::min(m_firstTimestep, m_vehicles.at(i)->getFirstTimeStep());
+            m_finalTimestep = 
+                std::max(m_finalTimestep, m_vehicles.at(i)->getFinalTimeStep());
+        }
     }
 }
 
@@ -101,11 +111,19 @@ void Scene::resize(int w, int h) {
 
 
 void Scene::update() {
+    // Update vehicle position
+    for (int i = 0; i < m_vehicles.size(); i++) {
+        if (m_vehicles.at(i) != nullptr) {
+            m_vehicles.at(i)->updatePosition(m_timestep);
+        }
+    }
+    
     // Get the vehicle position
     Position vehiclePosition;
-    if (p_vehicle != nullptr) {
-        vehiclePosition = p_vehicle->getPosition(m_timestep);
-        p_vehicle->updatePosition(m_timestep);
+    if (m_vehicles.size() >= 0) {
+        if (m_vehicles.at(0) != nullptr) {
+            vehiclePosition = m_vehicles.at(0)->getPosition(m_timestep);
+        }
     }
     
     // Update camera
@@ -140,20 +158,23 @@ void Scene::render() {
     m_skybox.render(m_view, m_projection);
     if (p_graph != nullptr)
         p_graph->render(m_light, m_view, m_projection, m_lightSpace, m_cascades);
-    if (p_vehicle != nullptr) {
-        if (m_snapshotMode) {
-            for (int i = 0; i < 5; i++) {
-                float timestep = m_firstTimestep + static_cast<float>(i)/4 * 
-                    (m_finalTimestep - m_firstTimestep);
-                p_vehicle->updatePosition(timestep);
-                p_vehicle->render(
+    for (int i = 0; i < m_vehicles.size(); i++) {
+        if (m_vehicles.at(i) != nullptr) {
+            if (m_snapshotMode) {
+                int nSnapshot = 5;
+                for (int k = 0; k < nSnapshot; k++) {
+                    float timestep = m_firstTimestep + static_cast<float>(k)/4 * 
+                        (m_finalTimestep - m_firstTimestep);
+                    m_vehicles.at(i)->updatePosition(timestep);
+                    m_vehicles.at(i)->render(
+                        m_light, m_view, m_projection, m_lightSpace, m_cascades
+                    );
+                }
+            } else {
+                m_vehicles.at(i)->render(
                     m_light, m_view, m_projection, m_lightSpace, m_cascades
                 );
             }
-        } else {
-            p_vehicle->render(
-                m_light, m_view, m_projection, m_lightSpace, m_cascades
-            );
         }
     }
     if (m_showGlobalFrame) {
@@ -167,16 +188,19 @@ void Scene::renderShadow(unsigned int cascadeIdx) {
     // Render the shadow map
     if (p_graph != nullptr)
         p_graph->renderShadow(m_lightSpace.at(cascadeIdx));
-    if (p_vehicle != nullptr) {
-        if (m_snapshotMode) {
-            for (int i = 0; i < 5; i++) {
-                float timestep = m_firstTimestep + static_cast<float>(i)/4 * 
-                    (m_finalTimestep - m_firstTimestep);
-                p_vehicle->updatePosition(timestep);
-                p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
+    for (int i = 0; i < m_vehicles.size(); i++) {
+        if (m_vehicles.at(i) != nullptr) {
+            if (m_snapshotMode) {
+                int nSnapshot = 5;
+                for (int k = 0; k < nSnapshot; k++) {
+                    float timestep = m_firstTimestep + static_cast<float>(k)/4 * 
+                        (m_finalTimestep - m_firstTimestep);
+                    m_vehicles.at(i)->updatePosition(timestep);
+                    m_vehicles.at(i)->renderShadow(m_lightSpace.at(cascadeIdx));
+                }
+            } else {
+                m_vehicles.at(i)->renderShadow(m_lightSpace.at(cascadeIdx));
             }
-        } else {
-            p_vehicle->renderShadow(m_lightSpace.at(cascadeIdx));
         }
     }
 }

@@ -10,7 +10,8 @@
 #include "../include/constants.h"
 
 OpenGLWindow::OpenGLWindow(
-    unsigned int refreshRate, QString envFile, QScreen * screen
+    unsigned int refreshRate, QString envFile, 
+    std::vector<QString> vehList, QScreen * screen
 ) : QWindow(screen), 
     m_wasCameraOffset(false) {
     // Request OpenGL context
@@ -36,7 +37,7 @@ OpenGLWindow::OpenGLWindow(
             exit(1);
     }
     else {
-        p_scene = std::make_unique<Scene>(refreshRate, envFile);
+        p_scene = std::make_unique<Scene>(refreshRate, envFile, vehList);
         QString openGLAPI;
         if (p_context->isOpenGLES()) 
             openGLAPI = QString("OpenGL ES");

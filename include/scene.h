@@ -23,7 +23,7 @@ private:
     class Node;
     
 public:
-    Scene(unsigned int refreshRate, QString envFile);
+    Scene(unsigned int refreshRate, QString envFile, std::vector<QString> vehList);
 
     ~Scene();
 
@@ -114,7 +114,11 @@ public:
     
     void toggleGlobalFrame() {m_showGlobalFrame = !m_showGlobalFrame;}
     
-    void toggleTireForce() {p_vehicle->toggleTireForce();}
+    void toggleTireForce() {
+        for (int i = 0; i < m_vehicles.size(); i++) {
+            m_vehicles.at(i)->toggleTireForce();
+        }
+    }
     
     void toggleSnapshotMode() {m_snapshotMode = !m_snapshotMode;}
     
@@ -159,7 +163,7 @@ private:
     /**
      * The vehicle.
      */
-    std::unique_ptr<Vehicle> p_vehicle;
+    std::vector<std::unique_ptr<Vehicle>> m_vehicles;
     
     /**
      * The XYZ frame of the scene.
@@ -215,6 +219,11 @@ private:
      * XML file describing the scene.
      */
     QString m_envFile;
+    
+    /**
+     * Vector of path to file describing vehicle trajectory.
+     */
+    std::vector<QString> m_vehList;
     
     /**
      * Flag for snapshot mode.

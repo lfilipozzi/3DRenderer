@@ -30,7 +30,8 @@ public:
      * @param screen Pointer to QWindow.
      */
     OpenGLWindow(
-        unsigned int refreshRate, QString envFile, QScreen * screen = nullptr
+        unsigned int refreshRate, QString envFile,
+        std::vector<QString> vehList, QScreen * screen = nullptr
     );
     ~OpenGLWindow();
 
