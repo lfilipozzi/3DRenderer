@@ -29,5 +29,6 @@
     <qresource prefix="/xml">
         <file alias="defaultWorld">xml/defaultWorld.xml</file>
         <file alias="world.xsd">xml/world.xsd</file>
+        <file alias="vehicle.xsd">xml/vehicle.xsd</file>
     </qresource>
 </RCC>

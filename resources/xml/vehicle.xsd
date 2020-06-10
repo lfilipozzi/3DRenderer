@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:simpleType name="path">
+        <xsd:restriction base="xsd:token">
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:element name="chassis">
+        <xsd:complexType>
+            <xsd:attribute name="model" type="path" use="required"/>
+            <xsd:attribute name="texture" type="path" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="wheel">
+        <xsd:complexType>
+            <xsd:attribute name="model" type="path" use="required"/>
+            <xsd:attribute name="texture" type="path" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="trajectory" type="xsd:string" />
+    
+    <xsd:element name="vehicle">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="chassis" minOccurs="1" maxOccurs="1"/>
+                <xsd:element ref="wheel" minOccurs="1" maxOccurs="1"/>
+                <xsd:element ref="trajectory" minOccurs="1" maxOccurs="1"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

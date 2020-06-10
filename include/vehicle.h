@@ -94,9 +94,9 @@ class VehicleController {
 public:
     /**
      * @brief Constructor of the vehicle
-     * @param filePath The path to the file containing the simulation data.
+     * @param trajectory The data describing the trajectory.
      */
-    VehicleController(const QString filePath);
+    VehicleController(const QString trajectory);
     
     /**
      * @brief Return the position of the vehicle at the requested time-step.
@@ -124,13 +124,6 @@ public:
             return m_trajectory.rbegin()->first;
         return 0.0f;
     }
-
-private:
-    /**
-     * @brief Fill the vehicle position from the simulation result file.
-     * @param filePath The path to the file containing the simulation data.
-     */
-    void setVehicleTrajectory(const QString filePath);
     
 private:
     /**
@@ -259,10 +252,10 @@ class Vehicle {
 public:
     Vehicle(
         ABCObject * chassisModel, ABCObject * wheelModel, ABCObject * line, 
-        const QString filePath
+        const QString trajectory
     ) :
     m_graphics(chassisModel, wheelModel, line),
-    m_controller(filePath) {};
+    m_controller(trajectory) {};
     
     /**
      * @brief Return the position of the vehicle at the requested time-step.
@@ -340,6 +333,34 @@ private:
      * Component used to control the vehicle.
      */
     VehicleController m_controller;
+};
+
+
+
+/// Vehicle builder
+/**
+ * @brief Load a vehicle.
+ * @author Louis Filipozzi
+ */
+class VehicleBuilder {
+public:
+    VehicleBuilder(QString file) : m_file(file), p_vehicle(nullptr) {};
+    
+    virtual bool build();
+    virtual std::unique_ptr<Vehicle>  getVehicle();
+    
+private:
+    
+private:
+    /**
+     * The path to the XML file.
+     */
+    QString m_file;
+    
+    /**
+     * Pointer to the vehicle.
+     */
+    std::unique_ptr<Vehicle> p_vehicle;
 };
 
 #endif // VEHICLE_H

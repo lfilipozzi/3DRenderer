@@ -44,6 +44,10 @@ void Scene::initialize() {
     loader.parse(m_envFile);
     p_graph = loader.getSceneGraph();
     
+    VehicleBuilder vehicleBuilder("asset/SimulationData/dataDlc.xml");
+    vehicleBuilder.build();
+    std::unique_ptr<Vehicle> vehicle = vehicleBuilder.getVehicle();
+    
     // Load the chassis model
     ABCObject * chassis = nullptr;
     Object::Loader chassisLoader(
@@ -94,7 +98,7 @@ void Scene::initialize() {
     // Get the simulation duration from the vehicle trajectory
     m_firstTimestep = 0.0f;
     m_finalTimestep = 1.0f;
-    for (int i = 0; i < m_vehicles.size(); i++) {
+    for (unsigned int i = 0; i < m_vehicles.size(); i++) {
         if (m_vehicles.at(i) != nullptr) {
             m_firstTimestep = 
                 std::min(m_firstTimestep, m_vehicles.at(i)->getFirstTimeStep());
@@ -112,7 +116,7 @@ void Scene::resize(int w, int h) {
 
 void Scene::update() {
     // Update vehicle position
-    for (int i = 0; i < m_vehicles.size(); i++) {
+    for (unsigned int i = 0; i < m_vehicles.size(); i++) {
         if (m_vehicles.at(i) != nullptr) {
             m_vehicles.at(i)->updatePosition(m_timestep);
         }
@@ -120,7 +124,7 @@ void Scene::update() {
     
     // Get the vehicle position
     Position vehiclePosition;
-    if (m_vehicles.size() >= 0) {
+    if (m_vehicles.size() > 0) {
         if (m_vehicles.at(0) != nullptr) {
             vehiclePosition = m_vehicles.at(0)->getPosition(m_timestep);
         }
@@ -158,7 +162,7 @@ void Scene::render() {
     m_skybox.render(m_view, m_projection);
     if (p_graph != nullptr)
         p_graph->render(m_light, m_view, m_projection, m_lightSpace, m_cascades);
-    for (int i = 0; i < m_vehicles.size(); i++) {
+    for (unsigned int i = 0; i < m_vehicles.size(); i++) {
         if (m_vehicles.at(i) != nullptr) {
             if (m_snapshotMode) {
                 int nSnapshot = 5;
@@ -188,7 +192,7 @@ void Scene::renderShadow(unsigned int cascadeIdx) {
     // Render the shadow map
     if (p_graph != nullptr)
         p_graph->renderShadow(m_lightSpace.at(cascadeIdx));
-    for (int i = 0; i < m_vehicles.size(); i++) {
+    for (unsigned int i = 0; i < m_vehicles.size(); i++) {
         if (m_vehicles.at(i) != nullptr) {
             if (m_snapshotMode) {
                 int nSnapshot = 5;

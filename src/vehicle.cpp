@@ -42,11 +42,6 @@ VehiclePosition operator*(const float & lhs, const VehiclePosition & rhs) {
  */
 
 VehicleController::VehicleController(const QString filePath) {
-    setVehicleTrajectory(filePath);
-}
-
-
-void VehicleController::setVehicleTrajectory(const QString filePath) {
     QFile file(filePath);
 
     if (file.open(QFile::ReadOnly)) {
@@ -327,7 +322,140 @@ void VehicleGraphics::renderShadow(const QMatrix4x4 & lightSpace) {
 
 
 
+/***
+ *     __      __  _     _      _       
+ *     \ \    / / | |   (_)    | |      
+ *      \ \  / /__| |__  _  ___| | ___  
+ *       \ \/ / _ \ '_ \| |/ __| |/ _ \ 
+ *        \  /  __/ | | | | (__| |  __/ 
+ *      ___\/ \___|_| |_|_|\___|_|\___| 
+ *     |  _ \      (_) |   | |          
+ *     | |_) |_   _ _| | __| | ___ _ __ 
+ *     |  _ <| | | | | |/ _` |/ _ \ '__|
+ *     | |_) | |_| | | | (_| |  __/ |   
+ *     |____/ \__,_|_|_|\__,_|\___|_|   
+ *                                      
+ *                                      
+ */
 
+#include <QtXml>
+#include <QXmlSchema>
+#include <QXmlSchemaValidator>
+#include "../include/object.h"
+#include "../include/line.h"
+
+bool VehicleBuilder::build() {
+    // Get data
+    if (!QFile::exists(m_file)) {
+        qWarning() << "The file" << m_file << "does not exist.";
+        return false;
+    }
+    
+    QDomDocument domDoc;
+    // Load XML file as raw data
+    QFile file(m_file);
+    if (!file.open(QIODevice::ReadOnly)) {
+        // Error while loading file
+        qWarning() << "Error while loading file" << m_file;
+    }
+    
+    // Retrieve the XML schema
+    QXmlSchema schema;
+    QUrl schemaUrl = QUrl::fromLocalFile(":/xml/vehicle.xsd");
+    if (!schema.load(schemaUrl)) {
+        qDebug() << "Cannot load XSD schema. The XML file will not be parsed.";
+        return false;
+    }
+    // The XSD resource file cannot be invalid
+    if (!schema.isValid()) {
+        qCritical() << "The  XML schema (.xsd) is invalid. The XML file will"
+            "not be parsed.";
+        return false;
+    }
+
+    // Validate the vehicle XML file
+    QXmlSchemaValidator validator{schema};
+    if (!validator.validate(&file, QUrl::fromLocalFile(file.fileName()))) {
+        qCritical() << "The file" << m_file << "does not meet the XML "
+        "schema definition. The XML will not be parsed.";
+        return false;
+    }
+    
+    // Set data into the QDomDocument before processing
+    file.reset();
+    domDoc.setContent(&file);
+    file.close();
+    
+    // Get vehicle element
+    QDomElement root = domDoc.documentElement();
+    
+    // Process chassis
+    QDomElement elmt = root.firstChildElement();
+    QString chassisObject = elmt.attribute("model", "");
+    QString chassisTex = elmt.attribute("texture", "");
+    
+    // Process wheel
+    elmt = elmt.nextSiblingElement();
+    QString wheelObject = elmt.attribute("model", "");
+    QString wheelTex = elmt.attribute("texture", "");
+    
+    // Process trajectory
+    elmt = elmt.nextSiblingElement();
+    QString trajectory = elmt.text();
+    
+//     // Load the chassis model
+//     ABCObject * chassis = nullptr;
+//     Object::Loader chassisLoader(
+//         "asset/Models/Cars/Mustang_GT/mustangChassis.obj",
+//         "asset/Models/Cars/Mustang_GT/"
+//     );
+//     if (chassisLoader.build()) {
+//         chassis = ObjectManager::loadObject(
+//             "chassis", chassisLoader.getObject()
+//         );
+//     }
+//     
+//     // Load the wheel model
+//     ABCObject * wheel = nullptr;
+//     Object::Loader wheelLoader(
+//         "asset/Models/Cars/Mustang_GT/mustangWheel.obj",
+//         "asset/Models/Cars/Mustang_GT/"
+//     );
+//     if (wheelLoader.build()) {
+//         wheel = ObjectManager::loadObject(
+//             "wheel", wheelLoader.getObject()
+//         );
+//     }
+//     
+//     // Load line
+//     ABCObject * line = nullptr;
+//     line = ObjectManager::loadObject(
+//         "line", 
+//         std::make_unique<Line>(
+//             // Vertices
+//             QVector<QVector3D>({
+//                 QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
+//                 QVector3D(0, 1, 0), QVector3D(0, 0, 1)}
+//             ),
+//             // Indices
+//             QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
+//             // Color
+//             QVector3D(0.0f, 0.0f, 1.0f)
+//         )
+//     );
+//     
+//     ObjectManager::initialize();
+//     
+//     // Create the vehicle
+//     p_vehicle = std::make_unique<Vehicle>(chassis, wheel, line, trajectory);
+    
+    return true;
+}
+
+
+std::unique_ptr<Vehicle> VehicleBuilder::getVehicle() {
+    return move(p_vehicle);
+}
 
 
 

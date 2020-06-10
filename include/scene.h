@@ -115,7 +115,7 @@ public:
     void toggleGlobalFrame() {m_showGlobalFrame = !m_showGlobalFrame;}
     
     void toggleTireForce() {
-        for (int i = 0; i < m_vehicles.size(); i++) {
+        for (unsigned int i = 0; i < m_vehicles.size(); i++) {
             m_vehicles.at(i)->toggleTireForce();
         }
     }
