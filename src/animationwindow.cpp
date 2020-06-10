@@ -72,8 +72,10 @@ AnimationWindow::AnimationWindow(QString envFile, std::vector<QString> vehList) 
     // Create record dialog window
     p_recordDialog = std::make_unique<RecordDialog>(p_openGLWindow.get());
     
-    connect(toggleSnapshotAction, SIGNAL(triggered()),
-            p_openGLWindow.get(), SLOT(toggleSnapshotMode()));
+    connect(toggleSnapshotAction, SIGNAL(triggered(bool)),
+            p_openGLWindow.get(), SLOT(setSnapshotMode(bool)));
+    connect(toggleSnapshotAction, SIGNAL(triggered(bool)),
+            p_player, SLOT(setSnapshotMode(bool)));
     connect(recordAction, SIGNAL(triggered()), 
             p_recordDialog.get(), SLOT(show()));
     connect(exitAction, SIGNAL(triggered()), 

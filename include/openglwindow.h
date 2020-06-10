@@ -181,7 +181,7 @@ public slots:
     /**
      * Qt slot to toggle the snapshot mode.
      */
-    void toggleSnapshotMode() {p_scene->toggleSnapshotMode();}
+    void setSnapshotMode(bool flag) {p_scene->setSnapshotMode(flag);}
     
 signals:
     /**

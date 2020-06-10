@@ -162,3 +162,17 @@ void AnimationPlayer::lockCameraButton() {
     );
 }
 
+void AnimationPlayer::setSnapshotMode(bool flag) {
+    if (flag) {
+        // Snapshot mode
+        m_rateSlider->setEnabled(!flag);
+    } else {
+        // Animation mode
+        m_rateSlider->setEnabled(!flag);
+    }
+}
+
+
+
+
+

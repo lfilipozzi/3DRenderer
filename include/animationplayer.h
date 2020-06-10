@@ -40,6 +40,11 @@ public slots:
      * Qt slot to update the icon of the lock camera button.
      */
     void lockCameraButton();
+    
+    /**
+     * Qt slot to swith to snapshot mode.
+     */
+    void setSnapshotMode(bool flag);
 
 private:
     /**

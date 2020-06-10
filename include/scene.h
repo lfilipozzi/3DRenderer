@@ -120,7 +120,7 @@ public:
         }
     }
     
-    void toggleSnapshotMode() {m_snapshotMode = !m_snapshotMode;}
+    void setSnapshotMode(bool flag) {m_snapshotMode = flag;}
     
 private:
     /**
