@@ -41,12 +41,9 @@ VehiclePosition operator*(const float & lhs, const VehiclePosition & rhs) {
  *                                                    
  */
 
-VehicleController::VehicleController(const QString filePath) {
-    QFile file(filePath);
-
-    if (file.open(QFile::ReadOnly)) {
+VehicleController::VehicleController(QString trajectory) {
         bool isFirstLine = true;
-        QTextStream stream(&file);
+        QTextStream stream(&trajectory);
         while (!stream.atEnd()) {
             if (isFirstLine) {
                 // Ignore first line
@@ -137,18 +134,12 @@ VehicleController::VehicleController(const QString filePath) {
                 m_trajectory[timestep] = position;
             }
             else {
-                qCritical() << "Not enough field to load the vehicle " <<
-                    " trajectory in file '" << file.fileName() << "'."
+                qCritical() << "Not enough field to load the vehicle."
                     << fields.size() << "fields present," 
                     << NUMBER_FIELD_TO_LOAD << "are required";
                 break;
             }
         }
-        file.close();
-    }
-    else {
-        qCritical() << "Unable to load file '" << file.fileName() << "'.";
-    }
 }
 
 
@@ -403,51 +394,43 @@ bool VehicleBuilder::build() {
     elmt = elmt.nextSiblingElement();
     QString trajectory = elmt.text();
     
-//     // Load the chassis model
-//     ABCObject * chassis = nullptr;
-//     Object::Loader chassisLoader(
-//         "asset/Models/Cars/Mustang_GT/mustangChassis.obj",
-//         "asset/Models/Cars/Mustang_GT/"
-//     );
-//     if (chassisLoader.build()) {
-//         chassis = ObjectManager::loadObject(
-//             "chassis", chassisLoader.getObject()
-//         );
-//     }
-//     
-//     // Load the wheel model
-//     ABCObject * wheel = nullptr;
-//     Object::Loader wheelLoader(
-//         "asset/Models/Cars/Mustang_GT/mustangWheel.obj",
-//         "asset/Models/Cars/Mustang_GT/"
-//     );
-//     if (wheelLoader.build()) {
-//         wheel = ObjectManager::loadObject(
-//             "wheel", wheelLoader.getObject()
-//         );
-//     }
-//     
-//     // Load line
-//     ABCObject * line = nullptr;
-//     line = ObjectManager::loadObject(
-//         "line", 
-//         std::make_unique<Line>(
-//             // Vertices
-//             QVector<QVector3D>({
-//                 QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
-//                 QVector3D(0, 1, 0), QVector3D(0, 0, 1)}
-//             ),
-//             // Indices
-//             QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
-//             // Color
-//             QVector3D(0.0f, 0.0f, 1.0f)
-//         )
-//     );
-//     
-//     ObjectManager::initialize();
-//     
-//     // Create the vehicle
-//     p_vehicle = std::make_unique<Vehicle>(chassis, wheel, line, trajectory);
+    // Load the chassis model
+    ABCObject * chassis = nullptr;
+    Object::Loader chassisLoader(chassisObject,chassisTex);
+    if (chassisLoader.build()) {
+        chassis = ObjectManager::loadObject(
+            chassisObject, chassisLoader.getObject()
+        );
+    }
+    
+    // Load the wheel model
+    ABCObject * wheel = nullptr;
+    Object::Loader wheelLoader(wheelObject,wheelTex);
+    if (wheelLoader.build()) {
+        wheel = ObjectManager::loadObject(
+            wheelObject, wheelLoader.getObject()
+        );
+    }
+    
+    // Load line
+    ABCObject * line = nullptr;
+    line = ObjectManager::loadObject(
+        "line", 
+        std::make_unique<Line>(
+            // Vertices
+            QVector<QVector3D>({
+                QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
+                QVector3D(0, 1, 0), QVector3D(0, 0, 1)}
+            ),
+            // Indices
+            QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
+            // Color
+            QVector3D(0.0f, 0.0f, 1.0f)
+        )
+    );
+    
+    // Create the vehicle
+    p_vehicle = std::make_unique<Vehicle>(chassis, wheel, line, trajectory);
     
     return true;
 }

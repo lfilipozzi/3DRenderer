@@ -44,56 +44,17 @@ void Scene::initialize() {
     loader.parse(m_envFile);
     p_graph = loader.getSceneGraph();
     
-    VehicleBuilder vehicleBuilder("asset/SimulationData/dataDlc.xml");
-    vehicleBuilder.build();
-    std::unique_ptr<Vehicle> vehicle = vehicleBuilder.getVehicle();
-    
-    // Load the chassis model
-    ABCObject * chassis = nullptr;
-    Object::Loader chassisLoader(
-        "asset/Models/Cars/Mustang_GT/mustangChassis.obj",
-        "asset/Models/Cars/Mustang_GT/"
-    );
-    if (chassisLoader.build()) {
-        chassis = ObjectManager::loadObject(
-            "chassis", chassisLoader.getObject()
-        );
-    }
-    
-    // Load the wheel model
-    ABCObject * wheel = nullptr;
-    Object::Loader wheelLoader(
-        "asset/Models/Cars/Mustang_GT/mustangWheel.obj",
-        "asset/Models/Cars/Mustang_GT/"
-    );
-    if (wheelLoader.build()) {
-        wheel = ObjectManager::loadObject(
-            "wheel", wheelLoader.getObject()
-        );
-    }
-    
-    // Load line
-    ABCObject * line = nullptr;
-    line = ObjectManager::loadObject(
-        "line", 
-        std::make_unique<Line>(
-            QVector<QVector3D>({
-            QVector3D(0, 0, 0), QVector3D(1, 0, 0), 
-            QVector3D(0, 1, 0), QVector3D(0, 0, 1)}),
-            QVector<unsigned int>({0, 1, 0, 2, 0, 3}), 
-            QVector3D(0.0f, 0.0f, 1.0f)
-        )
-    );
-    
-    ObjectManager::initialize();
-    
     // Create the vehicle
     for (auto it = m_vehList.begin(); it != m_vehList.end(); it++) {
-        std::unique_ptr<Vehicle> vehicle = std::make_unique<Vehicle>(
-            chassis, wheel, line, *it
-        );
-        m_vehicles.push_back(std::move(vehicle));
+        VehicleBuilder vehicleBuilder(*it);
+        if (vehicleBuilder.build()) {
+            std::unique_ptr<Vehicle> vehicle = vehicleBuilder.getVehicle();
+            m_vehicles.push_back(std::move(vehicle));
+        }
     }
+
+    // Initialize all the loaded objects
+    ObjectManager::initialize();
     
     // Get the simulation duration from the vehicle trajectory
     m_firstTimestep = 0.0f;
