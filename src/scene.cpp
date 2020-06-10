@@ -23,7 +23,8 @@ Scene::Scene(unsigned int refreshRate, QString envFile, std::vector<QString> veh
     m_showGlobalFrame(false),
     m_envFile(envFile),
     m_vehList(vehList), 
-    m_snapshotMode(false) {}
+    m_snapshotMode(false),
+    m_numSnapshot(5) {}
 
 
 Scene::~Scene() {}
@@ -126,9 +127,8 @@ void Scene::render() {
     for (unsigned int i = 0; i < m_vehicles.size(); i++) {
         if (m_vehicles.at(i) != nullptr) {
             if (m_snapshotMode) {
-                int nSnapshot = 5;
-                for (int k = 0; k < nSnapshot; k++) {
-                    float timestep = m_firstTimestep + static_cast<float>(k)/4 * 
+                for (unsigned int k = 0; k < m_numSnapshot; k++) {
+                    float timestep = m_firstTimestep + static_cast<float>(k)/m_numSnapshot * 
                         (m_finalTimestep - m_firstTimestep);
                     m_vehicles.at(i)->updatePosition(timestep);
                     m_vehicles.at(i)->render(
@@ -156,9 +156,8 @@ void Scene::renderShadow(unsigned int cascadeIdx) {
     for (unsigned int i = 0; i < m_vehicles.size(); i++) {
         if (m_vehicles.at(i) != nullptr) {
             if (m_snapshotMode) {
-                int nSnapshot = 5;
-                for (int k = 0; k < nSnapshot; k++) {
-                    float timestep = m_firstTimestep + static_cast<float>(k)/4 * 
+                for (unsigned int k = 0; k < m_numSnapshot; k++) {
+                    float timestep = m_firstTimestep + static_cast<float>(k)/m_numSnapshot * 
                         (m_finalTimestep - m_firstTimestep);
                     m_vehicles.at(i)->updatePosition(timestep);
                     m_vehicles.at(i)->renderShadow(m_lightSpace.at(cascadeIdx));

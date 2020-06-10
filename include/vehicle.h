@@ -186,7 +186,7 @@ public:
     /**
      * @brief Render/hide tire forces.
      */
-    void toggleTireForce() {m_showTireForce = !m_showTireForce;};
+    void setTireForceVisibility(bool flag) {m_showTireForce = flag;};
     
 private:
     /**
@@ -321,7 +321,7 @@ public:
     /**
      * @brief Render/hide tire forces.
      */
-    void toggleTireForce() {m_graphics.toggleTireForce();};
+    void setTireForceVisibility(bool flag) {m_graphics.setTireForceVisibility(flag);};
     
 private:
     /**

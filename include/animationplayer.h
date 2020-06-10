@@ -5,6 +5,7 @@
 #include <QSlider>
 #include <QLCDNumber>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include "playerbutton.h"
 #include "openglwindow.h"
 
@@ -96,6 +97,11 @@ private:
      * Lock camera button.
      */
     PlayerButton *m_lockCameraButton;
+    
+    /**
+     * Field for number of snapshot in snapshot mode.
+     */
+    QLineEdit *m_numSnapshot;
 };
 
 #endif // ANIMATIONPLAYER_H

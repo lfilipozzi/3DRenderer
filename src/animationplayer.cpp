@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QTime>
 #include <QShortcut>
+#include <QIntValidator>
 
 AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     QWidget(parent) {
@@ -34,6 +35,11 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     m_lockCameraButton = new PlayerButton("lock", 
                                           QIcon(":/icons/lock")
     );
+    m_numSnapshot = new QLineEdit("5");
+    m_numSnapshot->hide();
+    QIntValidator * v = new QIntValidator(this);
+    v->setBottom(1);
+    m_numSnapshot->setValidator(v);
     
     // Create shortcut
     QShortcut * playPauseShortcut = new QShortcut(QKeySequence("Space"), this);
@@ -60,6 +66,7 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
     m_controlHLayout->addWidget(m_playLoopButton);
     m_controlHLayout->addWidget(m_lockCameraButton);
     m_controlHLayout->addWidget(m_rateSlider);
+    m_controlHLayout->addWidget(m_numSnapshot);
 
     // Grid layout
     animationVLayout->addLayout(m_timeHLayout);
@@ -85,6 +92,10 @@ AnimationPlayer::AnimationPlayer(OpenGLWindow *openGLWindow, QWidget *parent) :
                      openGLWindow, SLOT(setTimestep(int)));
     QObject::connect(m_rateSlider, SIGNAL(valueChanged(int)), 
                      openGLWindow, SLOT(setTimeRate(int)));
+    
+    // Connect signal to slot (line edit)
+    QObject::connect(m_numSnapshot, SIGNAL(textChanged(QString)), 
+                    openGLWindow, SLOT(setNumSnapshot(QString)));
     
     // Lock the height of the widget to its preferred size
     this->setMaximumHeight(this->sizeHint().height());
@@ -165,10 +176,12 @@ void AnimationPlayer::lockCameraButton() {
 void AnimationPlayer::setSnapshotMode(bool flag) {
     if (flag) {
         // Snapshot mode
-        m_rateSlider->setEnabled(!flag);
+        m_rateSlider->hide();
+        m_numSnapshot->show();
     } else {
         // Animation mode
-        m_rateSlider->setEnabled(!flag);
+        m_rateSlider->show();
+        m_numSnapshot->hide();
     }
 }
 

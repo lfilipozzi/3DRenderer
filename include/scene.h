@@ -112,15 +112,17 @@ public:
     
     bool isCameraOffset() {return m_camera.isCameraOffset();};
     
-    void toggleGlobalFrame() {m_showGlobalFrame = !m_showGlobalFrame;}
+    void setGlobalFrameVisibility(bool flag) {m_showGlobalFrame = flag;}
     
-    void toggleTireForce() {
+    void setTireForceVisibility(bool flag) {
         for (unsigned int i = 0; i < m_vehicles.size(); i++) {
-            m_vehicles.at(i)->toggleTireForce();
+            m_vehicles.at(i)->setTireForceVisibility(flag);
         }
     }
     
     void setSnapshotMode(bool flag) {m_snapshotMode = flag;}
+    
+    void setNumSnapshot(unsigned int num) {m_numSnapshot = num;};
     
 private:
     /**
@@ -229,6 +231,11 @@ private:
      * Flag for snapshot mode.
      */
     bool m_snapshotMode;
+    
+    /**
+     * Number of vehicle to draw in snapshot mode.
+     */
+    unsigned int m_numSnapshot;
 };
 
 

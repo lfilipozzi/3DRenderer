@@ -80,10 +80,10 @@ AnimationWindow::AnimationWindow(QString envFile, std::vector<QString> vehList) 
             p_recordDialog.get(), SLOT(show()));
     connect(exitAction, SIGNAL(triggered()), 
             qApp, SLOT(quit()));
-    connect(toggleGlobFrAction, SIGNAL(triggered()), 
-            p_openGLWindow.get(), SLOT(toggleGlobalFrame()));
-    connect(toggleTireForceAction, SIGNAL(triggered()), 
-            p_openGLWindow.get(), SLOT(toggleTireForce()));
+    connect(toggleGlobFrAction, SIGNAL(triggered(bool)), 
+            p_openGLWindow.get(), SLOT(setGlobalFrameVisibility(bool)));
+    connect(toggleTireForceAction, SIGNAL(triggered(bool)), 
+            p_openGLWindow.get(), SLOT(setTireForceVisibility(bool)));
     connect(aboutAction, SIGNAL(triggered()), 
             this, SLOT(openAboutWindow()));
 }

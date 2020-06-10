@@ -171,17 +171,28 @@ public slots:
     /**
      * Qt slot to toggle the global frame of the scene.
      */
-    void toggleGlobalFrame() {p_scene->toggleGlobalFrame();}
+    void setGlobalFrameVisibility(bool flag) {p_scene->setGlobalFrameVisibility(flag);}
     
     /**
      * Qt slot to toggle the tire forces.
      */
-    void toggleTireForce() {p_scene->toggleTireForce();}
+    void setTireForceVisibility(bool flag) {p_scene->setTireForceVisibility(flag);}
     
     /**
      * Qt slot to toggle the snapshot mode.
      */
     void setSnapshotMode(bool flag) {p_scene->setSnapshotMode(flag);}
+    
+    /**
+     * Qt slot to change number of snapshot.
+     */
+    void setNumSnapshot(const QString & text) {
+        bool ok;
+        unsigned int num = text.toInt(&ok);
+        if (!ok)
+            num = 5;
+        p_scene->setNumSnapshot(num);
+    }
     
 signals:
     /**
