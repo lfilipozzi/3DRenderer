@@ -124,6 +124,16 @@ public:
     
     void setNumSnapshot(unsigned int num) {m_numSnapshot = num;};
     
+    unsigned int getNumVehicles() const {return m_vehList.size();};
+    
+    unsigned int getVehicleToFollow() const {return m_vehFollow;};
+    
+    void setVehicleToFollow(unsigned int id) {
+        if (id > m_vehList.size())
+            return;
+        m_vehFollow = id;
+    };
+    
 private:
     /**
      * View matrix: transform from the world (scene) coordinates to the camera 
@@ -236,6 +246,11 @@ private:
      * Number of vehicle to draw in snapshot mode.
      */
     unsigned int m_numSnapshot;
+    
+    /**
+     * Vehicle to follow
+     */
+    unsigned int m_vehFollow;
 };
 
 

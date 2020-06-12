@@ -30,10 +30,13 @@ AnimationWindow::AnimationWindow(QString envFile, std::vector<QString> vehList) 
     QAction * toggleSnapshotAction = viewMenu->addAction("&Snapshot mode");
     QAction * toggleGlobFrAction = viewMenu->addAction("Toggle &global frame");
     QAction * toggleTireForceAction = viewMenu->addAction("Toggle &tire forces");
+    QAction * followNextAction = viewMenu->addAction("Follow next vehicle");
+    QAction * followPreviousAction = viewMenu->addAction("Follow previous vehicle");
     QAction * aboutAction = helpMenu->addAction("&About");
     
     // Set menu and action options
     fileMenu->insertSeparator(exitAction);
+    viewMenu->insertSeparator(followNextAction);
     toggleSnapshotAction->setCheckable(true);
     toggleGlobFrAction->setCheckable(true);
     toggleTireForceAction->setCheckable(true);
@@ -84,6 +87,10 @@ AnimationWindow::AnimationWindow(QString envFile, std::vector<QString> vehList) 
             p_openGLWindow.get(), SLOT(setGlobalFrameVisibility(bool)));
     connect(toggleTireForceAction, SIGNAL(triggered(bool)), 
             p_openGLWindow.get(), SLOT(setTireForceVisibility(bool)));
+    connect(followNextAction, SIGNAL(triggered()),
+            p_openGLWindow.get(), SLOT(followNext()));
+    connect(followPreviousAction, SIGNAL(triggered()),
+            p_openGLWindow.get(), SLOT(followPrevious()));
     connect(aboutAction, SIGNAL(triggered()), 
             this, SLOT(openAboutWindow()));
 }

@@ -194,6 +194,24 @@ public slots:
         p_scene->setNumSnapshot(num);
     }
     
+    /**
+     * Qt slot to follow next vehicle
+     */
+    void followNext() {
+        unsigned int follow = p_scene->getVehicleToFollow();
+        unsigned int total = p_scene->getNumVehicles();
+        p_scene->setVehicleToFollow((++follow) % total);
+    }
+    
+    /**
+     * Qt slot to follow next vehicle
+     */
+    void followPrevious() {
+        unsigned int follow = p_scene->getVehicleToFollow();
+        unsigned int total = p_scene->getNumVehicles();
+        p_scene->setVehicleToFollow((--follow) % total);
+    }
+    
 signals:
     /**
      * Indicate the camera has been offset.

@@ -24,7 +24,8 @@ Scene::Scene(unsigned int refreshRate, QString envFile, std::vector<QString> veh
     m_envFile(envFile),
     m_vehList(vehList), 
     m_snapshotMode(false),
-    m_numSnapshot(5) {}
+    m_numSnapshot(5),
+    m_vehFollow(0) {}
 
 
 Scene::~Scene() {}
@@ -84,11 +85,11 @@ void Scene::update() {
         }
     }
     
-    // Get the vehicle position
+    // Get the position of the vehicle to follow
     Position vehiclePosition;
-    if (m_vehicles.size() > 0) {
-        if (m_vehicles.at(0) != nullptr) {
-            vehiclePosition = m_vehicles.at(0)->getPosition(m_timestep);
+    if (m_vehFollow < m_vehicles.size()) {
+        if (m_vehicles.at(m_vehFollow) != nullptr) {
+            vehiclePosition = m_vehicles.at(m_vehFollow)->getPosition(m_timestep);
         }
     }
     
