@@ -3,6 +3,15 @@ Virtual Model
 
 This application produces a Carsim like 3D animation of a vehicle.
 
+Build
+-------------
+Make sure assimp is installed and run
+    ```
+    mkdir build && cd build
+    qmake ..
+    make
+    ```
+
 Dependencies
 -------------
 

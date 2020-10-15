@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<world xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="world.xsd">
+    <group>
+        <transform>
+            <shape name="surface">
+                <material name="asphalt" shininess="10.0" heightScale="0.1">
+                    <texture 
+                        type="diffuse" 
+                        url="asset/Texture/RoadMaterials/MyRoad/Asphalt/Asphalt_002_COLOR.jpg"/>
+                    <texture 
+                        type="normal" 
+                        url="asset/Texture/RoadMaterials/MyRoad/Asphalt/Asphalt_002_NORM.jpg"/>
+                    <texture 
+                        type="bump" 
+                        url="asset/Texture/RoadMaterials/MyRoad/Asphalt/Asphalt_002_DISP.png"/>
+                </material>
+                <node name="surfNode">
+                    <plane 
+                        name="surf"
+                        longAxis="250 0 0" latAxis="0 250 0"
+                        material="asphalt"/>
+                </node>
+            </shape>
+        </transform>
+    </group>
+</world>

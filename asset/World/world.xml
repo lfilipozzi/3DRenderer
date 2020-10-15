@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<world xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="world.xsd">
+    <group>
+        <transform>
+            <shape name="surface">
+                <material name="asphalt" shininess="10.0" heightScale="0.1">
+                    <texture 
+                        type="diffuse" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_COLOR.jpg"/>
+                    <texture 
+                        type="normal" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_NRM.jpg"/>
+                    <texture 
+                        type="bump" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_DISP.png"/>
+                </material>
+                <node name="surfNode">
+                    <plane 
+                        name="surf"
+                        longAxis="250 0 0" latAxis="0 250 0"
+                        material="asphalt"/>
+                    <plane 
+                        name="surf2"
+                        longAxis="250 0 0" latAxis="0 0 250"
+                        material="asphalt"/>
+                </node>
+            </shape>
+        </transform>
+        <transform translation="0 3 0">
+            <model 
+                name="cone" 
+                url="asset/Models/Environment/Props/Traffic_Cone/Traffic_Cone_Small.obj"
+                textureFolder="asset/Models/Environment/Props/Traffic_Cone/"/>
+            <group>
+                <transform translation="1 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="2 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="3 0 0">
+                    <reference ref="cone"/>
+                </transform>
+            </group>
+        </transform>
+    </group>
+</world>

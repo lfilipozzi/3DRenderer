@@ -1,0 +1,629 @@
+! List of categories for copy/paste. Not used by Browser
+  vs_category Road Surfaces
+  vs_category Transitions
+  vs_category Grass
+  vs_category Dirt
+  vs_category Painted Markings
+  vs_category Hard Surfaces
+  vs_category Road Lanes
+  vs_category Miscellaneous
+  
+  Road_Surfaces/
+  Transitions/
+  Grass/
+  Dirt/
+  Painted_Markings/
+  Hard_Surfaces/
+  Road_Lanes/
+  Miscellaneous/
+
+newmtl Apex Curbing
+  vs_category Miscellaneous
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Miscellaneous/red_white_stripe_di.dds  
+
+newmtl Brushed Metal
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/brushed_metal_di.dds
+
+newmtl Cement (Pitted)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/cement_pitted_di.dds
+
+newmtl Concrete (Curb)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/Concrete_Curb_di.dds  
+  
+newmtl Checkerboard
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/checkerboard_di.dds
+
+newmtl Clay (Cracked)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/clay_cracked_di.dds
+
+newmtl Concrete
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/concrete_di.dds
+  
+newmtl Concrete (Worn)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/worn_concrete_di.dds
+
+newmtl Cracked Paint
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/cracked_paint_di.dds
+  
+newmtl Dirt
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/dirt_di.dds
+  
+newmtl Dirt Transition
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/dirt_grass_transition_di.dds
+
+newmtl Grass (Dark)
+  vs_category Grass
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Grass/grass_dark_di.dds
+
+newmtl Grass (Light)
+  vs_category Grass
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Grass/grass_light_di.dds
+
+newmtl Dirt (Dark)
+  vs_category Dirt
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Dirt/Dirt_Ground_A_di.dds
+
+newmtl Dirt (Light)
+  vs_category Dirt
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Dirt/Dirt_Ground_B_di.dds
+  
+newmtl Guardrail
+  vs_category Miscellaneous
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Miscellaneous/guardrail_di.dds
+
+newmtl Ice
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/ice_di.dds
+
+newmtl Pavement
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/pavement_di.dds
+
+newmtl Asphalt (Fine)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/Asphalt_Fine_di.dds
+
+newmtl Asphalt (Fine One Lane)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/Asphalt_Fine_One_Lane_di.dds
+  
+newmtl Road (Concrete)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/road_concrete_di.dds
+
+newmtl Road (Concrete No Lines)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/road_concrete_no_lines_di.dds 
+  
+newmtl Road (Tarmac)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/Tarmac_di.dds
+
+newmtl Road (Smooth)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/roadsurface_smooth_di.dds
+ 
+newmtl Road (Medium)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/roadsurface_di.dds
+  
+newmtl Road (No Centerline)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/roadsurface_no_centerline_di.dds
+
+newmtl Road (No Edge Lines)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/roadsurface_no_edge_lines_di.dds
+  
+newmtl Road (Snow)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/snow_road_di.dds
+  
+newmtl Road Transition (Concrete)
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/concrete_transition_di.dds
+
+newmtl Transition (Dirt Dark)
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/dirt_dark_transition_di.dds
+
+newmtl Transition (Dirt Light)
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/dirt_light_transition_di.dds  
+  
+newmtl Road Transition (Snow)
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/road_snow_transition_di.dds
+  
+newmtl Road (Rough)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/roadsurface_rough_di.dds
+  
+newmtl Road (One Lane)
+  vs_category Road Lanes
+  d 1
+  Ns 100
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/road_one_lane_di.dds
+  
+newmtl Road (No Lines)
+  vs_category Road Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Surfaces/road_no_lines_di.dds
+
+newmtl Road Transition (Dark)
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/roadtransition_di.dds
+
+newmtl Road Transition (Light)
+  vs_category Transitions
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Transitions/roadtransition2_di.dds
+
+newmtl Slate (White)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/slate_white_di.dds
+
+newmtl Snow
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/snow_di.dds
+   
+newmtl Stucco (Extreme)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/stucco_extreme_di.dds
+  
+newmtl Stucco (Heavy)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/stucco_heavy_di.dds
+
+newmtl Stucco (Medium)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/stucco_medium_di.dds
+
+newmtl Stucco (Smooth)
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/stucco_smooth_di.dds
+
+newmtl Texture Gray
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/texture_gray_di.dds
+
+newmtl US Bike Lane
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/US_BikeLane_Marking.dds
+ 
+newmtl US Crosswalk
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/US_Crosswalk_di.dds
+  
+newmtl US Left Turn Only
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/US_Left_Turn_Only_di.dds
+  
+newmtl US Right Turn Only
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/US_Right_Turn_Only_di.dds
+   
+newmtl US Straight Arrow
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/US_Straight_Arrow_di.dds
+   
+newmtl US Straight/Turn
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/US_Straight_Or_Turn_Arrow_di.dds
+    
+newmtl Tile Wet
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/wettile_di.dds 
+
+newmtl Tile Ice
+  vs_category Hard Surfaces
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Hard_Surfaces/icetile_di.dds   
+
+newmtl Water
+  vs_category Miscellaneous
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Miscellaneous/water_di.dds
+ 
+newmtl White Line
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/White_Line_di.dds
+ 
+newmtl Yellow Line
+  vs_category Painted Markings
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Painted_Markings/Yellow_Line_di.dds
+ 
+newmtl 5-Lane Road Combined
+  vs_category Road Lanes
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Lanes/5_Lane_Combined_di.dds
+
+newmtl 5 Lane Road Left Lane
+  vs_category Road Lanes
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Lanes/5_Lane_Left_Lane_di.dds
+
+newmtl 5 Lane Road Right Lane
+  vs_category Road Lanes
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Lanes/5_Lane_Right_Lane_di.dds
+
+newmtl 5 Lane Road Middle Lane
+  vs_category Road Lanes
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Lanes/5_Lane_Middle_Lane_di.dds
+
+newmtl 4 Lane Road Left Lane
+  vs_category Road Lanes
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Lanes/4_Lane_Left_Lane_di.dds
+
+newmtl 4 Lane Road Right Lane
+  vs_category Road Lanes
+  d 1
+  Ns 100.0
+  illum 2
+  Kd 1 1 1
+  Ks 1 1 1
+  Ka 1 1 1
+  map_Kd Animator/Road_Materials/Road_Lanes/4_Lane_Right_Lane_di.dds
+

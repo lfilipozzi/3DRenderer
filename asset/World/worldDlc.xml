@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!-- Double Lane Change with cones -->
+
+<world xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="world.xsd">
+    <group>
+        <transform>
+            <!-- Surface -->
+            <shape name="surface">
+                <material name="asphalt" shininess="10.0" heightScale="0.1">
+                    <texture 
+                        type="diffuse" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_COLOR.jpg" />
+                    <texture 
+                        type="normal" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_NRM.jpg" />
+                    <texture 
+                        type="bump" 
+                        url="asset/Texture/RoadMaterials/MyRoad/AsphaltDamaged/Asphalt_006_DISP.png" />
+                </material>
+                <material name="grass">
+                    <texture
+                        type="diffuse"
+                        url="asset/Texture/RoadMaterials/Grass/grass_dark_di.png" />
+                </material>
+                <material name="grassTransition">
+                    <texture
+                        type="diffuse"
+                        url="asset/Texture/RoadMaterials/Transitions/roadtransition_di.png" />
+                </material>
+                <node name="surfNode">
+                    <plane 
+                        name="roadSurf"
+                        origin="0 0 0" longAxis="500 0 0" latAxis="0 10 0"
+                        material="asphalt"/>
+                    <plane 
+                        name="grassSurf"
+                        origin="0 0 -0.005" longAxis="500 0 0" latAxis="0 250 0"
+                        material="grass"/>
+                    <plane 
+                        name="leftTransSurf"
+                        origin="0 -11 0" longAxis="500 0 0" latAxis="0 1 0"
+                        material="grassTransition"/>
+                    <plane 
+                        name="rightTransSurf"
+                        origin="0 11 0" longAxis="-500 0 0" latAxis="0 -1 0"
+                        material="grassTransition"/>
+                </node>
+            </shape>
+        </transform>
+        <!-- Left lane of cones  -->
+        <transform translation="-50 2 0">
+            <model 
+                name="cone" 
+                url="asset/Models/Environment/Props/Traffic_Cone/Traffic_Cone_Small.obj"
+                textureFolder="asset/Models/Environment/Props/Traffic_Cone/"/>
+            <group>
+                <transform translation="10 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="20 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="30 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="40 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="50 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="60 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="70 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="100 3.5 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="110 3.5 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="120 3.5 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="150 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="160 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="170 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="180 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="190 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="200 0 0">
+                    <reference ref="cone"/>
+                </transform>
+            </group>
+        </transform>
+        <!-- Right lane of cones  -->
+        <transform translation="-50 -2 0">
+            <group>
+                <transform translation="0 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="10 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="20 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="30 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="40 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="50 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="60 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="70 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="100 3.5 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="110 3.5 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="120 3.5 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="150 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="160 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="170 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="180 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="190 0 0">
+                    <reference ref="cone"/>
+                </transform>
+                <transform translation="200 0 0">
+                    <reference ref="cone"/>
+                </transform>
+            </group>
+        </transform>
+    </group>
+</world>

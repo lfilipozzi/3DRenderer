@@ -94,3 +94,8 @@ Thumbs.db
 # Videos
 *.mp4
 
+# Exclude the following files
+!/resources/icons/*.svg
+!/asset/
+
+
