@@ -96,6 +96,12 @@ Thumbs.db
 
 # Exclude the following files
 !/resources/icons/*.svg
-!/asset/
+!/asset/Models/
+!/asset/SimulationData/dataDlc.xml
+!/asset/SimulationData/dataSineDwell.xml
+!/asset/Texture
+!/asset/World/world.xml
+!/asset/World/worldDlc.xml
+!/asset/World/worldVda.xml
 
 
