@@ -5,7 +5,7 @@
  * Macro defining parameters used by several files.
  */
 
-#define PI           3.14159265358979323846f
+static constexpr float PI = 3.14159265358979323846f;
 
 // Define texture units
 static constexpr unsigned int COLOR_TEXTURE_UNIT  = 0;

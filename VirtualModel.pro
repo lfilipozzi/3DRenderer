@@ -1,4 +1,4 @@
-QT       += core widgets opengl xml xmlpatterns
+QT     += core widgets opengl xml xmlpatterns
 
 CONFIG += c++14
 CONFIG -= app_bundle
@@ -70,31 +70,17 @@ HEADERS += \
     include/videorecorder.h
 
 unix: !macx {
-    # Use dynamic library
-    INCLUDEPATH += /usr/include/
-    LIBS += /usr/lib/libassimp.so
-    # Use static library
-#     QMAKE_LFLAGS += -lz
-#     INCLUDEPATH += \
-#         lib/assimp/include \
-#         lib/irrXML/include
-#     LIBS += \
-#         $$PWD/lib/irrXML/lib/libIrrXML.a \
-#         $$PWD/lib/assimp/lib/libassimp.a
-}
-
-macx {
-    INCLUDEPATH +=  /usr/local/include
-    LIBS += /usr/local/lib/libassimp.dylib
-}
-
-win32 {
-#     INCLUDEPATH += "C:/ProgramFiles/Assimp/include"
-#     LIBS += -L"C:/ProgramFiles/Assimp/lib/Release" -lassimp
-    INCLUDEPATH += lib/assimp/include
-    LIBS += lib/assimp/lib/assimp-vc142-mt.dll
-#     LIBS += -L "lib/assimp/lib/" -lassimp
+    INCLUDEPATH += \
+      /usr/include/ \ 
+      $$PWD/lib/assimp/include \
+      $$PWD/lib/assimp/build/include
+      
+    LIBS += $$PWD/lib/assimp/build/lib/libassimp.a \
+      $$PWD/lib/assimp/build/contrib/zlib/libzlibstatic.a \
+      $$PWD/lib/assimp/build/contrib/irrXML/libIrrXML.a
 }
 
 DISTFILES += \
     README.md
+
+

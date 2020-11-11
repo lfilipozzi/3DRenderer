@@ -3,8 +3,7 @@
 
 #include <QVector3D>
 #include <QMatrix4x4>
-
-#define PI 3.14159265358979323846f
+#include "constants.h"
 
 /// Position of an object
 /**
