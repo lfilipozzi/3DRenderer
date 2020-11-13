@@ -13,7 +13,7 @@ c_height(height) {
             "Unable to draw the object.";
         exit(1);
     }
-    p_glFunctions = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    p_glFunctions = context->versionFunctions<QOpenGLFunctions_4_5_Core>();
     if (!p_glFunctions) {
         qCritical() << __FILE__ << __LINE__ <<
             "Could not obtain required OpenGL context version";

@@ -1,7 +1,7 @@
 #ifndef DEPTHMAP_H
 #define DEPTHMAP_H
 
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLFunctions_4_5_Core>
 #include <array>
 #include "constants.h"
 
@@ -74,7 +74,7 @@ private:
     /**
      * Store the OpenGL functions.
      */
-    QOpenGLFunctions_3_3_Core * p_glFunctions;
+    QOpenGLFunctions_4_5_Core * p_glFunctions;
     
     /**
      * Width of the framebuffer.
