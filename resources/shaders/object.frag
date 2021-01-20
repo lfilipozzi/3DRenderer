@@ -56,21 +56,39 @@ float shadowCalculation(
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
     // Get closest depth value from light's perspective
-    float closestDepth = texture(shadowMap[cascadeIndex], projCoords.xy).r; 
+//     float closestDepth = texture(shadowMap[cascadeIndex], projCoords.xy).r; 
+    float closestDepth;
+    switch(cascadeIndex) {
+        case 0: closestDepth = texture(shadowMap[0], projCoords.xy).r; break;
+        case 1: closestDepth = texture(shadowMap[1], projCoords.xy).r; break;
+        case 2: closestDepth = texture(shadowMap[2], projCoords.xy).r; break;
+    }
     // Get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // Check if the current fragment is in the shadow
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
     // Use PCF
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap[cascadeIndex], 0);
+//     vec2 texelSize = 1.0 / textureSize(shadowMap[cascadeIndex], 0);
+    vec2 texelSize;
+    switch(cascadeIndex) {
+        case 0: texelSize = 1.0 / textureSize(shadowMap[0], 0); break;
+        case 1: texelSize = 1.0 / textureSize(shadowMap[1], 0); break;
+        case 2: texelSize = 1.0 / textureSize(shadowMap[2], 0); break;
+    }
     for(int x = -PCF_TEXELSIZE_FILTER; x <= PCF_TEXELSIZE_FILTER; ++x)
     {
         for(int y = -PCF_TEXELSIZE_FILTER; y <= PCF_TEXELSIZE_FILTER; ++y)
         {
-            float pcfDepth = texture(
-                shadowMap[cascadeIndex], projCoords.xy + vec2(x, y) * texelSize
-            ).r; 
+//             float pcfDepth = texture(
+//                 shadowMap[cascadeIndex], projCoords.xy + vec2(x, y) * texelSize
+//             ).r; 
+            float pcfDepth;
+            switch(cascadeIndex) {
+                case 0: pcfDepth = texture(shadowMap[0], projCoords.xy + vec2(x, y) * texelSize).r; break;
+                case 1: pcfDepth = texture(shadowMap[1], projCoords.xy + vec2(x, y) * texelSize).r; break;
+                case 2: pcfDepth = texture(shadowMap[2], projCoords.xy + vec2(x, y) * texelSize).r; break;
+            }
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
         }    
     }
@@ -159,24 +177,33 @@ void main() {
     
     // Compute shadow
     float shadow;
-    #ifdef CSM_DEBUG
-        int shadowDebug;
-    #endif
-    for (int i = 0; i < NUM_CASCADES; i++) {
-        if (proj.z <= -endCascade[i]) {
-            shadow = shadowCalculation(i, lightProj.position[i], normal, s); 
-            #ifdef CSM_DEBUG
-                shadowDebug = i;
-            #endif
-            break;
+//     #ifdef CSM_DEBUG
+//         int shadowDebug;
+//     #endif
+//     for (int i = 0; i < NUM_CASCADES; i++) {
+//         if (proj.z <= -endCascade[i]) {
+//             shadow = shadowCalculation(i, lightProj.position[i], normal, s); 
+//             #ifdef CSM_DEBUG
+//                 shadowDebug = i;
+//             #endif
+//             break;
+//         }
+//     }
+    if (proj.z <= -endCascade[2]) {
+        shadow = shadowCalculation(2, lightProj.position[2], normal, s); 
+        if (proj.z <= -endCascade[1]) {
+            shadow = shadowCalculation(1, lightProj.position[1], normal, s); 
+            if (proj.z <= -endCascade[0]) {
+                shadow = shadowCalculation(0, lightProj.position[0], normal, s); 
+            }
         }
     }
 
     // Calculate final color
     vec3 color = lightIntensity * texture(diffuseSampler, texCoordOffset).rgb;
-    #ifdef CSM_DEBUG
-        color[shadowDebug] = 1.0;
-    #endif
+//     #ifdef CSM_DEBUG
+//         color[shadowDebug] = 1.0;
+//     #endif
     color = color * (
         Ka +                    // Ambient
         (1.0 - shadow) * (

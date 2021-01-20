@@ -45,8 +45,11 @@ void main(void) {
     view.position = vec3(MV * highp vec4(vertexPosition, 1.0));
     
     // Transform to light space (for shadow mapping)
-    for (int i = 0; i < NUM_CASCADES; i++)
-        lightProj.position[i] = lMVP[i] * highp vec4(vertexPosition, 1.0);
+//     for (int i = 0; i < NUM_CASCADES; i++)
+//         lightProj.position[i] = lMVP[i] * highp vec4(vertexPosition, 1.0);
+    lightProj.position[0] = lMVP[0] * highp vec4(vertexPosition, 1.0);
+    lightProj.position[1] = lMVP[1] * highp vec4(vertexPosition, 1.0);
+    lightProj.position[2] = lMVP[2] * highp vec4(vertexPosition, 1.0);
     
     // Transform the vertex position to clip space
     gl_Position = MVP * highp vec4(vertexPosition, 1.0);

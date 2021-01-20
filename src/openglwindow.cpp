@@ -27,7 +27,13 @@ OpenGLWindow::OpenGLWindow(
     p_context->create();
     
     // Try to open an OpenGL context with the requested version
-    if (p_context->format().version() != requestedFormat.version()) {
+    bool checkOpenGLVersion = 
+        p_context->format().version().first >= requestedFormat.version().first ||
+        (
+            p_context->format().version().first  == requestedFormat.version().first &&
+            p_context->format().version().second >= requestedFormat.version().second
+        );
+    if (!checkOpenGLVersion) {
         qDebug() << "Unable to open a supported OpenGL context." <<
             "The most recent OpenGL context that can be open is" <<
             p_context->format().version().first << "." << 
