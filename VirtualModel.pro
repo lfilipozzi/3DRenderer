@@ -80,6 +80,26 @@ unix: !macx {
       $$PWD/lib/assimp/build/contrib/irrXML/libIrrXML.a
 }
 
+win32 {
+    INCLUDEPATH += \
+      $$PWD/lib/assimp/include \
+      $$PWD/lib/assimp/build/include
+
+    CONFIG(debug, debug|release) {
+        LIBS += \
+          $$PWD/lib/assimp/build/lib/Debug/assimp-vc142-mtd.lib \
+          $$PWD/lib/assimp/build/contrib/zlib/Debug/zlibstaticd.lib \
+          $$PWD/lib/assimp/build/contrib/irrXML/Debug/IrrXMLd.lib
+    }
+
+    CONFIG(release, debug|release) {
+        LIBS += \
+          $$PWD/lib/assimp/build/lib/Release/assimp-vc142-mt.lib \
+          $$PWD/lib/assimp/build/contrib/zlib/Release/zlibstatic.lib \
+          $$PWD/lib/assimp/build/contrib/irrXML/Release/IrrXML.lib
+    }
+}
+
 DISTFILES += \
     README.md
 
